@@ -37,7 +37,7 @@ export function LoginForm() {
       return
     }
 
-    const redirect = searchParams.get('redirect') || '/dashboard'
+    const redirect = searchParams.get('redirect') || '/emails'
     router.push(redirect)
     router.refresh()
   }
@@ -45,7 +45,7 @@ export function LoginForm() {
   const handleGoogleLogin = async () => {
     setIsGoogleLoading(true)
     const supabase = createClient()
-    const redirect = searchParams.get('redirect') || '/dashboard'
+    const redirect = searchParams.get('redirect') || '/emails'
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
