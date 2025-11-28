@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { IndiaPricingBanner } from '@/components/india-pricing-banner'
+import { FAQSection } from '@/components/faq-section'
 import { 
   Zap, 
   Shield, 
@@ -44,6 +45,7 @@ export default function HomePage() {
               <Link href="#features" className="text-[13px] text-muted-foreground hover:text-foreground transition">Features</Link>
               <Link href="#pricing" className="text-[13px] text-muted-foreground hover:text-foreground transition">Pricing</Link>
               <Link href="/docs" className="text-[13px] text-muted-foreground hover:text-foreground transition">Docs</Link>
+              <Link href="/contact" className="text-[13px] text-muted-foreground hover:text-foreground transition">Contact</Link>
             </div>
             <div className="flex items-center space-x-2">
               <Link href="/login">
@@ -390,32 +392,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-4 max-w-3xl mx-auto">
-            <FAQItem
-              question="How does the free tier work?"
-              answer="You get 100,000 emails per month for free, forever. No credit card required. Perfect for side projects and startups."
-            />
-            <FAQItem
-              question="What's your deliverability rate?"
-              answer="We maintain a 99%+ deliverability rate with automatic IP warming, dedicated IPs, and reputation monitoring."
-            />
-            <FAQItem
-              question="Can I use my own domain?"
-              answer="Yes! You can verify unlimited domains and send from any address. We handle DKIM, SPF, and DMARC setup automatically."
-            />
-            <FAQItem
-              question="Do you offer dedicated IPs?"
-              answer="Yes, dedicated IPs are available on our Enterprise plan. Contact sales to learn more about custom solutions."
-            />
-            <FAQItem
-              question="What support do you offer?"
-              answer="Free tier includes community support. Pro gets priority email support. Enterprise gets 24/7 dedicated support."
-            />
-            <FAQItem
-              question="Can I migrate from another provider?"
-              answer="Absolutely! Our API is designed to be a drop-in replacement. We also offer migration assistance for Enterprise customers."
-            />
-          </div>
+          <FAQSection />
         </div>
       </section>
 
@@ -442,13 +419,13 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <Link href="/" className="flex items-center space-x-2">
-              <Image src="/Logo.svg" alt="Unosend" width={100} height={24} className="h-6 w-auto" />
+              <Image src="/Logomark - dark.svg" alt="Unosend" width={28} height={28} className="h-7 w-auto" />
             </Link>
             <div className="flex items-center space-x-5 text-[13px] text-muted-foreground">
               <Link href="/privacy" className="hover:text-foreground transition">Privacy</Link>
               <Link href="/terms" className="hover:text-foreground transition">Terms</Link>
               <Link href="/docs" className="hover:text-foreground transition">Docs</Link>
-              <Link href="https://status.unosend.com" className="hover:text-foreground transition">Status</Link>
+              <Link href="/contact" className="hover:text-foreground transition">Contact</Link>
             </div>
           </div>
           <div className="mt-6 text-center text-muted-foreground text-[12px]">
@@ -551,15 +528,6 @@ function TestimonialCard({ quote, author, role, company }: { quote: string; auth
         <p className="text-[13px] font-semibold text-stone-900">{author}</p>
         <p className="text-[12px] text-muted-foreground">{role}, {company}</p>
       </div>
-    </div>
-  )
-}
-
-function FAQItem({ question, answer }: { question: string; answer: string }) {
-  return (
-    <div className="p-4 bg-white border border-stone-200/60 rounded-xl">
-      <h4 className="text-[14px] font-semibold text-stone-900 mb-2">{question}</h4>
-      <p className="text-[13px] text-muted-foreground leading-relaxed">{answer}</p>
     </div>
   )
 }
