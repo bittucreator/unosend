@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Switch } from '@/components/ui/switch'
@@ -64,15 +63,18 @@ export default async function WebhooksPage() {
 
   return (
     <div className="space-y-6">
+      {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Webhooks</h1>
-          <p className="text-muted-foreground mt-1">Receive real-time notifications for email events</p>
+          <h1 className="text-xl font-semibold tracking-tight">Webhooks</h1>
+          <p className="text-[13px] text-muted-foreground mt-1">
+            Receive real-time notifications for email events
+          </p>
         </div>
         <Dialog>
           <DialogTrigger asChild>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
+            <Button size="sm" className="h-8 text-[13px]">
+              <Plus className="w-3.5 h-3.5 mr-1.5" />
               Add Webhook
             </Button>
           </DialogTrigger>
@@ -85,99 +87,107 @@ export default async function WebhooksPage() {
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div>
-                <Label htmlFor="url">Endpoint URL</Label>
-                <Input id="url" placeholder="https://your-app.com/webhooks" className="mt-2" />
+                <Label htmlFor="url" className="text-[13px]">Endpoint URL</Label>
+                <Input id="url" placeholder="https://your-app.com/webhooks" className="mt-2 text-[13px]" />
               </div>
               <div>
-                <Label>Events</Label>
+                <Label className="text-[13px]">Events</Label>
                 <div className="grid grid-cols-2 gap-2 mt-2">
                   {Object.entries(eventLabels).map(([event, label]) => (
                     <div key={event} className="flex items-center space-x-2">
                       <input type="checkbox" id={event} className="rounded" />
-                      <label htmlFor={event} className="text-sm">{label}</label>
+                      <label htmlFor={event} className="text-[13px]">{label}</label>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
             <DialogFooter>
-              <Button variant="ghost">Cancel</Button>
-              <Button>Create Webhook</Button>
+              <Button variant="ghost" size="sm">Cancel</Button>
+              <Button size="sm">Create Webhook</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>All Webhooks</CardTitle>
-          <CardDescription>Manage your webhook endpoints</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {!webhooks || webhooks.length === 0 ? (
-            <div className="text-center py-12">
-              <Webhook className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
-              <p className="text-muted-foreground mb-2">No webhooks yet</p>
-              <p className="text-muted-foreground text-sm mb-4">Add a webhook to receive real-time email events</p>
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Webhook
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Add Webhook</DialogTitle>
-                    <DialogDescription>
-                      Configure a webhook endpoint to receive email events
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-4 py-4">
-                    <div>
-                      <Label htmlFor="url2">Endpoint URL</Label>
-                      <Input id="url2" placeholder="https://your-app.com/webhooks" className="mt-2" />
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <Button>Create Webhook</Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
+      {/* Webhooks Section */}
+      <div className="border border-stone-200/60 rounded-xl bg-white overflow-hidden">
+        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-stone-100">
+          <div>
+            <h2 className="font-semibold text-[15px]">Your Webhooks</h2>
+            <p className="text-[13px] text-muted-foreground mt-0.5">
+              Manage your webhook endpoints
+            </p>
+          </div>
+        </div>
+        
+        {!webhooks || webhooks.length === 0 ? (
+          <div className="p-12 text-center">
+            <div className="w-12 h-12 rounded-xl bg-stone-100 flex items-center justify-center mx-auto mb-4">
+              <Webhook className="w-6 h-6 text-stone-400" />
             </div>
-          ) : (
+            <p className="font-medium text-[14px] mb-1">No webhooks yet</p>
+            <p className="text-muted-foreground text-[13px] mb-4">Add a webhook to receive real-time email events</p>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button size="sm" className="h-8 text-[13px]">
+                  <Plus className="w-3.5 h-3.5 mr-1.5" />
+                  Add Webhook
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add Webhook</DialogTitle>
+                  <DialogDescription>
+                    Configure a webhook endpoint to receive email events
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div>
+                    <Label htmlFor="url2" className="text-[13px]">Endpoint URL</Label>
+                    <Input id="url2" placeholder="https://your-app.com/webhooks" className="mt-2 text-[13px]" />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button size="sm">Create Webhook</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Endpoint</TableHead>
-                  <TableHead>Events</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Created</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                <TableRow className="bg-stone-50 hover:bg-stone-50">
+                  <TableHead className="text-[11px] uppercase tracking-wider text-stone-500 font-medium">Endpoint</TableHead>
+                  <TableHead className="text-[11px] uppercase tracking-wider text-stone-500 font-medium">Events</TableHead>
+                  <TableHead className="text-[11px] uppercase tracking-wider text-stone-500 font-medium">Status</TableHead>
+                  <TableHead className="text-[11px] uppercase tracking-wider text-stone-500 font-medium">Created</TableHead>
+                  <TableHead className="text-[11px] uppercase tracking-wider text-stone-500 font-medium text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {webhooks.map((webhook) => (
-                  <TableRow key={webhook.id}>
+                  <TableRow key={webhook.id} className="hover:bg-stone-50">
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <code className="text-sm bg-muted px-2 py-1 rounded max-w-xs truncate">
+                        <code className="text-[12px] bg-stone-100 px-2 py-1 rounded max-w-xs truncate">
                           {webhook.url}
                         </code>
                         <a href={webhook.url} target="_blank" rel="noopener noreferrer">
-                          <ExternalLink className="w-4 h-4 text-muted-foreground hover:text-foreground" />
+                          <ExternalLink className="w-3.5 h-3.5 text-stone-400 hover:text-stone-600" />
                         </a>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-1">
                         {(webhook.events as string[]).slice(0, 3).map((event) => (
-                          <Badge key={event} variant="secondary" className="text-xs">
+                          <Badge key={event} variant="secondary" className="text-[10px] bg-stone-100 text-stone-700 border-0">
                             {eventLabels[event] || event}
                           </Badge>
                         ))}
                         {(webhook.events as string[]).length > 3 && (
-                          <Badge variant="secondary" className="text-xs">
+                          <Badge variant="secondary" className="text-[10px] bg-stone-100 text-stone-700 border-0">
                             +{(webhook.events as string[]).length - 3}
                           </Badge>
                         )}
@@ -186,16 +196,16 @@ export default async function WebhooksPage() {
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Switch checked={webhook.enabled} />
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-[12px] text-muted-foreground">
                           {webhook.enabled ? 'Enabled' : 'Disabled'}
                         </span>
                       </div>
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
+                    <TableCell className="text-[13px] text-muted-foreground">
                       {formatDistanceToNow(new Date(webhook.created_at), { addSuffix: true })}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
+                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-stone-400 hover:text-red-600">
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </TableCell>
@@ -203,18 +213,18 @@ export default async function WebhooksPage() {
                 ))}
               </TableBody>
             </Table>
-          )}
-        </CardContent>
-      </Card>
+          </div>
+        )}
+      </div>
 
       {/* Webhook Docs */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Webhook Payload</CardTitle>
-          <CardDescription>Example webhook payload structure</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm">
+      <div className="border border-stone-200/60 rounded-xl bg-white overflow-hidden">
+        <div className="p-4 sm:p-5 border-b border-stone-100">
+          <h2 className="font-semibold text-[15px]">Webhook Payload</h2>
+          <p className="text-[13px] text-muted-foreground mt-0.5">Example webhook payload structure</p>
+        </div>
+        <div className="p-4 sm:p-5">
+          <pre className="bg-stone-50 border border-stone-200/60 p-4 rounded-lg overflow-x-auto text-[12px]">
             <code>{`{
   "type": "email.delivered",
   "data": {
@@ -226,8 +236,8 @@ export default async function WebhooksPage() {
   "created_at": "2025-01-01T00:00:00Z"
 }`}</code>
           </pre>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   )
 }

@@ -191,6 +191,7 @@ CREATE TABLE templates (
   organization_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   subject TEXT NOT NULL,
+  type TEXT NOT NULL DEFAULT 'html' CHECK (type IN ('html', 'text')),
   html_content TEXT,
   text_content TEXT,
   variables JSONB DEFAULT '[]'::jsonb,

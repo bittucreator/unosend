@@ -1,8 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import {
   Table,
   TableBody,
@@ -11,7 +10,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Plus, Users, Upload, UserPlus, Mail } from 'lucide-react'
+import { Users, UserPlus, Mail, ArrowRight, ExternalLink } from 'lucide-react'
+import { CreateAudienceButton } from '@/components/dashboard/create-audience-button'
+import { AddContactButton } from '@/components/dashboard/add-contact-button'
 
 export default async function AudiencePage() {
   const supabase = await createClient()
@@ -74,101 +75,101 @@ export default async function AudiencePage() {
 
   return (
     <div className="space-y-6">
+      {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Audience</h1>
-          <p className="text-muted-foreground mt-1">Manage your contacts and audiences</p>
+          <h1 className="text-xl font-semibold">Audience</h1>
+          <p className="text-[13px] text-muted-foreground mt-1">
+            Manage your contacts and audiences
+          </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline">
-            <Upload className="w-4 h-4 mr-2" />
-            Import
-          </Button>
-          <Button>
-            <Plus className="w-4 h-4 mr-2" />
-            Create Audience
-          </Button>
+          <AddContactButton organizationId={membership.organization_id} audiences={formattedAudiences} />
+          <CreateAudienceButton organizationId={membership.organization_id} />
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Total Contacts</CardDescription>
-            <CardTitle className="text-3xl">{(totalContacts || 0).toLocaleString()}</CardTitle>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Audiences</CardDescription>
-            <CardTitle className="text-3xl">{formattedAudiences.length}</CardTitle>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Subscribed</CardDescription>
-            <CardTitle className="text-3xl">{(subscribedCount || 0).toLocaleString()}</CardTitle>
-          </CardHeader>
-        </Card>
+      {/* Stats Row */}
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
+        <div className="border border-stone-200/60 rounded-xl bg-white p-4 sm:p-5">
+          <p className="text-[13px] text-muted-foreground">Total Contacts</p>
+          <p className="text-2xl font-semibold mt-1">{(totalContacts || 0).toLocaleString()}</p>
+        </div>
+        <div className="border border-stone-200/60 rounded-xl bg-white p-4 sm:p-5">
+          <p className="text-[13px] text-muted-foreground">Audiences</p>
+          <p className="text-2xl font-semibold mt-1">{formattedAudiences.length}</p>
+        </div>
+        <div className="border border-stone-200/60 rounded-xl bg-white p-4 sm:p-5">
+          <p className="text-[13px] text-muted-foreground">Subscribed</p>
+          <p className="text-2xl font-semibold mt-1">{(subscribedCount || 0).toLocaleString()}</p>
+        </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Audiences</CardTitle>
-          <CardDescription>Group your contacts into audiences for targeted broadcasts</CardDescription>
-        </CardHeader>
-        <CardContent>
+      {/* Audiences Section */}
+      <div className="border border-stone-200/60 rounded-xl bg-white">
+        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-stone-100">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-stone-100 rounded-lg">
+              <Users className="h-4 w-4 text-stone-600" />
+            </div>
+            <div>
+              <h2 className="font-semibold text-[15px]">All Audiences</h2>
+              <p className="text-[13px] text-muted-foreground mt-0.5">
+                {formattedAudiences.length} audience{formattedAudiences.length !== 1 ? 's' : ''}
+              </p>
+            </div>
+          </div>
+        </div>
+        
+        <div className="p-4 sm:p-5">
           {formattedAudiences.length === 0 ? (
-            <div className="text-center py-12">
-              <Users className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
-              <p className="text-muted-foreground mb-2">No audiences yet</p>
-              <p className="text-muted-foreground text-sm mb-4">Create an audience to organize your contacts</p>
+            <div className="text-center py-16">
+              <div className="w-16 h-16 rounded-2xl bg-stone-100 flex items-center justify-center mx-auto mb-4">
+                <Users className="w-8 h-8 text-stone-400" />
+              </div>
+              <p className="font-medium text-[15px] mb-1">No audiences yet</p>
+              <p className="text-[13px] text-muted-foreground mb-5">Create an audience to organize your contacts</p>
               <div className="flex items-center justify-center gap-2">
-                <Button variant="outline">
-                  <Upload className="w-4 h-4 mr-2" />
-                  Import Contacts
-                </Button>
-                <Button>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Create Audience
-                </Button>
+                <AddContactButton organizationId={membership.organization_id} audiences={formattedAudiences} />
+                <CreateAudienceButton organizationId={membership.organization_id} />
               </div>
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Contacts</TableHead>
-                  <TableHead>Created</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {formattedAudiences.map((audience) => (
-                  <TableRow key={audience.id}>
-                    <TableCell className="font-medium">{audience.name}</TableCell>
-                    <TableCell>
-                      <Badge variant="secondary">
-                        <UserPlus className="w-3 h-3 mr-1" />
-                        {audience.contacts.toLocaleString()}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">{audience.created_at}</TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="ghost" size="sm">
-                        <Mail className="w-4 h-4 mr-1" />
-                        Send Broadcast
-                      </Button>
-                    </TableCell>
+            <div className="overflow-x-auto -mx-4 sm:mx-0">
+              <Table className="min-w-[500px]">
+                <TableHeader>
+                  <TableRow className="border-stone-100">
+                    <TableHead className="text-[13px] font-medium text-muted-foreground">Name</TableHead>
+                    <TableHead className="text-[13px] font-medium text-muted-foreground">Contacts</TableHead>
+                    <TableHead className="text-[13px] font-medium text-muted-foreground hidden sm:table-cell">Created</TableHead>
+                    <TableHead className="text-right text-[13px] font-medium text-muted-foreground">Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {formattedAudiences.map((audience) => (
+                    <TableRow key={audience.id} className="border-stone-100">
+                      <TableCell className="font-medium text-[13px]">{audience.name}</TableCell>
+                      <TableCell>
+                        <Badge variant="secondary" className="text-[11px] bg-stone-100 text-stone-600 border-0">
+                          <UserPlus className="w-3 h-3 mr-1" />
+                          {audience.contacts.toLocaleString()}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground text-[13px] hidden sm:table-cell">{audience.created_at}</TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="ghost" size="sm" className="h-7 px-2 text-[13px]">
+                          <Mail className="w-3.5 h-3.5 sm:mr-1" />
+                          <span className="hidden sm:inline">Send Broadcast</span>
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   )
 }

@@ -1,10 +1,13 @@
 import { createClient } from '@/lib/supabase/server'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { SettingsForm } from '@/components/dashboard/settings-form'
-import { User, Building2, CreditCard, Shield, Zap } from 'lucide-react'
+import { WorkspaceSettings } from '@/components/dashboard/workspace-settings'
+import { MembersSettings } from '@/components/dashboard/members-settings'
+import { BillingSettings } from '@/components/dashboard/billing-settings'
+import { UsageSettings } from '@/components/dashboard/usage-settings'
+import { User, Building2, Users, CreditCard, BarChart3, Shield } from 'lucide-react'
 
 export default async function SettingsPage() {
   const supabase = await createClient()
@@ -20,197 +23,203 @@ export default async function SettingsPage() {
 
   const { data: memberships } = await supabase
     .from('organization_members')
-    .select('organization_id, role, organizations(id, name, slug)')
+    .select('organization_id, role, organizations(id, name, slug, icon_url, owner_id)')
     .eq('user_id', user.id)
 
   const membership = memberships?.[0]
   const organization = membership?.organizations
   const org = Array.isArray(organization) ? organization[0] : organization
+  const userRole = membership?.role as 'owner' | 'admin' | 'member' || 'member'
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
+      {/* Page Header */}
       <div>
-        <h1 className="text-3xl font-bold">Settings</h1>
-        <p className="text-muted-foreground mt-1">Manage your account and organization settings</p>
+        <h1 className="text-xl font-semibold">Settings</h1>
+        <p className="text-[13px] text-muted-foreground mt-1">
+          Manage your account and workspace settings
+        </p>
       </div>
 
       <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="profile" className="gap-2">
-            <User className="h-4 w-4" />
+        <TabsList className="bg-stone-100 p-1 rounded-lg h-auto flex-wrap">
+          <TabsTrigger value="profile" className="gap-2 text-[13px] rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm">
+            <User className="h-3.5 w-3.5" />
             Profile
           </TabsTrigger>
-          <TabsTrigger value="organization" className="gap-2">
-            <Building2 className="h-4 w-4" />
-            Organization
+          <TabsTrigger value="workspace" className="gap-2 text-[13px] rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm">
+            <Building2 className="h-3.5 w-3.5" />
+            Workspace
           </TabsTrigger>
-          <TabsTrigger value="billing" className="gap-2">
-            <CreditCard className="h-4 w-4" />
-            Usage & Billing
+          <TabsTrigger value="members" className="gap-2 text-[13px] rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm">
+            <Users className="h-3.5 w-3.5" />
+            Members
+          </TabsTrigger>
+          <TabsTrigger value="billing" className="gap-2 text-[13px] rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm">
+            <CreditCard className="h-3.5 w-3.5" />
+            Billing
+          </TabsTrigger>
+          <TabsTrigger value="usage" className="gap-2 text-[13px] rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm">
+            <BarChart3 className="h-3.5 w-3.5" />
+            Usage
           </TabsTrigger>
         </TabsList>
 
+        {/* Profile Tab */}
         <TabsContent value="profile" className="space-y-6">
-          <Card>
-            <CardHeader>
+          <div className="border border-stone-200/60 rounded-xl bg-white overflow-hidden">
+            <div className="p-4 sm:p-5 border-b border-stone-100">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <User className="h-5 w-5 text-primary" />
+                <div className="p-2 bg-stone-100 rounded-lg">
+                  <User className="h-4 w-4 text-stone-600" />
                 </div>
                 <div>
-                  <CardTitle>Profile Settings</CardTitle>
-                  <CardDescription>
+                  <h2 className="font-semibold text-[15px]">Profile Settings</h2>
+                  <p className="text-[13px] text-muted-foreground mt-0.5">
                     Update your personal information
-                  </CardDescription>
+                  </p>
                 </div>
               </div>
-            </CardHeader>
-            <CardContent>
+            </div>
+            <div className="p-4 sm:p-5">
               <SettingsForm 
                 profile={profile} 
                 organization={org as { id: string; name: string; slug: string } | null} 
               />
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
-          <Card>
-            <CardHeader>
+          <div className="border border-stone-200/60 rounded-xl bg-white overflow-hidden">
+            <div className="p-4 sm:p-5 border-b border-stone-100">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <Shield className="h-5 w-5 text-primary" />
+                <div className="p-2 bg-stone-100 rounded-lg">
+                  <Shield className="h-4 w-4 text-stone-600" />
                 </div>
                 <div>
-                  <CardTitle>Security</CardTitle>
-                  <CardDescription>
+                  <h2 className="font-semibold text-[15px]">Security</h2>
+                  <p className="text-[13px] text-muted-foreground mt-0.5">
                     Manage your account security
-                  </CardDescription>
+                  </p>
                 </div>
               </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
+            </div>
+            <div className="p-4 sm:p-5 space-y-4">
               <div className="flex items-center justify-between py-3">
                 <div>
-                  <p className="font-medium">Email</p>
-                  <p className="text-sm text-muted-foreground">{user.email}</p>
+                  <p className="font-medium text-[14px]">Email</p>
+                  <p className="text-[13px] text-muted-foreground">{user.email}</p>
                 </div>
-                <Badge variant="secondary">Verified</Badge>
+                <Badge variant="secondary" className="text-[11px] bg-green-50 text-green-700 border-0">Verified</Badge>
               </div>
-              <Separator />
+              <Separator className="bg-stone-100" />
               <div className="flex items-center justify-between py-3">
                 <div>
-                  <p className="font-medium">Password</p>
-                  <p className="text-sm text-muted-foreground">Last changed: Unknown</p>
+                  <p className="font-medium text-[14px]">Password</p>
+                  <p className="text-[13px] text-muted-foreground">Last changed: Unknown</p>
                 </div>
-                <Badge variant="outline">Change in Supabase</Badge>
+                <Badge variant="outline" className="text-[11px] border-stone-200">Change in Supabase</Badge>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </TabsContent>
 
-        <TabsContent value="organization" className="space-y-6">
-          <Card>
-            <CardHeader>
+        {/* Workspace Tab */}
+        <TabsContent value="workspace" className="space-y-6">
+          <div className="border border-stone-200/60 rounded-xl bg-white overflow-hidden">
+            <div className="p-4 sm:p-5 border-b border-stone-100">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <Building2 className="h-5 w-5 text-primary" />
+                <div className="p-2 bg-stone-100 rounded-lg">
+                  <Building2 className="h-4 w-4 text-stone-600" />
                 </div>
                 <div>
-                  <CardTitle>Organization Details</CardTitle>
-                  <CardDescription>
-                    Your organization information
-                  </CardDescription>
+                  <h2 className="font-semibold text-[15px]">Workspace Settings</h2>
+                  <p className="text-[13px] text-muted-foreground mt-0.5">
+                    Manage your workspace details
+                  </p>
                 </div>
               </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-muted-foreground">Organization Name</label>
-                  <p className="text-lg font-medium">{org?.name || 'N/A'}</p>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-muted-foreground">Your Role</label>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="secondary" className="capitalize">{membership?.role || 'N/A'}</Badge>
-                  </div>
-                </div>
-              </div>
-              <Separator />
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-muted-foreground">Organization ID</label>
-                <code className="block bg-muted px-4 py-3 rounded-lg text-sm font-mono">
-                  {org?.id || 'N/A'}
-                </code>
-              </div>
-            </CardContent>
-          </Card>
+            </div>
+            <div className="p-4 sm:p-5">
+              {org ? (
+                <WorkspaceSettings 
+                  organization={{
+                    id: org.id,
+                    name: org.name,
+                    slug: org.slug,
+                    icon_url: org.icon_url,
+                  }}
+                  userRole={userRole}
+                />
+              ) : (
+                <p className="text-[13px] text-muted-foreground">No workspace found</p>
+              )}
+            </div>
+          </div>
         </TabsContent>
 
+        {/* Members Tab */}
+        <TabsContent value="members" className="space-y-6">
+          <div className="border border-stone-200/60 rounded-xl bg-white overflow-hidden">
+            <div className="p-4 sm:p-5 border-b border-stone-100">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-stone-100 rounded-lg">
+                  <Users className="h-4 w-4 text-stone-600" />
+                </div>
+                <div>
+                  <h2 className="font-semibold text-[15px]">Team Members</h2>
+                  <p className="text-[13px] text-muted-foreground mt-0.5">
+                    Manage who has access to this workspace
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="p-4 sm:p-5">
+              {org ? (
+                <MembersSettings 
+                  organizationId={org.id}
+                  currentUserId={user.id}
+                  userRole={userRole}
+                />
+              ) : (
+                <p className="text-[13px] text-muted-foreground">No workspace found</p>
+              )}
+            </div>
+          </div>
+        </TabsContent>
+
+        {/* Billing Tab */}
         <TabsContent value="billing" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-primary/10 rounded-lg">
-                    <CreditCard className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <CardTitle>Current Plan</CardTitle>
-                    <CardDescription>
-                      Your subscription details
-                    </CardDescription>
-                  </div>
-                </div>
-                <Badge className="text-sm">Free Tier</Badge>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-6 sm:grid-cols-3">
-                <div className="text-center p-4 bg-muted/50 rounded-lg">
-                  <p className="text-3xl font-bold">100K</p>
-                  <p className="text-sm text-muted-foreground">emails/month</p>
-                </div>
-                <div className="text-center p-4 bg-muted/50 rounded-lg">
-                  <p className="text-3xl font-bold">1</p>
-                  <p className="text-sm text-muted-foreground">domain included</p>
-                </div>
-                <div className="text-center p-4 bg-muted/50 rounded-lg">
-                  <p className="text-3xl font-bold">∞</p>
-                  <p className="text-sm text-muted-foreground">API keys</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          {org ? (
+            <BillingSettings organizationId={org.id} />
+          ) : (
+            <p className="text-[13px] text-muted-foreground">No workspace found</p>
+          )}
+        </TabsContent>
 
-          <Card>
-            <CardHeader>
+        {/* Usage Tab */}
+        <TabsContent value="usage" className="space-y-6">
+          <div className="border border-stone-200/60 rounded-xl bg-white overflow-hidden">
+            <div className="p-4 sm:p-5 border-b border-stone-100">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-green-500/10 rounded-lg">
-                  <Zap className="h-5 w-5 text-green-500" />
+                <div className="p-2 bg-stone-100 rounded-lg">
+                  <BarChart3 className="h-4 w-4 text-stone-600" />
                 </div>
                 <div>
-                  <CardTitle>Usage This Month</CardTitle>
-                  <CardDescription>
-                    Your current email usage
-                  </CardDescription>
+                  <h2 className="font-semibold text-[15px]">Usage & Analytics</h2>
+                  <p className="text-[13px] text-muted-foreground mt-0.5">
+                    Monitor your email sending activity
+                  </p>
                 </div>
               </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Emails Sent</span>
-                  <span className="font-medium">0 / 100,000</span>
-                </div>
-                <div className="h-2 bg-muted rounded-full overflow-hidden">
-                  <div className="h-full bg-primary rounded-full" style={{ width: '0%' }} />
-                </div>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Your usage resets on the 1st of each month.
-              </p>
-            </CardContent>
-          </Card>
+            </div>
+            <div className="p-4 sm:p-5">
+              {org ? (
+                <UsageSettings organizationId={org.id} />
+              ) : (
+                <p className="text-[13px] text-muted-foreground">No workspace found</p>
+              )}
+            </div>
+          </div>
         </TabsContent>
       </Tabs>
     </div>

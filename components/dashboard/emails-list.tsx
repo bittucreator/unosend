@@ -47,45 +47,51 @@ export function EmailsList({ emails }: EmailsListProps) {
   }
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Subject</TableHead>
-          <TableHead>To</TableHead>
-          <TableHead>From</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Sent</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {emails.map((email) => {
-          const status = statusConfig[email.status]
-          const StatusIcon = status.icon
+    <div className="overflow-x-auto -mx-4 sm:mx-0">
+      <Table className="min-w-[600px]">
+        <TableHeader>
+          <TableRow>
+            <TableHead>Subject</TableHead>
+            <TableHead className="hidden sm:table-cell">To</TableHead>
+            <TableHead className="hidden md:table-cell">From</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Sent</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {emails.map((email) => {
+            const status = statusConfig[email.status]
+            const StatusIcon = status.icon
 
-          return (
-            <TableRow key={email.id}>
-              <TableCell className="font-medium max-w-xs truncate">
-                {email.subject}
-              </TableCell>
-              <TableCell className="text-muted-foreground max-w-xs truncate">
-                {email.to_emails.join(', ')}
-              </TableCell>
-              <TableCell className="text-muted-foreground">
-                {email.from_name ? `${email.from_name} <${email.from_email}>` : email.from_email}
-              </TableCell>
-              <TableCell>
-                <Badge variant="secondary" className={status.color}>
-                  <StatusIcon className="w-3 h-3 mr-1" />
-                  {status.label}
-                </Badge>
-              </TableCell>
-              <TableCell className="text-muted-foreground">
-                {formatDistanceToNow(new Date(email.created_at), { addSuffix: true })}
-              </TableCell>
-            </TableRow>
-          )
-        })}
-      </TableBody>
-    </Table>
+            return (
+              <TableRow key={email.id}>
+                <TableCell className="font-medium max-w-[200px] sm:max-w-xs truncate">
+                  {email.subject}
+                  {/* Show To on mobile */}
+                  <span className="block sm:hidden text-xs text-muted-foreground mt-0.5 truncate">
+                    To: {email.to_emails[0]}
+                  </span>
+                </TableCell>
+                <TableCell className="text-muted-foreground max-w-xs truncate hidden sm:table-cell">
+                  {email.to_emails.join(', ')}
+                </TableCell>
+                <TableCell className="text-muted-foreground hidden md:table-cell">
+                  {email.from_name ? `${email.from_name} <${email.from_email}>` : email.from_email}
+                </TableCell>
+                <TableCell>
+                  <Badge variant="secondary" className={status.color}>
+                    <StatusIcon className="w-3 h-3 sm:mr-1" />
+                    <span className="hidden sm:inline">{status.label}</span>
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-muted-foreground text-xs sm:text-sm whitespace-nowrap">
+                  {formatDistanceToNow(new Date(email.created_at), { addSuffix: true })}
+                </TableCell>
+              </TableRow>
+            )
+          })}
+        </TableBody>
+      </Table>
+    </div>
   )
 }

@@ -90,8 +90,8 @@ export function AddDomainButton({ organizationId }: AddDomainButtonProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
-          <Plus className="w-4 h-4 mr-2" />
+        <Button size="sm" className="h-8 text-[13px]">
+          <Plus className="w-3.5 h-3.5 mr-1.5" />
           Add Domain
         </Button>
       </DialogTrigger>

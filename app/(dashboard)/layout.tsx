@@ -1,10 +1,18 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { TopNav } from '@/components/dashboard/top-nav'
-import { Sidebar } from '@/components/dashboard/sidebar'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { AlertTriangle } from 'lucide-react'
+import { DashboardShell } from './dashboard-shell'
+
+export interface Workspace {
+  id: string
+  name: string
+  slug: string
+  icon_url: string | null
+  owner_id: string
+  role: 'owner' | 'admin' | 'member'
+}
 
 export default async function DashboardLayout({
   children,
@@ -18,10 +26,10 @@ export default async function DashboardLayout({
     redirect('/login')
   }
 
-  // Get user's organization
+  // Get all user's organizations
   const { data: memberships, error: membershipError } = await supabase
     .from('organization_members')
-    .select('organization_id, role, organizations(id, name, slug)')
+    .select('organization_id, role, organizations(id, name, slug, icon_url, owner_id)')
     .eq('user_id', user.id)
 
   const membership = memberships?.[0]
@@ -77,20 +85,26 @@ export default async function DashboardLayout({
     ? membership.organizations[0] 
     : membership.organizations
 
+  // Build all workspaces list
+  const allWorkspaces: Workspace[] = memberships?.map(m => {
+    const org = Array.isArray(m.organizations) ? m.organizations[0] : m.organizations
+    return {
+      id: org.id,
+      name: org.name,
+      slug: org.slug,
+      icon_url: org.icon_url || null,
+      owner_id: org.owner_id,
+      role: m.role as 'owner' | 'admin' | 'member',
+    }
+  }) || []
+
   return (
-    <div className="min-h-screen bg-background">
-      <TopNav 
-        user={user} 
-        organization={org as { id: string; name: string; slug: string }} 
-      />
-      <div className="flex">
-        <Sidebar />
-        <main className="flex-1 p-6 overflow-auto">
-          <div className="max-w-5xl">
-            {children}
-          </div>
-        </main>
-      </div>
-    </div>
+    <DashboardShell 
+      user={user} 
+      organization={org as { id: string; name: string; slug: string; icon_url?: string | null }}
+      workspaces={allWorkspaces}
+    >
+      {children}
+    </DashboardShell>
   )
 }

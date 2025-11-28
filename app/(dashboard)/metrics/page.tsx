@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { 
   Mail, 
@@ -50,178 +49,151 @@ export default async function MetricsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Metrics</h1>
-        <p className="text-muted-foreground mt-1">Track your email performance</p>
+      {/* Page Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-semibold tracking-tight">Metrics</h1>
+          <p className="text-[13px] text-muted-foreground mt-1">
+            Track your email performance and engagement
+          </p>
+        </div>
       </div>
 
       <Tabs defaultValue="overview">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="deliverability">Deliverability</TabsTrigger>
-          <TabsTrigger value="engagement">Engagement</TabsTrigger>
+        <TabsList className="bg-stone-100 p-1 rounded-lg">
+          <TabsTrigger value="overview" className="text-[13px] rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm">Overview</TabsTrigger>
+          <TabsTrigger value="deliverability" className="text-[13px] rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm">Deliverability</TabsTrigger>
+          <TabsTrigger value="engagement" className="text-[13px] rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm">Engagement</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
           {/* Main Stats */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardDescription className="flex items-center gap-2">
-                  <Mail className="w-4 h-4" />
-                  Total Sent
-                </CardDescription>
-                <CardTitle className="text-3xl">{stats.total.toLocaleString()}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-xs text-muted-foreground">All time</p>
-              </CardContent>
-            </Card>
+            <div className="border border-stone-200/60 rounded-xl bg-white p-4 sm:p-5">
+              <p className="text-[12px] text-muted-foreground flex items-center gap-1.5 mb-2">
+                <Mail className="w-3.5 h-3.5" />
+                Total Sent
+              </p>
+              <p className="text-2xl font-semibold">{stats.total.toLocaleString()}</p>
+              <p className="text-[11px] text-muted-foreground mt-1">All time</p>
+            </div>
 
-            <Card>
-              <CardHeader className="pb-2">
-                <CardDescription className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4" />
-                  Delivered
-                </CardDescription>
-                <CardTitle className="text-3xl">{stats.delivered.toLocaleString()}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-xs text-green-600 flex items-center gap-1">
-                  <TrendingUp className="w-3 h-3" />
-                  {deliveryRate}% delivery rate
-                </p>
-              </CardContent>
-            </Card>
+            <div className="border border-stone-200/60 rounded-xl bg-white p-4 sm:p-5">
+              <p className="text-[12px] text-muted-foreground flex items-center gap-1.5 mb-2">
+                <CheckCircle className="w-3.5 h-3.5" />
+                Delivered
+              </p>
+              <p className="text-2xl font-semibold">{stats.delivered.toLocaleString()}</p>
+              <p className="text-[11px] text-green-600 flex items-center gap-1 mt-1">
+                <TrendingUp className="w-3 h-3" />
+                {deliveryRate}% delivery rate
+              </p>
+            </div>
 
-            <Card>
-              <CardHeader className="pb-2">
-                <CardDescription className="flex items-center gap-2">
-                  <Eye className="w-4 h-4" />
-                  Opens
-                </CardDescription>
-                <CardTitle className="text-3xl">0</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-xs text-muted-foreground">0% open rate</p>
-              </CardContent>
-            </Card>
+            <div className="border border-stone-200/60 rounded-xl bg-white p-4 sm:p-5">
+              <p className="text-[12px] text-muted-foreground flex items-center gap-1.5 mb-2">
+                <Eye className="w-3.5 h-3.5" />
+                Opens
+              </p>
+              <p className="text-2xl font-semibold">0</p>
+              <p className="text-[11px] text-muted-foreground mt-1">0% open rate</p>
+            </div>
 
-            <Card>
-              <CardHeader className="pb-2">
-                <CardDescription className="flex items-center gap-2">
-                  <MousePointer className="w-4 h-4" />
-                  Clicks
-                </CardDescription>
-                <CardTitle className="text-3xl">0</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-xs text-muted-foreground">0% click rate</p>
-              </CardContent>
-            </Card>
+            <div className="border border-stone-200/60 rounded-xl bg-white p-4 sm:p-5">
+              <p className="text-[12px] text-muted-foreground flex items-center gap-1.5 mb-2">
+                <MousePointer className="w-3.5 h-3.5" />
+                Clicks
+              </p>
+              <p className="text-2xl font-semibold">0</p>
+              <p className="text-[11px] text-muted-foreground mt-1">0% click rate</p>
+            </div>
           </div>
 
           {/* Chart placeholder */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Email Volume</CardTitle>
-              <CardDescription>Emails sent over the last 30 days</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-64 flex items-center justify-center text-muted-foreground border rounded-lg bg-muted/20">
+          <div className="border border-stone-200/60 rounded-xl bg-white overflow-hidden">
+            <div className="p-4 sm:p-5 border-b border-stone-100">
+              <h2 className="font-semibold text-[15px]">Email Volume</h2>
+              <p className="text-[13px] text-muted-foreground mt-0.5">Emails sent over the last 30 days</p>
+            </div>
+            <div className="p-4 sm:p-5">
+              <div className="h-64 flex items-center justify-center text-muted-foreground border border-stone-200/60 rounded-xl bg-stone-50">
                 <div className="text-center">
-                  <TrendingUp className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                  <p>Chart coming soon</p>
+                  <div className="w-12 h-12 rounded-xl bg-stone-100 flex items-center justify-center mx-auto mb-3">
+                    <TrendingUp className="w-6 h-6 text-stone-400" />
+                  </div>
+                  <p className="text-[13px]">Chart coming soon</p>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </TabsContent>
 
         <TabsContent value="deliverability" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardDescription className="flex items-center gap-2">
-                  <Send className="w-4 h-4" />
-                  Sent
-                </CardDescription>
-                <CardTitle className="text-3xl">{stats.sent.toLocaleString()}</CardTitle>
-              </CardHeader>
-            </Card>
+            <div className="border border-stone-200/60 rounded-xl bg-white p-4 sm:p-5">
+              <p className="text-[12px] text-muted-foreground flex items-center gap-1.5 mb-2">
+                <Send className="w-3.5 h-3.5" />
+                Sent
+              </p>
+              <p className="text-2xl font-semibold">{stats.sent.toLocaleString()}</p>
+            </div>
 
-            <Card>
-              <CardHeader className="pb-2">
-                <CardDescription className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4" />
-                  Delivered
-                </CardDescription>
-                <CardTitle className="text-3xl">{stats.delivered.toLocaleString()}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-xs text-green-600">{deliveryRate}% rate</p>
-              </CardContent>
-            </Card>
+            <div className="border border-stone-200/60 rounded-xl bg-white p-4 sm:p-5">
+              <p className="text-[12px] text-muted-foreground flex items-center gap-1.5 mb-2">
+                <CheckCircle className="w-3.5 h-3.5" />
+                Delivered
+              </p>
+              <p className="text-2xl font-semibold">{stats.delivered.toLocaleString()}</p>
+              <p className="text-[11px] text-green-600 mt-1">{deliveryRate}% rate</p>
+            </div>
 
-            <Card>
-              <CardHeader className="pb-2">
-                <CardDescription className="flex items-center gap-2">
-                  <XCircle className="w-4 h-4" />
-                  Bounced
-                </CardDescription>
-                <CardTitle className="text-3xl">{stats.bounced.toLocaleString()}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-xs text-red-600 flex items-center gap-1">
-                  <TrendingDown className="w-3 h-3" />
-                  {bounceRate}% rate
-                </p>
-              </CardContent>
-            </Card>
+            <div className="border border-stone-200/60 rounded-xl bg-white p-4 sm:p-5">
+              <p className="text-[12px] text-muted-foreground flex items-center gap-1.5 mb-2">
+                <XCircle className="w-3.5 h-3.5" />
+                Bounced
+              </p>
+              <p className="text-2xl font-semibold">{stats.bounced.toLocaleString()}</p>
+              <p className="text-[11px] text-red-600 flex items-center gap-1 mt-1">
+                <TrendingDown className="w-3 h-3" />
+                {bounceRate}% rate
+              </p>
+            </div>
           </div>
         </TabsContent>
 
         <TabsContent value="engagement" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardDescription className="flex items-center gap-2">
-                  <Eye className="w-4 h-4" />
-                  Unique Opens
-                </CardDescription>
-                <CardTitle className="text-3xl">0</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-xs text-muted-foreground">0% of delivered</p>
-              </CardContent>
-            </Card>
+            <div className="border border-stone-200/60 rounded-xl bg-white p-4 sm:p-5">
+              <p className="text-[12px] text-muted-foreground flex items-center gap-1.5 mb-2">
+                <Eye className="w-3.5 h-3.5" />
+                Unique Opens
+              </p>
+              <p className="text-2xl font-semibold">0</p>
+              <p className="text-[11px] text-muted-foreground mt-1">0% of delivered</p>
+            </div>
 
-            <Card>
-              <CardHeader className="pb-2">
-                <CardDescription className="flex items-center gap-2">
-                  <MousePointer className="w-4 h-4" />
-                  Unique Clicks
-                </CardDescription>
-                <CardTitle className="text-3xl">0</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-xs text-muted-foreground">0% of delivered</p>
-              </CardContent>
-            </Card>
+            <div className="border border-stone-200/60 rounded-xl bg-white p-4 sm:p-5">
+              <p className="text-[12px] text-muted-foreground flex items-center gap-1.5 mb-2">
+                <MousePointer className="w-3.5 h-3.5" />
+                Unique Clicks
+              </p>
+              <p className="text-2xl font-semibold">0</p>
+              <p className="text-[11px] text-muted-foreground mt-1">0% of delivered</p>
+            </div>
           </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Top Clicked Links</CardTitle>
-              <CardDescription>Most popular links in your emails</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8 text-muted-foreground">
-                <MousePointer className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                <p>No click data yet</p>
+          <div className="border border-stone-200/60 rounded-xl bg-white overflow-hidden">
+            <div className="p-4 sm:p-5 border-b border-stone-100">
+              <h2 className="font-semibold text-[15px]">Top Clicked Links</h2>
+              <p className="text-[13px] text-muted-foreground mt-0.5">Most popular links in your emails</p>
+            </div>
+            <div className="p-8 text-center">
+              <div className="w-12 h-12 rounded-xl bg-stone-100 flex items-center justify-center mx-auto mb-3">
+                <MousePointer className="w-6 h-6 text-stone-400" />
               </div>
-            </CardContent>
-          </Card>
+              <p className="text-[13px] text-muted-foreground">No click data yet</p>
+            </div>
+          </div>
         </TabsContent>
       </Tabs>
     </div>

@@ -1,10 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ApiKeysList } from '@/components/dashboard/api-keys-list'
 import { CreateApiKeyButton } from '@/components/dashboard/create-api-key-button'
-import { Copy, Terminal, Code } from 'lucide-react'
+import { Code } from 'lucide-react'
 
 export default async function ApiKeysPage() {
   const supabase = await createClient()
@@ -28,49 +27,61 @@ export default async function ApiKeysPage() {
     .order('created_at', { ascending: false })
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
+      {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">API Keys</h1>
-          <p className="text-muted-foreground text-sm mt-1">
+          <h1 className="text-xl font-semibold">API Keys</h1>
+          <p className="text-[13px] text-muted-foreground mt-1">
             Manage your API keys for authentication
           </p>
         </div>
         <CreateApiKeyButton organizationId={membership.organization_id} />
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base font-medium">Your API Keys</CardTitle>
-          <CardDescription>
-            API keys are used to authenticate requests. Keep them secure and never share publicly.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ApiKeysList apiKeys={apiKeys || []} />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <Code className="w-4 h-4 text-muted-foreground" />
-            <CardTitle className="text-base font-medium">Usage Examples</CardTitle>
+      {/* API Keys Section */}
+      <div className="border border-stone-200/60 rounded-xl bg-white">
+        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-stone-100">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-stone-100 rounded-lg">
+              <Code className="h-4 w-4 text-stone-600" />
+            </div>
+            <div>
+              <h2 className="font-semibold text-[15px]">All API Keys</h2>
+              <p className="text-[13px] text-muted-foreground mt-0.5">
+                {apiKeys?.length || 0} active key{(apiKeys?.length || 0) !== 1 ? 's' : ''}
+              </p>
+            </div>
           </div>
-          <CardDescription>
-            Include your API key in the Authorization header
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+        </div>
+        
+        <div className="p-4 sm:p-5">
+          <ApiKeysList apiKeys={apiKeys || []} />
+        </div>
+      </div>
+
+      {/* Usage Examples Section */}
+      <div className="border border-stone-200/60 rounded-xl bg-white">
+        <div className="flex items-center gap-2 p-4 sm:p-5 border-b border-stone-100">
+          <Code className="w-4 h-4 text-muted-foreground" />
+          <div>
+            <h2 className="font-semibold text-[15px]">Usage Examples</h2>
+            <p className="text-[13px] text-muted-foreground mt-0.5">
+              Include your API key in the Authorization header
+            </p>
+          </div>
+        </div>
+        
+        <div className="p-4 sm:p-5">
           <Tabs defaultValue="curl" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="curl" className="text-xs">cURL</TabsTrigger>
-              <TabsTrigger value="node" className="text-xs">Node.js</TabsTrigger>
-              <TabsTrigger value="python" className="text-xs">Python</TabsTrigger>
+            <TabsList className="bg-stone-100 p-0.5">
+              <TabsTrigger value="curl" className="text-[13px] data-[state=active]:bg-white">cURL</TabsTrigger>
+              <TabsTrigger value="node" className="text-[13px] data-[state=active]:bg-white">Node.js</TabsTrigger>
+              <TabsTrigger value="python" className="text-[13px] data-[state=active]:bg-white">Python</TabsTrigger>
             </TabsList>
             <TabsContent value="curl" className="mt-4">
-              <div className="bg-muted/50 rounded-lg p-4 font-mono text-sm overflow-x-auto">
-                <pre className="text-foreground">
+              <div className="bg-stone-50 border border-stone-200/60 rounded-lg p-4 font-mono text-[13px] overflow-x-auto">
+                <pre className="text-stone-800">
 {`curl -X POST https://api.unosend.co/v1/emails \\
   -H "Authorization: Bearer un_your_api_key" \\
   -H "Content-Type: application/json" \\
@@ -84,8 +95,8 @@ export default async function ApiKeysPage() {
               </div>
             </TabsContent>
             <TabsContent value="node" className="mt-4">
-              <div className="bg-muted/50 rounded-lg p-4 font-mono text-sm overflow-x-auto">
-                <pre className="text-foreground">
+              <div className="bg-stone-50 border border-stone-200/60 rounded-lg p-4 font-mono text-[13px] overflow-x-auto">
+                <pre className="text-stone-800">
 {`const response = await fetch('https://api.unosend.co/v1/emails', {
   method: 'POST',
   headers: {
@@ -106,8 +117,8 @@ console.log(data);`}
               </div>
             </TabsContent>
             <TabsContent value="python" className="mt-4">
-              <div className="bg-muted/50 rounded-lg p-4 font-mono text-sm overflow-x-auto">
-                <pre className="text-foreground">
+              <div className="bg-stone-50 border border-stone-200/60 rounded-lg p-4 font-mono text-[13px] overflow-x-auto">
+                <pre className="text-stone-800">
 {`import requests
 
 response = requests.post(
@@ -129,8 +140,8 @@ print(response.json())`}
               </div>
             </TabsContent>
           </Tabs>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   )
 }

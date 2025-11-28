@@ -90,9 +90,9 @@ export function CreateApiKeyButton({ organizationId }: CreateApiKeyButtonProps) 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
-          <Plus className="w-4 h-4 mr-2" />
-          Create API Key
+        <Button size="sm" className="h-8 text-[13px]">
+          <Plus className="w-3.5 h-3.5 mr-1.5" />
+          Create Key
         </Button>
       </DialogTrigger>
       <DialogContent>
