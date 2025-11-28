@@ -36,16 +36,19 @@ export async function validateApiKey(request: NextRequest): Promise<ApiContext |
   const authHeader = request.headers.get('authorization')
   
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    console.log('[API] Missing or invalid auth header')
     return null
   }
 
   const apiKey = authHeader.replace('Bearer ', '')
   
   if (!apiKey.startsWith('un_')) {
+    console.log('[API] API key does not start with un_')
     return null
   }
 
   const keyHash = hashApiKey(apiKey)
+  console.log('[API] Looking for key hash:', keyHash.substring(0, 16) + '...')
 
   const { data: apiKeyRecord, error } = await supabaseAdmin
     .from('api_keys')
@@ -53,17 +56,25 @@ export async function validateApiKey(request: NextRequest): Promise<ApiContext |
     .eq('key_hash', keyHash)
     .single()
 
-  if (error || !apiKeyRecord) {
+  if (error) {
+    console.log('[API] Database error:', error.message)
+    return null
+  }
+  
+  if (!apiKeyRecord) {
+    console.log('[API] No API key record found')
     return null
   }
 
   // Check if key is revoked
   if (apiKeyRecord.revoked_at) {
+    console.log('[API] Key is revoked')
     return null
   }
 
   // Check if key is expired
   if (apiKeyRecord.expires_at && new Date(apiKeyRecord.expires_at) < new Date()) {
+    console.log('[API] Key is expired')
     return null
   }
 
@@ -73,6 +84,8 @@ export async function validateApiKey(request: NextRequest): Promise<ApiContext |
     .update({ last_used_at: new Date().toISOString() })
     .eq('id', apiKeyRecord.id)
 
+  console.log('[API] Key validated successfully for org:', apiKeyRecord.organization_id)
+  
   return {
     organizationId: apiKeyRecord.organization_id,
     apiKeyId: apiKeyRecord.id,
