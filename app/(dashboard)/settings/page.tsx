@@ -1,13 +1,11 @@
 import { createClient } from '@/lib/supabase/server'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
 import { SettingsForm } from '@/components/dashboard/settings-form'
 import { WorkspaceSettings } from '@/components/dashboard/workspace-settings'
 import { MembersSettings } from '@/components/dashboard/members-settings'
 import { BillingSettings } from '@/components/dashboard/billing-settings'
 import { UsageSettings } from '@/components/dashboard/usage-settings'
-import { User, Building2, Users, CreditCard, BarChart3, Shield } from 'lucide-react'
+import { User, Building2, Users, CreditCard, BarChart3 } from 'lucide-react'
 
 export default async function SettingsPage() {
   const supabase = await createClient()
@@ -86,39 +84,6 @@ export default async function SettingsPage() {
                 profile={profile} 
                 organization={org as { id: string; name: string; slug: string } | null} 
               />
-            </div>
-          </div>
-
-          <div className="border border-stone-200/60 rounded-xl bg-white overflow-hidden">
-            <div className="p-4 sm:p-5 border-b border-stone-100">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-stone-100 rounded-lg">
-                  <Shield className="h-4 w-4 text-stone-600" />
-                </div>
-                <div>
-                  <h2 className="font-semibold text-[15px]">Security</h2>
-                  <p className="text-[13px] text-muted-foreground mt-0.5">
-                    Manage your account security
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="p-4 sm:p-5 space-y-4">
-              <div className="flex items-center justify-between py-3">
-                <div>
-                  <p className="font-medium text-[14px]">Email</p>
-                  <p className="text-[13px] text-muted-foreground">{user.email}</p>
-                </div>
-                <Badge variant="secondary" className="text-[11px] bg-green-50 text-green-700 border-0">Verified</Badge>
-              </div>
-              <Separator className="bg-stone-100" />
-              <div className="flex items-center justify-between py-3">
-                <div>
-                  <p className="font-medium text-[14px]">Password</p>
-                  <p className="text-[13px] text-muted-foreground">Last changed: Unknown</p>
-                </div>
-                <Badge variant="outline" className="text-[11px] border-stone-200">Change in Supabase</Badge>
-              </div>
             </div>
           </div>
         </TabsContent>

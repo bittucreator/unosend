@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { FileText, Eye, Plus, ExternalLink } from 'lucide-react'
+import { FileText, Pencil, Plus, ExternalLink } from 'lucide-react'
 
 export default async function TemplatesPage() {
   const supabase = await createClient()
@@ -119,9 +119,11 @@ export default async function TemplatesPage() {
                       </TableCell>
                       <TableCell className="text-muted-foreground text-[13px] hidden sm:table-cell">{template.updated_at}</TableCell>
                       <TableCell className="text-right">
-                        <Button variant="ghost" size="sm" className="h-7 px-2 text-[13px]">
-                          <Eye className="w-3.5 h-3.5 sm:mr-1" />
-                          <span className="hidden sm:inline">Preview</span>
+                        <Button variant="ghost" size="sm" className="h-7 px-2 text-[13px]" asChild>
+                          <Link href={`/templates/${template.id}`}>
+                            <Pencil className="w-3.5 h-3.5 sm:mr-1" />
+                            <span className="hidden sm:inline">Edit</span>
+                          </Link>
                         </Button>
                       </TableCell>
                     </TableRow>

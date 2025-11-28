@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { emailService } from '@/lib/email-service'
-import { validateApiKey, rateLimit, apiError, apiSuccess, withRateLimitHeaders } from '@/lib/api-middleware'
+import { validateApiKey, rateLimit, apiError, apiSuccess, withRateLimitHeaders, checkUsageLimit } from '@/lib/api-middleware'
 import { sendEmailSchema } from '@/lib/validations'
 import { triggerEmailWebhook } from '@/lib/webhook-service'
 
@@ -17,6 +17,15 @@ export async function POST(request: NextRequest) {
   if (!rateLimitResult.allowed) {
     const response = apiError('Rate limit exceeded', 429)
     return withRateLimitHeaders(response, rateLimitResult.remaining, rateLimitResult.resetAt)
+  }
+
+  // Check usage limits based on plan
+  const usageLimit = await checkUsageLimit(context.organizationId)
+  if (!usageLimit.allowed) {
+    return apiError(
+      `Monthly email limit exceeded. You've sent ${usageLimit.current.toLocaleString()} of ${usageLimit.limit.toLocaleString()} emails on the ${usageLimit.plan} plan. Upgrade your plan to continue sending emails.`,
+      402 // Payment Required
+    )
   }
 
   try {

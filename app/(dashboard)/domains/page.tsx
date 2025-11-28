@@ -96,7 +96,7 @@ export default async function DomainsPage() {
         </div>
         
         <div className="p-4 sm:p-5">
-          <DomainsList domains={domains || []} />
+          <DomainsList domains={domains || []} organizationId={organizationId || ''} />
         </div>
       </div>
 

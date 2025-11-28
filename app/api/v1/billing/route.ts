@@ -18,50 +18,50 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Organization ID required' }, { status: 400 })
     }
 
-    // Get workspace with billing info
-    const { data: workspace } = await supabase
-      .from('workspaces')
+    // Get organization with billing info
+    const { data: organization } = await supabase
+      .from('organizations')
       .select('*')
       .eq('id', organizationId)
       .single()
 
-    if (!workspace) {
-      return NextResponse.json({ error: 'Workspace not found' }, { status: 404 })
+    if (!organization) {
+      return NextResponse.json({ error: 'Organization not found' }, { status: 404 })
     }
 
     // Get usage for current period
     const { data: usage } = await supabase
       .from('usage')
       .select('*')
-      .eq('workspace_id', organizationId)
+      .eq('organization_id', organizationId)
       .order('created_at', { ascending: false })
       .limit(1)
       .single()
 
-    // Get payment history/invoices
+    // Get payment history/invoices (if table exists)
     const { data: invoices } = await supabase
       .from('invoices')
       .select('*')
-      .eq('workspace_id', organizationId)
+      .eq('organization_id', organizationId)
       .order('created_at', { ascending: false })
       .limit(10)
 
-    // Build subscription object from workspace data
+    // Build subscription object from organization data
     const subscription = {
-      id: workspace.id,
-      plan: workspace.plan || 'free',
-      status: workspace.billing_status || 'active',
-      dodo_customer_id: workspace.dodo_customer_id,
-      dodo_subscription_id: workspace.dodo_subscription_id,
-      dodo_product_id: workspace.dodo_product_id,
-      current_period_start: workspace.billing_cycle_start || new Date().toISOString(),
-      current_period_end: workspace.billing_cycle_end || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-      cancel_at_period_end: workspace.cancel_at_period_end || false,
+      id: organization.id,
+      plan: organization.plan || 'free',
+      status: organization.billing_status || 'active',
+      dodo_customer_id: organization.dodo_customer_id,
+      dodo_subscription_id: organization.dodo_subscription_id,
+      dodo_product_id: organization.dodo_product_id,
+      current_period_start: organization.billing_cycle_start || new Date().toISOString(),
+      current_period_end: organization.billing_cycle_end || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      cancel_at_period_end: organization.cancel_at_period_end || false,
     }
 
     return NextResponse.json({
       subscription,
-      usage: usage || { emails_sent: 0, emails_limit: workspace.email_limit || 1000 },
+      usage: usage || { emails_sent: 0, emails_limit: organization.email_limit || 5000 },
       invoices: invoices || [],
     })
   } catch (error) {
@@ -89,9 +89,9 @@ export async function POST(request: NextRequest) {
 
     // Check user has admin access
     const { data: membership } = await supabase
-      .from('workspace_members')
+      .from('organization_members')
       .select('role')
-      .eq('workspace_id', organizationId)
+      .eq('organization_id', organizationId)
       .eq('user_id', user.id)
       .single()
 
@@ -101,9 +101,8 @@ export async function POST(request: NextRequest) {
 
     if (action === 'cancel') {
       // Mark subscription for cancellation at period end
-      // The actual cancellation will happen via Dodo Payments webhook or customer portal
       const { error } = await supabase
-        .from('workspaces')
+        .from('organizations')
         .update({ 
           cancel_at_period_end: true,
           updated_at: new Date().toISOString(),

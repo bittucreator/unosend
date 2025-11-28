@@ -210,7 +210,7 @@ export function BillingSettings({ organizationId }: BillingSettingsProps) {
       }
 
       // Redirect to Dodo Payments checkout
-      const checkoutUrl = `/api/checkout?product_id=${productId}&quantity=1&metadata[workspace_id]=${organizationId}&metadata[plan]=${planId}&metadata[region]=${isIndia ? 'india' : 'global'}`
+      const checkoutUrl = `/api/checkout?productId=${productId}&quantity=1&metadata[workspace_id]=${organizationId}&metadata[plan]=${planId}&metadata[region]=${isIndia ? 'india' : 'global'}`
       window.location.href = checkoutUrl
     } catch (error) {
       console.error('Upgrade error:', error)

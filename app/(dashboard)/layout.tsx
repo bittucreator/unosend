@@ -31,25 +31,62 @@ export default async function DashboardLayout({
     .eq('user_id', user.id)
 
   const membership = memberships?.[0]
+  const orgData = membership?.organizations
 
-  // If no membership found, redirect to onboarding
-  if (!membership || !membership.organizations) {
-    redirect('/onboarding/workspace')
+  // If no membership found, create default workspace
+  if (!membership || !orgData) {
+    // Auto-create workspace
+    const emailPrefix = user.email?.split('@')[0] || 'user'
+    const workspaceName = emailPrefix
+      .replace(/[._-]/g, ' ')
+      .replace(/\b\w/g, l => l.toUpperCase()) + "'s Workspace"
+    
+    const slug = emailPrefix
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, '-')
+      .substring(0, 30) + '-' + user.id.substring(0, 8)
+    
+    const { data: org, error: orgError } = await supabase
+      .from('organizations')
+      .insert({
+        name: workspaceName,
+        slug: slug,
+        owner_id: user.id,
+      })
+      .select('id')
+      .single()
+    
+    if (org && !orgError) {
+      await supabase
+        .from('organization_members')
+        .insert({
+          organization_id: org.id,
+          user_id: user.id,
+          role: 'owner',
+        })
+      
+      // Use router.refresh() pattern - redirect to current path or emails
+      redirect('/emails')
+    } else {
+      console.error('Failed to create org:', orgError)
+      // If org creation failed, show error
+      redirect('/login?error=Failed to create workspace')
+    }
   }
 
-  const org = Array.isArray(membership.organizations) 
-    ? membership.organizations[0] 
-    : membership.organizations
+  const org = Array.isArray(orgData) 
+    ? orgData[0] 
+    : orgData
 
   // Build all workspaces list
   const allWorkspaces: Workspace[] = memberships?.map(m => {
-    const org = Array.isArray(m.organizations) ? m.organizations[0] : m.organizations
+    const orgItem = Array.isArray(m.organizations) ? m.organizations[0] : m.organizations
     return {
-      id: org.id,
-      name: org.name,
-      slug: org.slug,
-      icon_url: org.icon_url || null,
-      owner_id: org.owner_id,
+      id: orgItem.id,
+      name: orgItem.name,
+      slug: orgItem.slug,
+      icon_url: orgItem.icon_url || null,
+      owner_id: orgItem.owner_id,
       role: m.role as 'owner' | 'admin' | 'member',
     }
   }) || []

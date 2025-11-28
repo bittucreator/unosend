@@ -113,3 +113,91 @@ export function withRateLimitHeaders(
   response.headers.set('X-RateLimit-Reset', Math.ceil(resetAt / 1000).toString())
   return response
 }
+
+// Plan limits configuration
+const PLAN_EMAIL_LIMITS: Record<string, number> = {
+  free: 5000,
+  pro: 50000,
+  scale: 200000,
+  enterprise: -1, // Unlimited
+}
+
+export interface UsageLimitResult {
+  allowed: boolean
+  current: number
+  limit: number
+  plan: string
+  remaining: number
+}
+
+export async function checkUsageLimit(organizationId: string): Promise<UsageLimitResult> {
+  // Get workspace plan info
+  const { data: workspace } = await supabaseAdmin
+    .from('workspaces')
+    .select('plan, email_limit, billing_status')
+    .eq('id', organizationId)
+    .single()
+
+  const plan = workspace?.plan || 'free'
+  const customLimit = workspace?.email_limit
+  const limit = customLimit || PLAN_EMAIL_LIMITS[plan] || PLAN_EMAIL_LIMITS.free
+  
+  // Check if billing is not active (except for free plan)
+  if (plan !== 'free' && workspace?.billing_status !== 'active') {
+    return {
+      allowed: false,
+      current: 0,
+      limit: PLAN_EMAIL_LIMITS.free,
+      plan: 'free',
+      remaining: 0,
+    }
+  }
+
+  // Enterprise has unlimited emails
+  if (limit === -1) {
+    return {
+      allowed: true,
+      current: 0,
+      limit: -1,
+      plan,
+      remaining: -1,
+    }
+  }
+
+  // Get current month's usage
+  const now = new Date()
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+
+  // First try usage table
+  const { data: usageRecord } = await supabaseAdmin
+    .from('usage')
+    .select('emails_sent')
+    .eq('organization_id', organizationId)
+    .gte('period_start', startOfMonth.toISOString())
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .single()
+
+  let currentUsage = usageRecord?.emails_sent || 0
+
+  // If no usage record, count from emails table
+  if (!usageRecord) {
+    const { count } = await supabaseAdmin
+      .from('emails')
+      .select('*', { count: 'exact', head: true })
+      .eq('organization_id', organizationId)
+      .gte('created_at', startOfMonth.toISOString())
+
+    currentUsage = count || 0
+  }
+
+  const remaining = Math.max(0, limit - currentUsage)
+  
+  return {
+    allowed: currentUsage < limit,
+    current: currentUsage,
+    limit,
+    plan,
+    remaining,
+  }
+}

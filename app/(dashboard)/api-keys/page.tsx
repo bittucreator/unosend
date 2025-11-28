@@ -1,4 +1,3 @@
-import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -10,9 +9,7 @@ export default async function ApiKeysPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user) {
-    redirect('/login')
-  }
+  if (!user) return null
 
   const { data: membership } = await supabase
     .from('organization_members')
@@ -21,10 +18,6 @@ export default async function ApiKeysPage() {
     .single()
 
   const organizationId = membership?.organization_id
-
-  if (!organizationId) {
-    redirect('/onboarding/workspace')
-  }
 
   const { data: apiKeys } = await supabase
     .from('api_keys')

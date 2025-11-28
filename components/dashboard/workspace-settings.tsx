@@ -5,8 +5,20 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Loader2, Upload, Trash2 } from 'lucide-react'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
+import { Loader2, Upload, Trash2, AlertTriangle } from 'lucide-react'
 import { toast } from 'sonner'
+import { createClient } from '@/lib/supabase/client'
 
 interface WorkspaceSettingsProps {
   organization: {
@@ -24,9 +36,12 @@ export function WorkspaceSettings({ organization, userRole }: WorkspaceSettingsP
   const [iconUrl, setIconUrl] = useState(organization.icon_url || null)
   const [isLoading, setIsLoading] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [deleteConfirmation, setDeleteConfirmation] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const canEdit = userRole === 'owner' || userRole === 'admin'
+  const canDelete = userRole === 'owner'
 
   const handleIconUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -84,6 +99,70 @@ export function WorkspaceSettings({ organization, userRole }: WorkspaceSettingsP
       toast.error(error instanceof Error ? error.message : 'Failed to remove icon')
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleDeleteWorkspace = async () => {
+    if (deleteConfirmation !== organization.name) return
+    
+    setIsDeleting(true)
+    try {
+      const supabase = createClient()
+      
+      // Delete in order due to foreign key constraints
+      // 1. Delete webhook logs
+      await supabase.from('webhook_logs').delete().eq('webhook_id', 
+        supabase.from('webhooks').select('id').eq('organization_id', organization.id)
+      )
+      
+      // 2. Delete webhooks
+      await supabase.from('webhooks').delete().eq('organization_id', organization.id)
+      
+      // 3. Delete email events
+      await supabase.from('email_events').delete().eq('email_id',
+        supabase.from('emails').select('id').eq('organization_id', organization.id)
+      )
+      
+      // 4. Delete emails
+      await supabase.from('emails').delete().eq('organization_id', organization.id)
+      
+      // 5. Delete contacts
+      await supabase.from('contacts').delete().eq('audience_id',
+        supabase.from('audiences').select('id').eq('organization_id', organization.id)
+      )
+      
+      // 6. Delete audiences
+      await supabase.from('audiences').delete().eq('organization_id', organization.id)
+      
+      // 7. Delete broadcasts
+      await supabase.from('broadcasts').delete().eq('organization_id', organization.id)
+      
+      // 8. Delete templates
+      await supabase.from('templates').delete().eq('organization_id', organization.id)
+      
+      // 9. Delete domains
+      await supabase.from('domains').delete().eq('organization_id', organization.id)
+      
+      // 10. Delete API keys
+      await supabase.from('api_keys').delete().eq('organization_id', organization.id)
+      
+      // 11. Delete organization members
+      await supabase.from('organization_members').delete().eq('organization_id', organization.id)
+      
+      // 12. Delete the organization
+      const { error } = await supabase.from('organizations').delete().eq('id', organization.id)
+      
+      if (error) throw error
+      
+      toast.success('Workspace deleted successfully')
+      
+      // Sign out and redirect to home
+      await supabase.auth.signOut()
+      router.push('/')
+    } catch (error) {
+      console.error('Delete error:', error)
+      toast.error('Failed to delete workspace. Please try again.')
+      setIsDeleting(false)
     }
   }
 
@@ -230,6 +309,85 @@ export function WorkspaceSettings({ organization, userRole }: WorkspaceSettingsP
             'Save Changes'
           )}
         </Button>
+      )}
+
+      {/* Danger Zone */}
+      {canDelete && (
+        <div className="pt-8 mt-8 border-t border-stone-200">
+          <div className="rounded-xl border border-red-200 bg-red-50/50 p-5">
+            <div className="flex items-start gap-3">
+              <div className="p-2 bg-red-100 rounded-lg">
+                <AlertTriangle className="w-4 h-4 text-red-600" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-[15px] text-red-900">Danger Zone</h3>
+                <p className="text-[13px] text-red-700 mt-1">
+                  Deleting this workspace will permanently remove all associated data including emails, domains, API keys, and team members. This action cannot be undone.
+                </p>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button 
+                      variant="destructive" 
+                      size="sm" 
+                      className="mt-4"
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Delete Workspace
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete Workspace</AlertDialogTitle>
+                      <AlertDialogDescription asChild>
+                        <div className="space-y-3">
+                          <p>
+                            This will permanently delete <strong>{organization.name}</strong> and all of its data:
+                          </p>
+                          <ul className="list-disc list-inside text-sm space-y-1">
+                            <li>All emails and email logs</li>
+                            <li>All domains and DNS records</li>
+                            <li>All API keys</li>
+                            <li>All webhooks</li>
+                            <li>All templates and broadcasts</li>
+                            <li>All team members will lose access</li>
+                          </ul>
+                          <p className="font-medium">
+                            Type <code className="bg-stone-100 px-1.5 py-0.5 rounded text-stone-900">{organization.name}</code> to confirm:
+                          </p>
+                          <Input
+                            value={deleteConfirmation}
+                            onChange={(e) => setDeleteConfirmation(e.target.value)}
+                            placeholder="Type workspace name to confirm"
+                            className="mt-2"
+                          />
+                        </div>
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel onClick={() => setDeleteConfirmation('')}>
+                        Cancel
+                      </AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={handleDeleteWorkspace}
+                        disabled={deleteConfirmation !== organization.name || isDeleting}
+                        className="bg-red-600 hover:bg-red-700"
+                      >
+                        {isDeleting ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Deleting...
+                          </>
+                        ) : (
+                          'Delete Workspace'
+                        )}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )
