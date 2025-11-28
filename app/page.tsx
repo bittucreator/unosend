@@ -3,6 +3,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { IndiaPricingBanner } from '@/components/india-pricing-banner'
 import { 
   Zap, 
   Shield, 
@@ -42,7 +43,7 @@ export default function HomePage() {
             <div className="hidden md:flex items-center space-x-6">
               <Link href="#features" className="text-[13px] text-muted-foreground hover:text-foreground transition">Features</Link>
               <Link href="#pricing" className="text-[13px] text-muted-foreground hover:text-foreground transition">Pricing</Link>
-              <Link href="https://docs.unosend.com" className="text-[13px] text-muted-foreground hover:text-foreground transition">Docs</Link>
+              <Link href="/docs" className="text-[13px] text-muted-foreground hover:text-foreground transition">Docs</Link>
             </div>
             <div className="flex items-center space-x-2">
               <Link href="/login">
@@ -81,7 +82,7 @@ export default function HomePage() {
                 <ArrowRight className="ml-1.5 w-3.5 h-3.5" />
               </Button>
             </Link>
-            <Link href="https://docs.unosend.com">
+            <Link href="/docs">
               <Button size="sm" variant="outline" className="h-9 px-5 text-[13px] border-stone-200/60">
                 View Documentation
               </Button>
@@ -272,6 +273,7 @@ export default function HomePage() {
             <p className="text-muted-foreground text-[14px] max-w-lg mx-auto">
               Start free, scale as you grow. No hidden fees.
             </p>
+            <IndiaPricingBanner />
           </div>
 
           <div className="grid md:grid-cols-3 gap-4 max-w-3xl mx-auto">
@@ -280,11 +282,11 @@ export default function HomePage() {
               price="$0"
               description="Perfect for getting started"
               features={[
-                '100,000 emails/month',
+                '5,000 emails/month',
+                '1,500 contacts',
                 '1 domain',
-                'Email analytics',
                 'API access',
-                'Community support',
+                'Email tracking',
               ]}
             />
             <PricingCard
@@ -292,7 +294,8 @@ export default function HomePage() {
               price="$20"
               description="For growing businesses"
               features={[
-                '500,000 emails/month',
+                '50,000 emails/month',
+                '10,000 contacts',
                 '10 domains',
                 'Advanced analytics',
                 'Webhooks',
@@ -301,17 +304,41 @@ export default function HomePage() {
               popular
             />
             <PricingCard
-              name="Enterprise"
-              price="Custom"
-              description="For large scale operations"
+              name="Scale"
+              price="$100"
+              description="For high-volume senders"
               features={[
-                'Unlimited emails',
+                '200,000 emails/month',
+                '25,000 contacts',
                 'Unlimited domains',
-                'Dedicated IPs',
-                'SLA guarantee',
-                '24/7 support',
+                'Unlimited team members',
+                'Dedicated IP (add-on)',
               ]}
             />
+          </div>
+
+          {/* Enterprise */}
+          <div className="mt-4 max-w-3xl mx-auto">
+            <div className="p-6 rounded-xl bg-gradient-to-r from-stone-50 to-stone-100/50 border border-stone-200/60">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                  <h3 className="text-[16px] font-semibold">Enterprise</h3>
+                  <p className="text-[13px] text-muted-foreground mt-1">For large scale operations with custom requirements</p>
+                  <div className="flex flex-wrap gap-x-6 gap-y-1 mt-3">
+                    <span className="text-[13px] flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-stone-500" /> Unlimited emails</span>
+                    <span className="text-[13px] flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-stone-500" /> Unlimited contacts</span>
+                    <span className="text-[13px] flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-stone-500" /> Dedicated IP included</span>
+                    <span className="text-[13px] flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-stone-500" /> SLA guarantee</span>
+                    <span className="text-[13px] flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-stone-500" /> 24/7 phone support</span>
+                  </div>
+                </div>
+                <Link href="mailto:sales@unosend.com">
+                  <Button variant="outline" size="sm" className="h-9 px-5 text-[13px] border-stone-200/60 whitespace-nowrap">
+                    Contact Sales
+                  </Button>
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -421,7 +448,7 @@ export default function HomePage() {
               <Link href="/privacy" className="hover:text-foreground transition">Privacy</Link>
               <Link href="/terms" className="hover:text-foreground transition">Terms</Link>
               <Link href="/docs" className="hover:text-foreground transition">Docs</Link>
-              <Link href="#" className="hover:text-foreground transition">Status</Link>
+              <Link href="https://status.unosend.com" className="hover:text-foreground transition">Status</Link>
             </div>
           </div>
           <div className="mt-6 text-center text-muted-foreground text-[12px]">
@@ -495,7 +522,7 @@ function PricingCard({
           </li>
         ))}
       </ul>
-      <Link href="/signup" className="block">
+      <Link href={price === 'Custom' ? 'mailto:sales@unosend.com' : '/signup'} className="block">
         <Button 
           variant={popular ? "default" : "outline"} 
           size="sm"
