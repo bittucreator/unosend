@@ -1,8 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Switch } from '@/components/ui/switch'
+import { Button } from '@/components/ui/button'
 import {
   Table,
   TableBody,
@@ -11,19 +11,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Plus, Webhook, Trash2, ExternalLink } from 'lucide-react'
+import { Webhook, Trash2, ExternalLink } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
+import { CreateWebhookButton } from '@/components/dashboard/create-webhook-button'
 
 export default async function WebhooksPage() {
   const supabase = await createClient()
@@ -42,12 +32,16 @@ export default async function WebhooksPage() {
 
   const organizationId = membership?.organization_id
 
+  if (!organizationId) {
+    redirect('/onboarding/workspace')
+  }
+
   // Get webhooks
-  const { data: webhooks } = organizationId ? await supabase
+  const { data: webhooks } = await supabase
     .from('webhooks')
     .select('id, url, events, enabled, created_at')
     .eq('organization_id', organizationId)
-    .order('created_at', { ascending: false }) : { data: [] }
+    .order('created_at', { ascending: false })
 
   const eventLabels: Record<string, string> = {
     'email.sent': 'Sent',
@@ -69,43 +63,7 @@ export default async function WebhooksPage() {
             Receive real-time notifications for email events
           </p>
         </div>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button size="sm" className="h-8 text-[13px]">
-              <Plus className="w-3.5 h-3.5 mr-1.5" />
-              Add Webhook
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add Webhook</DialogTitle>
-              <DialogDescription>
-                Configure a webhook endpoint to receive email events
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div>
-                <Label htmlFor="url" className="text-[13px]">Endpoint URL</Label>
-                <Input id="url" placeholder="https://your-app.com/webhooks" className="mt-2 text-[13px]" />
-              </div>
-              <div>
-                <Label className="text-[13px]">Events</Label>
-                <div className="grid grid-cols-2 gap-2 mt-2">
-                  {Object.entries(eventLabels).map(([event, label]) => (
-                    <div key={event} className="flex items-center space-x-2">
-                      <input type="checkbox" id={event} className="rounded" />
-                      <label htmlFor={event} className="text-[13px]">{label}</label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="ghost" size="sm">Cancel</Button>
-              <Button size="sm">Create Webhook</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <CreateWebhookButton organizationId={organizationId} />
       </div>
 
       {/* Webhooks Section */}
@@ -126,31 +84,7 @@ export default async function WebhooksPage() {
             </div>
             <p className="font-medium text-[14px] mb-1">No webhooks yet</p>
             <p className="text-muted-foreground text-[13px] mb-4">Add a webhook to receive real-time email events</p>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button size="sm" className="h-8 text-[13px]">
-                  <Plus className="w-3.5 h-3.5 mr-1.5" />
-                  Add Webhook
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Add Webhook</DialogTitle>
-                  <DialogDescription>
-                    Configure a webhook endpoint to receive email events
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4 py-4">
-                  <div>
-                    <Label htmlFor="url2" className="text-[13px]">Endpoint URL</Label>
-                    <Input id="url2" placeholder="https://your-app.com/webhooks" className="mt-2 text-[13px]" />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button size="sm">Create Webhook</Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+            <CreateWebhookButton organizationId={organizationId} />
           </div>
         ) : (
           <div className="overflow-x-auto">
