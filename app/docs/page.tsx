@@ -1,3 +1,4 @@
+import { Metadata } from 'next'
 import Link from 'next/link'
 import { CodeBlock } from '@/components/ui/code-block'
 import { Badge } from '@/components/ui/badge'
@@ -11,6 +12,15 @@ import {
   Shield,
   Code
 } from 'lucide-react'
+
+export const metadata: Metadata = {
+  title: 'Documentation',
+  description: 'Learn how to integrate Unosend email API into your application. Comprehensive guides, API reference, and code examples.',
+  openGraph: {
+    title: 'Unosend Documentation',
+    description: 'Learn how to integrate Unosend email API into your application.',
+  },
+}
 
 export default function DocsPage() {
   return (

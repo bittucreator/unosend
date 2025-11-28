@@ -29,16 +29,14 @@ export default async function AudiencePage() {
     .eq('user_id', user.id)
     .single()
 
-  if (!membership) {
-    redirect('/login')
-  }
+  const organizationId = membership?.organization_id
 
   // Fetch audiences from database
-  const { data: audiences } = await supabase
+  const { data: audiences } = organizationId ? await supabase
     .from('audiences')
     .select('id, name, created_at')
-    .eq('organization_id', membership.organization_id)
-    .order('created_at', { ascending: false })
+    .eq('organization_id', organizationId)
+    .order('created_at', { ascending: false }) : { data: [] }
 
   // Get contact counts for each audience
   const audienceIds = (audiences || []).map(a => a.id)
@@ -84,8 +82,8 @@ export default async function AudiencePage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <AddContactButton organizationId={membership.organization_id} audiences={formattedAudiences} />
-          <CreateAudienceButton organizationId={membership.organization_id} />
+          <AddContactButton organizationId={organizationId || ''} audiences={formattedAudiences} />
+          <CreateAudienceButton organizationId={organizationId || ''} />
         </div>
       </div>
 
@@ -130,8 +128,8 @@ export default async function AudiencePage() {
               <p className="font-medium text-[15px] mb-1">No audiences yet</p>
               <p className="text-[13px] text-muted-foreground mb-5">Create an audience to organize your contacts</p>
               <div className="flex items-center justify-center gap-2">
-                <AddContactButton organizationId={membership.organization_id} audiences={formattedAudiences} />
-                <CreateAudienceButton organizationId={membership.organization_id} />
+                <AddContactButton organizationId={organizationId || ''} audiences={formattedAudiences} />
+                <CreateAudienceButton organizationId={organizationId || ''} />
               </div>
             </div>
           ) : (

@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -98,10 +99,28 @@ export default async function DashboardLayout({
     }
   }) || []
 
+  // Check for selected workspace in cookies
+  const cookieStore = await cookies()
+  const selectedWorkspaceId = cookieStore.get('selectedWorkspaceId')?.value
+  
+  // Find selected workspace or default to first one
+  let currentOrg = org
+  if (selectedWorkspaceId) {
+    const selectedMembership = memberships?.find(m => {
+      const o = Array.isArray(m.organizations) ? m.organizations[0] : m.organizations
+      return o.id === selectedWorkspaceId
+    })
+    if (selectedMembership) {
+      currentOrg = Array.isArray(selectedMembership.organizations) 
+        ? selectedMembership.organizations[0] 
+        : selectedMembership.organizations
+    }
+  }
+
   return (
     <DashboardShell 
       user={user} 
-      organization={org as { id: string; name: string; slug: string; icon_url?: string | null }}
+      organization={currentOrg as { id: string; name: string; slug: string; icon_url?: string | null }}
       workspaces={allWorkspaces}
     >
       {children}

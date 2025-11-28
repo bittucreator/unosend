@@ -40,16 +40,14 @@ export default async function WebhooksPage() {
     .eq('user_id', user.id)
     .single()
 
-  if (!membership) {
-    redirect('/login')
-  }
+  const organizationId = membership?.organization_id
 
   // Get webhooks
-  const { data: webhooks } = await supabase
+  const { data: webhooks } = organizationId ? await supabase
     .from('webhooks')
     .select('id, url, events, enabled, created_at')
-    .eq('organization_id', membership.organization_id)
-    .order('created_at', { ascending: false })
+    .eq('organization_id', organizationId)
+    .order('created_at', { ascending: false }) : { data: [] }
 
   const eventLabels: Record<string, string> = {
     'email.sent': 'Sent',

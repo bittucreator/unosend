@@ -1,7 +1,17 @@
+import { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
+
+export const metadata: Metadata = {
+  title: 'Privacy Policy',
+  description: 'Unosend Privacy Policy. Learn how we collect, use, and protect your personal information.',
+  openGraph: {
+    title: 'Privacy Policy - Unosend',
+    description: 'Learn how we collect, use, and protect your personal information.',
+  },
+}
 
 export default function PrivacyPage() {
   return (

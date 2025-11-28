@@ -17,14 +17,14 @@ export default async function ApiKeysPage() {
     .eq('user_id', user.id)
     .single()
 
-  if (!membership) return null
+  const organizationId = membership?.organization_id
 
-  const { data: apiKeys } = await supabase
+  const { data: apiKeys } = organizationId ? await supabase
     .from('api_keys')
     .select('id, name, key_prefix, last_used_at, created_at')
-    .eq('organization_id', membership.organization_id)
+    .eq('organization_id', organizationId)
     .is('revoked_at', null)
-    .order('created_at', { ascending: false })
+    .order('created_at', { ascending: false }) : { data: [] }
 
   return (
     <div className="space-y-6">
@@ -36,7 +36,7 @@ export default async function ApiKeysPage() {
             Manage your API keys for authentication
           </p>
         </div>
-        <CreateApiKeyButton organizationId={membership.organization_id} />
+        <CreateApiKeyButton organizationId={organizationId || ''} />
       </div>
 
       {/* API Keys Section */}

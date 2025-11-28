@@ -27,15 +27,13 @@ export default async function MetricsPage() {
     .eq('user_id', user.id)
     .single()
 
-  if (!membership) {
-    redirect('/login')
-  }
+  const organizationId = membership?.organization_id
 
   // Get email stats
-  const { data: emails } = await supabase
+  const { data: emails } = organizationId ? await supabase
     .from('emails')
     .select('status')
-    .eq('organization_id', membership.organization_id)
+    .eq('organization_id', organizationId) : { data: [] }
 
   const stats = {
     total: emails?.length || 0,

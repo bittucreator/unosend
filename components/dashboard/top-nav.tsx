@@ -1,7 +1,9 @@
 'use client'
 
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Menu, Search } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import { Menu, Search, HelpCircle, BookOpen } from 'lucide-react'
 
 interface TopNavProps {
   onMenuClick?: () => void
@@ -34,8 +36,29 @@ export function TopNav({ onMenuClick }: TopNavProps) {
           </button>
         </div>
 
-        {/* Right side - empty placeholder for balance */}
-        <div className="flex items-center gap-2 w-8 md:w-0" />
+        {/* Right side - Actions */}
+        <div className="flex items-center gap-2">
+          {/* Emails left badge */}
+          <Badge variant="secondary" className="hidden sm:flex text-[11px] bg-stone-100 text-stone-600 border-0 px-2 py-0.5">
+            1,000 emails left
+          </Badge>
+
+          {/* Docs link */}
+          <Link href="/docs" target="_blank">
+            <Button variant="ghost" size="sm" className="h-8 px-2.5 text-[13px] text-muted-foreground hover:text-foreground">
+              <BookOpen className="w-4 h-4 sm:mr-1.5" />
+              <span className="hidden sm:inline">Docs</span>
+            </Button>
+          </Link>
+
+          {/* Help link */}
+          <Link href="/contact">
+            <Button variant="ghost" size="sm" className="h-8 px-2.5 text-[13px] text-muted-foreground hover:text-foreground">
+              <HelpCircle className="w-4 h-4 sm:mr-1.5" />
+              <span className="hidden sm:inline">Help</span>
+            </Button>
+          </Link>
+        </div>
       </div>
     </nav>
   )

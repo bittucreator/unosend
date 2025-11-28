@@ -28,16 +28,14 @@ export default async function BroadcastsPage() {
     .eq('user_id', user.id)
     .single()
 
-  if (!membership) {
-    redirect('/login')
-  }
+  const organizationId = membership?.organization_id
 
   // Fetch broadcasts from database
-  const { data: broadcasts } = await supabase
+  const { data: broadcasts } = organizationId ? await supabase
     .from('broadcasts')
     .select('id, name, subject, status, sent_at, created_at')
-    .eq('organization_id', membership.organization_id)
-    .order('created_at', { ascending: false })
+    .eq('organization_id', organizationId)
+    .order('created_at', { ascending: false }) : { data: [] }
 
   // Get recipient counts for each broadcast
   const broadcastIds = (broadcasts || []).map(b => b.id)

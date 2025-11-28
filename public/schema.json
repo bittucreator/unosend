@@ -1,0 +1,33 @@
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Unosend",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Web",
+  "description": "The best email API for developers. Send transactional and marketing emails with 99.9% deliverability.",
+  "url": "https://unosend.com",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD",
+    "description": "100,000 free emails per month"
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.9",
+    "ratingCount": "500"
+  },
+  "author": {
+    "@type": "Organization",
+    "name": "Unosend",
+    "url": "https://unosend.com"
+  },
+  "featureList": [
+    "Simple REST API",
+    "99.9% deliverability",
+    "Real-time webhooks",
+    "Email analytics",
+    "Domain authentication",
+    "Multiple SDKs"
+  ]
+}

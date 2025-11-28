@@ -1,7 +1,17 @@
+import { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
+
+export const metadata: Metadata = {
+  title: 'Terms of Service',
+  description: 'Unosend Terms of Service. Read our terms and conditions for using the Unosend email API service.',
+  openGraph: {
+    title: 'Terms of Service - Unosend',
+    description: 'Read our terms and conditions for using the Unosend email API service.',
+  },
+}
 
 export default function TermsPage() {
   return (

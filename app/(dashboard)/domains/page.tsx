@@ -17,13 +17,13 @@ export default async function DomainsPage() {
     .eq('user_id', user.id)
     .single()
 
-  if (!membership) return null
+  const organizationId = membership?.organization_id
 
-  const { data: domains } = await supabase
+  const { data: domains } = organizationId ? await supabase
     .from('domains')
     .select('id, domain, status, dns_records, verified_at, created_at')
-    .eq('organization_id', membership.organization_id)
-    .order('created_at', { ascending: false })
+    .eq('organization_id', organizationId)
+    .order('created_at', { ascending: false }) : { data: [] }
 
   const verifiedCount = domains?.filter(d => d.status === 'verified').length || 0
   const pendingCount = domains?.filter(d => d.status === 'pending').length || 0
@@ -38,7 +38,7 @@ export default async function DomainsPage() {
             Add and verify domains to send emails
           </p>
         </div>
-        <AddDomainButton organizationId={membership.organization_id} />
+        <AddDomainButton organizationId={organizationId || ''} />
       </div>
 
       {/* Stats Row */}

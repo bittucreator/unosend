@@ -1,3 +1,4 @@
+import { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
@@ -13,6 +14,20 @@ import {
   Sparkles,
   Webhook
 } from 'lucide-react'
+
+export const metadata: Metadata = {
+  title: 'Unosend - Email API for Developers | One API. Infinite Emails.',
+  description: 'The best email API for developers. Send transactional and marketing emails with 99.9% deliverability. Simple REST API, competitive pricing, and 100,000 free emails/month. Start free today.',
+  openGraph: {
+    title: 'Unosend - Email API for Developers',
+    description: 'The best email API for developers. 99.9% deliverability, simple REST API, and 100,000 free emails/month.',
+    url: 'https://unosend.com',
+  },
+  twitter: {
+    title: 'Unosend - Email API for Developers',
+    description: 'The best email API for developers. 99.9% deliverability, simple REST API, and 100,000 free emails/month.',
+  },
+}
 
 export default function HomePage() {
   return (

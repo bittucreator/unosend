@@ -306,6 +306,100 @@ export interface Database {
           updated_at?: string
         }
       }
+      workspaces: {
+        Row: {
+          id: string
+          name: string
+          slug: string
+          icon_url: string | null
+          owner_id: string
+          dodo_customer_id: string | null
+          dodo_subscription_id: string | null
+          dodo_product_id: string | null
+          plan: 'free' | 'pro' | 'scale' | 'enterprise'
+          email_limit: number
+          contacts_limit: number
+          billing_status: 'active' | 'paused' | 'cancelled' | 'past_due'
+          billing_cycle_start: string | null
+          billing_cycle_end: string | null
+          cancel_at_period_end: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          slug: string
+          icon_url?: string | null
+          owner_id: string
+          dodo_customer_id?: string | null
+          dodo_subscription_id?: string | null
+          dodo_product_id?: string | null
+          plan?: 'free' | 'pro' | 'scale' | 'enterprise'
+          email_limit?: number
+          contacts_limit?: number
+          billing_status?: 'active' | 'paused' | 'cancelled' | 'past_due'
+          billing_cycle_start?: string | null
+          billing_cycle_end?: string | null
+          cancel_at_period_end?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          slug?: string
+          icon_url?: string | null
+          owner_id?: string
+          dodo_customer_id?: string | null
+          dodo_subscription_id?: string | null
+          dodo_product_id?: string | null
+          plan?: 'free' | 'pro' | 'scale' | 'enterprise'
+          email_limit?: number
+          contacts_limit?: number
+          billing_status?: 'active' | 'paused' | 'cancelled' | 'past_due'
+          billing_cycle_start?: string | null
+          billing_cycle_end?: string | null
+          cancel_at_period_end?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      invoices: {
+        Row: {
+          id: string
+          workspace_id: string
+          dodo_payment_id: string | null
+          amount_paid: number
+          currency: string
+          status: 'pending' | 'paid' | 'failed' | 'refunded'
+          invoice_url: string | null
+          paid_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          workspace_id: string
+          dodo_payment_id?: string | null
+          amount_paid: number
+          currency?: string
+          status?: 'pending' | 'paid' | 'failed' | 'refunded'
+          invoice_url?: string | null
+          paid_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          workspace_id?: string
+          dodo_payment_id?: string | null
+          amount_paid?: number
+          currency?: string
+          status?: 'pending' | 'paid' | 'failed' | 'refunded'
+          invoice_url?: string | null
+          paid_at?: string | null
+          created_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never

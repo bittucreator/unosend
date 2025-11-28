@@ -35,12 +35,10 @@ export default async function LogsPage() {
     .eq('user_id', user.id)
     .single()
 
-  if (!membership) {
-    redirect('/login')
-  }
+  const organizationId = membership?.organization_id
 
   // Get email events/logs
-  const { data: emails } = await supabase
+  const { data: emails } = organizationId ? await supabase
     .from('emails')
     .select(`
       id,
@@ -57,9 +55,9 @@ export default async function LogsPage() {
         metadata
       )
     `)
-    .eq('organization_id', membership.organization_id)
+    .eq('organization_id', organizationId)
     .order('created_at', { ascending: false })
-    .limit(100)
+    .limit(100) : { data: [] }
 
   const statusConfig: Record<string, { icon: typeof CheckCircle; color: string; label: string }> = {
     queued: { icon: Clock, color: 'bg-stone-100 text-stone-700', label: 'Queued' },

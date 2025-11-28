@@ -1,8 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { EmailsList } from '@/components/dashboard/emails-list'
-import { Mail, ArrowRight, ExternalLink } from 'lucide-react'
+import { Mail, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 
 export default async function EmailsPage() {
@@ -17,14 +16,15 @@ export default async function EmailsPage() {
     .eq('user_id', user.id)
     .single()
 
-  if (!membership) return null
+  // Show empty state if no membership (tables not set up)
+  const organizationId = membership?.organization_id
 
-  const { data: emails, count } = await supabase
+  const { data: emails, count } = organizationId ? await supabase
     .from('emails')
     .select('id, from_email, from_name, to_emails, subject, status, created_at, sent_at', { count: 'exact' })
-    .eq('organization_id', membership.organization_id)
+    .eq('organization_id', organizationId)
     .order('created_at', { ascending: false })
-    .limit(100)
+    .limit(100) : { data: [], count: 0 }
 
   // Get stats
   const sentCount = emails?.filter(e => e.status === 'sent' || e.status === 'delivered').length || 0
@@ -33,19 +33,11 @@ export default async function EmailsPage() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight">Emails</h1>
-          <p className="text-[13px] text-muted-foreground mt-1">
-            Monitor all emails sent through the API
-          </p>
-        </div>
-        <Link href="https://docs.unosend.com/api" target="_blank">
-          <Button variant="outline" size="sm" className="h-8 text-[13px]">
-            <ExternalLink className="w-3.5 h-3.5 mr-1.5" />
-            API Docs
-          </Button>
-        </Link>
+      <div>
+        <h1 className="text-xl font-semibold tracking-tight">Emails</h1>
+        <p className="text-[13px] text-muted-foreground mt-1">
+          Monitor all emails sent through the API
+        </p>
       </div>
 
       {/* Stats Row */}

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
@@ -17,18 +17,16 @@ import {
   Webhook,
   Settings,
   X,
-  Coins,
   UserPlus,
-  HelpCircle,
   LogOut,
   ChevronDown,
   CreditCard,
   ArrowLeftRight,
-  Copy,
   Check,
   Plus,
-  ExternalLink,
   Upload,
+  PanelLeftClose,
+  PanelLeft,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -50,6 +48,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
@@ -109,13 +113,28 @@ export function Sidebar({ user, organization, workspaces, isOpen = true, onClose
   const [membersDialogOpen, setMembersDialogOpen] = useState(false)
   const [createWorkspaceOpen, setCreateWorkspaceOpen] = useState(false)
   const [inviteEmail, setInviteEmail] = useState('')
-  const [copied, setCopied] = useState(false)
   const [workspaceName, setWorkspaceName] = useState('')
   const [workspaceIcon, setWorkspaceIcon] = useState<string | null>(null)
   const [isCreating, setIsCreating] = useState(false)
   const [members, setMembers] = useState<Member[]>([])
   const [isLoadingMembers, setIsLoadingMembers] = useState(false)
+  const [isCollapsed, setIsCollapsed] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Load collapsed state from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('sidebarCollapsed')
+    if (saved === 'true') {
+      setIsCollapsed(true)
+    }
+  }, [])
+
+  // Save collapsed state to localStorage
+  const toggleCollapse = () => {
+    const newState = !isCollapsed
+    setIsCollapsed(newState)
+    localStorage.setItem('sidebarCollapsed', String(newState))
+  }
 
   // Fetch members when dialog opens
   const fetchMembers = async () => {
@@ -145,7 +164,7 @@ export function Sidebar({ user, organization, workspaces, isOpen = true, onClose
       }
 
       toast.success('Member removed')
-      fetchMembers() // Refresh list
+      fetchMembers()
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to remove member')
     }
@@ -156,14 +175,6 @@ export function Sidebar({ user, organization, workspaces, isOpen = true, onClose
     await supabase.auth.signOut()
     router.push('/')
     router.refresh()
-  }
-
-  const handleCopyWorkspaceId = async (e: React.MouseEvent) => {
-    e.stopPropagation()
-    await navigator.clipboard.writeText(organization.id)
-    setCopied(true)
-    toast.success('Workspace ID copied to clipboard')
-    setTimeout(() => setCopied(false), 2000)
   }
 
   const handleInviteMember = async () => {
@@ -241,7 +252,7 @@ export function Sidebar({ user, organization, workspaces, isOpen = true, onClose
       setCreateWorkspaceOpen(false)
       setWorkspaceName('')
       setWorkspaceIcon(null)
-      router.refresh() // Refresh to show new workspace
+      router.refresh()
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to create workspace')
     } finally {
@@ -250,439 +261,464 @@ export function Sidebar({ user, organization, workspaces, isOpen = true, onClose
   }
 
   const handleSwitchWorkspace = (workspaceId: string) => {
-    // Store selected workspace in localStorage and refresh
-    localStorage.setItem('selectedWorkspaceId', workspaceId)
+    document.cookie = `selectedWorkspaceId=${workspaceId}; path=/; max-age=31536000`
     router.refresh()
     toast.success('Switched workspace')
   }
 
   return (
-    <>
-      {/* Mobile overlay */}
-      {isOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-40 md:hidden" 
-          onClick={onClose}
-        />
-      )}
-      
-      <aside className={cn(
-        "fixed md:relative z-50 md:z-auto",
-        "w-64 md:w-[230px] border-r",
-        "h-full md:min-h-screen",
-        "transition-transform duration-200 ease-in-out",
-        "md:translate-x-0 flex flex-col",
-        "bg-[#fafafa]",
-        isOpen ? "translate-x-0" : "-translate-x-full"
-      )}>
-        {/* Mobile header */}
-        <div className="flex items-center justify-between p-4 border-b md:hidden">
-          <span className="font-semibold">Menu</span>
-          <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8">
-            <X className="w-4 h-4" />
-          </Button>
-        </div>
-
-        {/* Workspace Dropdown */}
-        <div className="p-2 hidden md:block">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-2 w-full px-2 py-1.5 rounded-lg hover:bg-[#f0f0f0] transition-colors">
-                {organization.icon_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img 
-                    src={organization.icon_url} 
-                    alt={organization.name} 
-                    className="w-6 h-6 rounded object-cover shrink-0"
-                  />
-                ) : (
-                  <div className="w-6 h-6 bg-orange-500 rounded flex items-center justify-center shrink-0">
-                    <span className="text-white font-semibold text-xs">{organization.name.charAt(0)}</span>
-                  </div>
-                )}
-                <span className="text-[13px] font-medium truncate flex-1 text-left">{organization.name}</span>
-                <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
-                <div 
-                  className="h-6 w-6 shrink-0 hover:bg-stone-200 rounded flex items-center justify-center"
-                  onClick={handleCopyWorkspaceId}
-                >
-                  {copied ? (
-                    <Check className="w-3 h-3 text-green-600" />
-                  ) : (
-                    <Copy className="w-3 h-3 text-muted-foreground" />
-                  )}
-                </div>
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" sideOffset={4} className="w-[220px] p-1">
-              {/* User info */}
-              <div className="px-2 py-2">
-                <p className="text-[14px] font-medium">{user.email?.split('@')[0] || 'User'}</p>
-                <p className="text-[12px] text-muted-foreground truncate">{user.email}</p>
-              </div>
-              
-              {/* Settings */}
-              <DropdownMenuItem asChild className="rounded-md">
-                <Link href="/settings" className="cursor-pointer">
-                  <Settings className="w-4 h-4 mr-2.5 text-muted-foreground" />
-                  Settings
-                </Link>
-              </DropdownMenuItem>
-              
-              <DropdownMenuSeparator className="my-1" />
-              
-              {/* Switch workspaces - with submenu */}
-              <DropdownMenuSub>
-                <DropdownMenuSubTrigger className="cursor-pointer rounded-md">
-                  <ArrowLeftRight className="w-4 h-4 mr-2.5 text-muted-foreground" />
-                  Switch workspaces
-                </DropdownMenuSubTrigger>
-                <DropdownMenuPortal>
-                  <DropdownMenuSubContent sideOffset={8} className="w-56 p-1">
-                    <div className="px-2 py-1.5 text-[11px] text-muted-foreground">Workspaces</div>
-                    {workspaces.map((workspace) => (
-                      <DropdownMenuItem 
-                        key={workspace.id}
-                        className="cursor-pointer rounded-md"
-                        onClick={() => {
-                          if (workspace.id !== organization.id) {
-                            handleSwitchWorkspace(workspace.id)
-                          }
-                        }}
-                      >
-                        {workspace.icon_url ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img 
-                            src={workspace.icon_url} 
-                            alt={workspace.name} 
-                            className="w-5 h-5 rounded object-cover mr-2"
-                          />
-                        ) : (
-                          <div className="w-5 h-5 bg-orange-500 rounded flex items-center justify-center mr-2">
-                            <span className="text-white font-semibold text-[10px]">{workspace.name.charAt(0)}</span>
-                          </div>
-                        )}
-                        <span className="flex-1 text-[13px] truncate">{workspace.name}</span>
-                        {workspace.id === organization.id && (
-                          <Check className="w-4 h-4 text-muted-foreground shrink-0" />
-                        )}
-                      </DropdownMenuItem>
-                    ))}
-                    <DropdownMenuSeparator className="my-1" />
-                    <DropdownMenuItem className="cursor-pointer rounded-md" onClick={() => setCreateWorkspaceOpen(true)}>
-                      <Plus className="w-4 h-4 mr-2 text-muted-foreground" />
-                      Create new workspace
-                    </DropdownMenuItem>
-                  </DropdownMenuSubContent>
-                </DropdownMenuPortal>
-              </DropdownMenuSub>
-              
-              {/* Manage members */}
-              <DropdownMenuItem className="cursor-pointer rounded-md" onClick={() => setMembersDialogOpen(true)}>
-                <Users className="w-4 h-4 mr-2.5 text-muted-foreground" />
-                Manage members
-              </DropdownMenuItem>
-              
-              {/* Billing */}
-              <DropdownMenuItem asChild className="rounded-md">
-                <Link href="/settings" className="cursor-pointer">
-                  <CreditCard className="w-4 h-4 mr-2.5 text-muted-foreground" />
-                  Billing
-                </Link>
-              </DropdownMenuItem>
-              
-              <DropdownMenuSeparator className="my-1" />
-              
-              {/* Logout */}
-              <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer rounded-md">
-                <LogOut className="w-4 h-4 mr-2.5 text-muted-foreground" />
-                Logout
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+    <TooltipProvider delayDuration={0}>
+      <>
+        {/* Mobile overlay */}
+        {isOpen && (
+          <div 
+            className="fixed inset-0 bg-black/50 z-40 md:hidden" 
+            onClick={onClose}
+          />
+        )}
         
-        {/* Main navigation */}
-        <nav className="p-2 space-y-0.5 flex-1">
-          {navItems.map((item) => {
-            const isActive = pathname === item.href || 
-              (item.href !== '/emails' && pathname.startsWith(item.href))
-            const Icon = item.icon
-            
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={onClose}
-                className={cn(
-                  "flex items-center gap-2.5 px-2.5 py-1.5 text-[13px] rounded-md transition-colors",
-                  isActive 
-                    ? "bg-[#f0f0f0] text-foreground font-medium" 
-                    : "text-muted-foreground hover:text-foreground hover:bg-[#f0f0f0]"
-                )}
-              >
-                <Icon className="w-4 h-4" />
-                {item.label}
-              </Link>
-            )
-          })}
-        </nav>
-        
-        {/* Bottom section */}
-        <div className="p-2 border-t border-stone-200/60 space-y-0.5">
-          <div className="flex items-center gap-2.5 px-2.5 py-1.5 text-[13px] text-muted-foreground">
-            <Coins className="w-4 h-4" />
-            <span>1000 emails left</span>
-          </div>
-          <button 
-            onClick={() => setInviteDialogOpen(true)}
-            className="flex items-center gap-2.5 px-2.5 py-1.5 text-[13px] text-muted-foreground hover:text-foreground hover:bg-[#f0f0f0] rounded-md w-full transition-colors"
-          >
-            <UserPlus className="w-4 h-4" />
-            <span>Invite members</span>
-          </button>
-          <a 
-            href="https://docs.unosend.com" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="flex items-center gap-2.5 px-2.5 py-1.5 text-[13px] text-muted-foreground hover:text-foreground hover:bg-[#f0f0f0] rounded-md w-full transition-colors"
-          >
-            <HelpCircle className="w-4 h-4" />
-            <span>Help</span>
-            <ExternalLink className="w-3 h-3 ml-auto" />
-          </a>
-        </div>
-      </aside>
-
-      {/* Invite Members Dialog */}
-      <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Invite team members</DialogTitle>
-            <DialogDescription>
-              Invite people to join your workspace. They&apos;ll receive an email invitation.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email address</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="colleague@company.com"
-                value={inviteEmail}
-                onChange={(e) => setInviteEmail(e.target.value)}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setInviteDialogOpen(false)}>
-              Cancel
+        <aside className={cn(
+          "fixed md:relative z-50 md:z-auto",
+          "border-r",
+          "h-full md:min-h-screen",
+          "transition-all duration-200 ease-in-out",
+          "md:translate-x-0 flex flex-col",
+          "bg-[#fafafa]",
+          isOpen ? "translate-x-0" : "-translate-x-full",
+          isCollapsed ? "w-[60px]" : "w-64 md:w-[230px]"
+        )}>
+          {/* Mobile header */}
+          <div className="flex items-center justify-between p-4 border-b md:hidden">
+            <span className="font-semibold">Menu</span>
+            <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8">
+              <X className="w-4 h-4" />
             </Button>
-            <Button onClick={handleInviteMember} className="bg-stone-900 hover:bg-stone-800">
-              Send invitation
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </div>
 
-      {/* Manage Members Dialog */}
-      <Dialog open={membersDialogOpen} onOpenChange={(open) => {
-        setMembersDialogOpen(open)
-        if (open) fetchMembers()
-      }}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Team members</DialogTitle>
-            <DialogDescription>
-              Manage who has access to this workspace.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-3 py-4 max-h-[400px] overflow-y-auto">
-            {isLoadingMembers ? (
-              <div className="text-center py-8 text-[13px] text-muted-foreground">
-                Loading members...
-              </div>
-            ) : members.length === 0 ? (
-              <div className="text-center py-8 text-[13px] text-muted-foreground">
-                <p>No members found.</p>
-                <Button 
-                  variant="link" 
-                  className="text-[13px] p-0 h-auto"
-                  onClick={() => {
-                    setMembersDialogOpen(false)
-                    setInviteDialogOpen(true)
-                  }}
-                >
-                  Invite someone to join
-                </Button>
-              </div>
-            ) : (
-              <>
-                {members.map((member) => (
-                  <div key={member.id} className="flex items-center justify-between p-3 bg-stone-50 rounded-lg">
-                    <div className="flex items-center gap-3">
-                      {member.user.avatar_url ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img 
-                          src={member.user.avatar_url} 
-                          alt={member.user.email}
-                          className="w-8 h-8 rounded-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
-                          <span className="text-white font-medium text-xs">
-                            {member.user.email?.substring(0, 2).toUpperCase()}
-                          </span>
-                        </div>
-                      )}
-                      <div>
-                        <p className="text-[13px] font-medium">
-                          {member.user.full_name || member.user.email}
-                        </p>
-                        <p className="text-[11px] text-muted-foreground capitalize">{member.role}</p>
+          {/* Workspace Dropdown */}
+          <div className="p-2 hidden md:block">
+            <div className="flex items-center gap-1">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className={cn(
+                    "flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-[#f0f0f0] transition-colors",
+                    isCollapsed ? "w-10 justify-center" : "flex-1"
+                  )}>
+                    {organization.icon_url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img 
+                        src={organization.icon_url} 
+                        alt={organization.name} 
+                        className="w-6 h-6 rounded object-cover shrink-0"
+                      />
+                    ) : (
+                      <div className="w-6 h-6 bg-orange-500 rounded flex items-center justify-center shrink-0">
+                        <span className="text-white font-semibold text-xs">{organization.name.charAt(0)}</span>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {member.user.id === user.id && (
-                        <span className="text-[11px] text-muted-foreground bg-stone-200 px-2 py-0.5 rounded">You</span>
-                      )}
-                      {member.role !== 'owner' && member.user.id !== user.id && (
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          className="text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
-                          onClick={() => handleRemoveMember(member.id)}
-                        >
-                          Remove
-                        </Button>
-                      )}
-                    </div>
+                    )}
+                    {!isCollapsed && (
+                      <>
+                        <span className="text-[13px] font-medium truncate flex-1 text-left">{organization.name}</span>
+                        <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
+                      </>
+                    )}
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" sideOffset={4} className="w-[220px] p-1">
+                  {/* User info */}
+                  <div className="px-2 py-2">
+                    <p className="text-[14px] font-medium">{user.email?.split('@')[0] || 'User'}</p>
+                    <p className="text-[12px] text-muted-foreground truncate">{user.email}</p>
                   </div>
-                ))}
-                <div className="pt-2">
+                  
+                  {/* Settings */}
+                  <DropdownMenuItem asChild className="rounded-md">
+                    <Link href="/settings" className="cursor-pointer">
+                      <Settings className="w-4 h-4 mr-2.5 text-muted-foreground" />
+                      Settings
+                    </Link>
+                  </DropdownMenuItem>
+                  
+                  <DropdownMenuSeparator className="my-1" />
+                  
+                  {/* Switch workspaces - with submenu */}
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger className="cursor-pointer rounded-md">
+                      <ArrowLeftRight className="w-4 h-4 mr-2.5 text-muted-foreground" />
+                      Switch workspaces
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuPortal>
+                      <DropdownMenuSubContent sideOffset={8} className="w-56 p-1">
+                        <div className="px-2 py-1.5 text-[11px] text-muted-foreground">Workspaces</div>
+                        {workspaces.map((workspace) => (
+                          <DropdownMenuItem 
+                            key={workspace.id}
+                            className="cursor-pointer rounded-md"
+                            onClick={() => {
+                              if (workspace.id !== organization.id) {
+                                handleSwitchWorkspace(workspace.id)
+                              }
+                            }}
+                          >
+                            {workspace.icon_url ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img 
+                                src={workspace.icon_url} 
+                                alt={workspace.name} 
+                                className="w-5 h-5 rounded object-cover mr-2"
+                              />
+                            ) : (
+                              <div className="w-5 h-5 bg-orange-500 rounded flex items-center justify-center mr-2">
+                                <span className="text-white font-semibold text-[10px]">{workspace.name.charAt(0)}</span>
+                              </div>
+                            )}
+                            <span className="flex-1 text-[13px] truncate">{workspace.name}</span>
+                            {workspace.id === organization.id && (
+                              <Check className="w-4 h-4 text-muted-foreground shrink-0" />
+                            )}
+                          </DropdownMenuItem>
+                        ))}
+                        <DropdownMenuSeparator className="my-1" />
+                        <DropdownMenuItem className="cursor-pointer rounded-md" onClick={() => setCreateWorkspaceOpen(true)}>
+                          <Plus className="w-4 h-4 mr-2 text-muted-foreground" />
+                          Create new workspace
+                        </DropdownMenuItem>
+                      </DropdownMenuSubContent>
+                    </DropdownMenuPortal>
+                  </DropdownMenuSub>
+                  
+                  {/* Manage members */}
+                  <DropdownMenuItem className="cursor-pointer rounded-md" onClick={() => setMembersDialogOpen(true)}>
+                    <Users className="w-4 h-4 mr-2.5 text-muted-foreground" />
+                    Manage members
+                  </DropdownMenuItem>
+                  
+                  {/* Billing */}
+                  <DropdownMenuItem asChild className="rounded-md">
+                    <Link href="/settings" className="cursor-pointer">
+                      <CreditCard className="w-4 h-4 mr-2.5 text-muted-foreground" />
+                      Billing
+                    </Link>
+                  </DropdownMenuItem>
+                  
+                  <DropdownMenuSeparator className="my-1" />
+                  
+                  {/* Logout */}
+                  <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer rounded-md">
+                    <LogOut className="w-4 h-4 mr-2.5 text-muted-foreground" />
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* Collapse toggle button */}
+              {!isCollapsed && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={toggleCollapse}
+                      className="h-8 w-8 shrink-0 hover:bg-[#f0f0f0] rounded-lg flex items-center justify-center transition-colors"
+                    >
+                      <PanelLeftClose className="w-4 h-4 text-muted-foreground" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right" sideOffset={10}>
+                    <p>Collapse sidebar</p>
+                  </TooltipContent>
+                </Tooltip>
+              )}
+            </div>
+
+            {/* Expand button when collapsed */}
+            {isCollapsed && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={toggleCollapse}
+                    className="h-8 w-full mt-1 hover:bg-[#f0f0f0] rounded-lg flex items-center justify-center transition-colors"
+                  >
+                    <PanelLeft className="w-4 h-4 text-muted-foreground" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="right" sideOffset={10}>
+                  <p>Expand sidebar</p>
+                </TooltipContent>
+              </Tooltip>
+            )}
+          </div>
+          
+          {/* Main navigation */}
+          <nav className="p-2 space-y-0.5 flex-1">
+            {navItems.map((item) => {
+              const isActive = pathname === item.href || 
+                (item.href !== '/emails' && pathname.startsWith(item.href))
+              const Icon = item.icon
+              
+              const linkContent = (
+                <Link
+                  href={item.href}
+                  onClick={onClose}
+                  className={cn(
+                    "flex items-center gap-2.5 px-2.5 py-1.5 text-[13px] rounded-md transition-colors",
+                    isActive 
+                      ? "bg-[#f0f0f0] text-foreground font-medium" 
+                      : "text-muted-foreground hover:text-foreground hover:bg-[#f0f0f0]",
+                    isCollapsed && "justify-center px-0"
+                  )}
+                >
+                  <Icon className="w-4 h-4 shrink-0" />
+                  {!isCollapsed && item.label}
+                </Link>
+              )
+
+              if (isCollapsed) {
+                return (
+                  <Tooltip key={item.href}>
+                    <TooltipTrigger asChild>
+                      {linkContent}
+                    </TooltipTrigger>
+                    <TooltipContent side="right" sideOffset={10}>
+                      <p>{item.label}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )
+              }
+
+              return <div key={item.href}>{linkContent}</div>
+            })}
+          </nav>
+        </aside>
+
+        {/* Invite Members Dialog */}
+        <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Invite team members</DialogTitle>
+              <DialogDescription>
+                Invite people to join your workspace. They&apos;ll receive an email invitation.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email address</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="colleague@company.com"
+                  value={inviteEmail}
+                  onChange={(e) => setInviteEmail(e.target.value)}
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setInviteDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleInviteMember} className="bg-stone-900 hover:bg-stone-800">
+                Send invitation
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Manage Members Dialog */}
+        <Dialog open={membersDialogOpen} onOpenChange={(open) => {
+          setMembersDialogOpen(open)
+          if (open) fetchMembers()
+        }}>
+          <DialogContent className="sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Team members</DialogTitle>
+              <DialogDescription>
+                Manage who has access to this workspace.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-3 py-4 max-h-[400px] overflow-y-auto">
+              {isLoadingMembers ? (
+                <div className="text-center py-8 text-[13px] text-muted-foreground">
+                  Loading members...
+                </div>
+              ) : members.length === 0 ? (
+                <div className="text-center py-8 text-[13px] text-muted-foreground">
+                  <p>No members found.</p>
                   <Button 
-                    variant="outline" 
-                    size="sm"
-                    className="w-full"
+                    variant="link" 
+                    className="text-[13px] p-0 h-auto"
                     onClick={() => {
                       setMembersDialogOpen(false)
                       setInviteDialogOpen(true)
                     }}
                   >
-                    <UserPlus className="w-4 h-4 mr-2" />
-                    Invite more members
+                    Invite someone to join
                   </Button>
                 </div>
-              </>
-            )}
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setMembersDialogOpen(false)}>
-              Close
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Create Workspace Dialog */}
-      <Dialog open={createWorkspaceOpen} onOpenChange={setCreateWorkspaceOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Create new workspace</DialogTitle>
-            <DialogDescription>
-              Create a new workspace to organize your emails and team.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-6 py-4">
-            {/* Icon Upload */}
-            <div className="space-y-2">
-              <Label>Workspace icon</Label>
-              <div className="flex items-center gap-4">
-                <div 
-                  className="w-16 h-16 rounded-lg border-2 border-dashed border-stone-300 flex items-center justify-center cursor-pointer hover:border-stone-400 transition-colors overflow-hidden bg-stone-50"
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  {workspaceIcon ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img 
-                      src={workspaceIcon} 
-                      alt="Workspace icon" 
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="text-center">
-                      <Upload className="w-5 h-5 text-muted-foreground mx-auto" />
+              ) : (
+                <>
+                  {members.map((member) => (
+                    <div key={member.id} className="flex items-center justify-between p-3 bg-stone-50 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        {member.user.avatar_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img 
+                            src={member.user.avatar_url} 
+                            alt={member.user.email}
+                            className="w-8 h-8 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
+                            <span className="text-white font-medium text-xs">
+                              {member.user.email?.substring(0, 2).toUpperCase()}
+                            </span>
+                          </div>
+                        )}
+                        <div>
+                          <p className="text-[13px] font-medium">
+                            {member.user.full_name || member.user.email}
+                          </p>
+                          <p className="text-[11px] text-muted-foreground capitalize">{member.role}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {member.user.id === user.id && (
+                          <span className="text-[11px] text-muted-foreground bg-stone-200 px-2 py-0.5 rounded">You</span>
+                        )}
+                        {member.role !== 'owner' && member.user.id !== user.id && (
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            className="text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
+                            onClick={() => handleRemoveMember(member.id)}
+                          >
+                            Remove
+                          </Button>
+                        )}
+                      </div>
                     </div>
-                  )}
-                </div>
-                <div className="flex-1">
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    Upload image
-                  </Button>
-                  <p className="text-[11px] text-muted-foreground mt-1.5">
-                    Recommended: 256x256px, PNG or JPG
-                  </p>
-                </div>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/png,image/jpeg,image/jpg"
-                  className="hidden"
-                  onChange={handleIconUpload}
-                />
-              </div>
-              {workspaceIcon && (
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="text-xs text-muted-foreground"
-                  onClick={() => setWorkspaceIcon(null)}
-                >
-                  Remove image
-                </Button>
+                  ))}
+                  <div className="pt-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="w-full"
+                      onClick={() => {
+                        setMembersDialogOpen(false)
+                        setInviteDialogOpen(true)
+                      }}
+                    >
+                      <UserPlus className="w-4 h-4 mr-2" />
+                      Invite more members
+                    </Button>
+                  </div>
+                </>
               )}
             </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setMembersDialogOpen(false)}>
+                Close
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
-            {/* Workspace Name */}
-            <div className="space-y-2">
-              <Label htmlFor="workspace-name">Workspace name</Label>
-              <Input
-                id="workspace-name"
-                placeholder="My Company"
-                value={workspaceName}
-                onChange={(e) => setWorkspaceName(e.target.value)}
-              />
-              <p className="text-[11px] text-muted-foreground">
-                This is the name that will be displayed to your team.
-              </p>
+        {/* Create Workspace Dialog */}
+        <Dialog open={createWorkspaceOpen} onOpenChange={setCreateWorkspaceOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Create new workspace</DialogTitle>
+              <DialogDescription>
+                Create a new workspace to organize your emails and team.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-6 py-4">
+              {/* Icon Upload */}
+              <div className="space-y-2">
+                <Label>Workspace icon</Label>
+                <div className="flex items-center gap-4">
+                  <div 
+                    className="w-16 h-16 rounded-lg border-2 border-dashed border-stone-300 flex items-center justify-center cursor-pointer hover:border-stone-400 transition-colors overflow-hidden bg-stone-50"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    {workspaceIcon ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img 
+                        src={workspaceIcon} 
+                        alt="Workspace icon" 
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="text-center">
+                        <Upload className="w-5 h-5 text-muted-foreground mx-auto" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      Upload image
+                    </Button>
+                    <p className="text-[11px] text-muted-foreground mt-1.5">
+                      Recommended: 256x256px, PNG or JPG
+                    </p>
+                  </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/png,image/jpeg,image/jpg"
+                    className="hidden"
+                    onChange={handleIconUpload}
+                  />
+                </div>
+                {workspaceIcon && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="text-xs text-muted-foreground"
+                    onClick={() => setWorkspaceIcon(null)}
+                  >
+                    Remove image
+                  </Button>
+                )}
+              </div>
+
+              {/* Workspace Name */}
+              <div className="space-y-2">
+                <Label htmlFor="workspace-name">Workspace name</Label>
+                <Input
+                  id="workspace-name"
+                  placeholder="My Company"
+                  value={workspaceName}
+                  onChange={(e) => setWorkspaceName(e.target.value)}
+                />
+                <p className="text-[11px] text-muted-foreground">
+                  This is the name that will be displayed to your team.
+                </p>
+              </div>
             </div>
-          </div>
-          <DialogFooter>
-            <Button 
-              variant="outline" 
-              onClick={() => {
-                setCreateWorkspaceOpen(false)
-                setWorkspaceName('')
-                setWorkspaceIcon(null)
-              }}
-            >
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleCreateWorkspace} 
-              className="bg-stone-900 hover:bg-stone-800"
-              disabled={isCreating || !workspaceName.trim()}
-            >
-              {isCreating ? 'Creating...' : 'Create workspace'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
+            <DialogFooter>
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setCreateWorkspaceOpen(false)
+                  setWorkspaceName('')
+                  setWorkspaceIcon(null)
+                }}
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleCreateWorkspace} 
+                className="bg-stone-900 hover:bg-stone-800"
+                disabled={isCreating || !workspaceName.trim()}
+              >
+                {isCreating ? 'Creating...' : 'Create workspace'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </>
+    </TooltipProvider>
   )
 }

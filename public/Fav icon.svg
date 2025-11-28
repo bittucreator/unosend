@@ -4,7 +4,7 @@
 <rect x="3" width="48" height="48" rx="12" fill="black"/>
 <rect width="48" height="48" transform="translate(3)" fill="url(#paint0_linear_25_2843)"/>
 <g filter="url(#filter1_d_25_2843)">
-<path d="M24 12C24 16.9706 19.9706 21 15 21V27H24V36H30C30 31.0294 34.0294 27 39 27V21H30V12H24Z" fill="url(#paint1_linear_25_2843)"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M15 14.8C15 13.2536 16.2536 12 17.8 12H29C30.5464 12 31.8 13.2536 31.8 14.8V19.2H36.2C37.7464 19.2 39 20.4536 39 22V33.2C39 34.7464 37.7464 36 36.2 36H25C23.4536 36 22.2 34.7464 22.2 33.2V28.8H17.8C16.2536 28.8 15 27.5464 15 26V14.8ZM22.2 26.4V28.8H24.6H30.2C31.0837 28.8 31.8 28.0837 31.8 27.2V21.6V19.2H29.4H23.8C22.9164 19.2 22.2 19.9164 22.2 20.8V26.4Z" fill="url(#paint1_linear_25_2843)"/>
 </g>
 </g>
 <rect x="4" y="1" width="46" height="46" rx="11" stroke="url(#paint2_linear_25_2843)" stroke-width="2"/>
