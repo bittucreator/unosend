@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -9,7 +10,9 @@ export default async function ApiKeysPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user) return null
+  if (!user) {
+    redirect('/login')
+  }
 
   const { data: membership } = await supabase
     .from('organization_members')
@@ -19,12 +22,16 @@ export default async function ApiKeysPage() {
 
   const organizationId = membership?.organization_id
 
-  const { data: apiKeys } = organizationId ? await supabase
+  if (!organizationId) {
+    redirect('/onboarding/workspace')
+  }
+
+  const { data: apiKeys } = await supabase
     .from('api_keys')
     .select('id, name, key_prefix, last_used_at, created_at')
     .eq('organization_id', organizationId)
     .is('revoked_at', null)
-    .order('created_at', { ascending: false }) : { data: [] }
+    .order('created_at', { ascending: false })
 
   return (
     <div className="space-y-6">
@@ -36,7 +43,7 @@ export default async function ApiKeysPage() {
             Manage your API keys for authentication
           </p>
         </div>
-        <CreateApiKeyButton organizationId={organizationId || ''} />
+        <CreateApiKeyButton organizationId={organizationId} />
       </div>
 
       {/* API Keys Section */}

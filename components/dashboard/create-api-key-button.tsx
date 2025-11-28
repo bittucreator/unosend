@@ -16,6 +16,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Plus, Copy, Check, Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
 
 interface CreateApiKeyButtonProps {
   organizationId: string
@@ -34,42 +35,49 @@ export function CreateApiKeyButton({ organizationId }: CreateApiKeyButtonProps) 
 
     setIsLoading(true)
 
-    const supabase = createClient()
-    
-    // Generate API key on the client side for this demo
-    // In production, this should be done server-side
-    const randomPart = Array.from(crypto.getRandomValues(new Uint8Array(24)))
-      .map(b => b.toString(16).padStart(2, '0'))
-      .join('')
-      .substring(0, 32)
-    const key = `un_${randomPart}`
-    const keyPrefix = key.substring(0, 12)
-    
-    // Hash the key (simple hash for demo - use proper hashing in production)
-    const encoder = new TextEncoder()
-    const data = encoder.encode(key)
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data)
-    const hashArray = Array.from(new Uint8Array(hashBuffer))
-    const keyHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+    try {
+      const supabase = createClient()
+      
+      // Generate API key on the client side for this demo
+      // In production, this should be done server-side
+      const randomPart = Array.from(crypto.getRandomValues(new Uint8Array(24)))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('')
+        .substring(0, 32)
+      const key = `un_${randomPart}`
+      const keyPrefix = key.substring(0, 12)
+      
+      // Hash the key (simple hash for demo - use proper hashing in production)
+      const encoder = new TextEncoder()
+      const data = encoder.encode(key)
+      const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+      const hashArray = Array.from(new Uint8Array(hashBuffer))
+      const keyHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
 
-    const { error } = await supabase
-      .from('api_keys')
-      .insert({
-        organization_id: organizationId,
-        name: name.trim(),
-        key_hash: keyHash,
-        key_prefix: keyPrefix,
-      })
+      const { error } = await supabase
+        .from('api_keys')
+        .insert({
+          organization_id: organizationId,
+          name: name.trim(),
+          key_hash: keyHash,
+          key_prefix: keyPrefix,
+        })
 
-    if (error) {
-      console.error('Error creating API key:', error)
+      if (error) {
+        console.error('Error creating API key:', error.message, error.details, error.hint)
+        toast.error(error.message || 'Failed to create API key')
+        setIsLoading(false)
+        return
+      }
+
+      setNewKey(key)
       setIsLoading(false)
-      return
+      router.refresh()
+    } catch (err) {
+      console.error('Unexpected error:', err)
+      toast.error('An unexpected error occurred')
+      setIsLoading(false)
     }
-
-    setNewKey(key)
-    setIsLoading(false)
-    router.refresh()
   }
 
   const handleCopy = async () => {
