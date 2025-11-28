@@ -65,7 +65,7 @@ export default async function SettingsPage() {
 
         {/* Profile Tab */}
         <TabsContent value="profile" className="space-y-6">
-          <div className="border border-stone-200/60 rounded-xl bg-white overflow-hidden">
+          <div className="border border-stone-200 rounded-xl bg-white overflow-hidden">
             <div className="p-4 sm:p-5 border-b border-stone-100">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-stone-100 rounded-lg">
@@ -90,7 +90,7 @@ export default async function SettingsPage() {
 
         {/* Workspace Tab */}
         <TabsContent value="workspace" className="space-y-6">
-          <div className="border border-stone-200/60 rounded-xl bg-white overflow-hidden">
+          <div className="border border-stone-200 rounded-xl bg-white overflow-hidden">
             <div className="p-4 sm:p-5 border-b border-stone-100">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-stone-100 rounded-lg">
@@ -124,7 +124,7 @@ export default async function SettingsPage() {
 
         {/* Members Tab */}
         <TabsContent value="members" className="space-y-6">
-          <div className="border border-stone-200/60 rounded-xl bg-white overflow-hidden">
+          <div className="border border-stone-200 rounded-xl bg-white overflow-hidden">
             <div className="p-4 sm:p-5 border-b border-stone-100">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-stone-100 rounded-lg">
@@ -163,7 +163,7 @@ export default async function SettingsPage() {
 
         {/* Usage Tab */}
         <TabsContent value="usage" className="space-y-6">
-          <div className="border border-stone-200/60 rounded-xl bg-white overflow-hidden">
+          <div className="border border-stone-200 rounded-xl bg-white overflow-hidden">
             <div className="p-4 sm:p-5 border-b border-stone-100">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-stone-100 rounded-lg">

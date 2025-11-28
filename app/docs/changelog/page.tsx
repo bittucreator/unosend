@@ -138,7 +138,7 @@ export default function ChangelogPage() {
       </div>
 
       {/* Subscribe */}
-      <div className="bg-gradient-to-br from-stone-50 to-stone-100/50 border border-stone-200/60 rounded-xl p-5 mb-10">
+      <div className="bg-gradient-to-br from-stone-50 to-stone-100/50 border border-stone-200 rounded-xl p-5 mb-10">
         <div className="flex items-center gap-2 mb-2">
           <Sparkles className="w-4 h-4 text-purple-600" />
           <span className="text-[14px] font-semibold text-stone-900">Stay Updated</span>
@@ -187,7 +187,7 @@ export default function ChangelogPage() {
                 </div>
                 <p className="text-[13px] text-muted-foreground mb-4">{entry.date}</p>
                 
-                <div className="bg-white border border-stone-200/60 rounded-xl divide-y divide-stone-100">
+                <div className="bg-white border border-stone-200 rounded-xl divide-y divide-stone-100">
                   {entry.changes.map((change, changeIndex) => (
                     <div key={changeIndex} className="flex items-start gap-3 p-4">
                       <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${

@@ -56,9 +56,10 @@ export function WorkspaceSettings({ organization, userRole }: WorkspaceSettingsP
     try {
       const formData = new FormData()
       formData.append('file', file)
-      formData.append('workspaceId', organization.id)
+      formData.append('type', 'workspace-logo')
+      formData.append('organizationId', organization.id)
 
-      const response = await fetch('/api/v1/upload', {
+      const response = await fetch('/api/dashboard/upload', {
         method: 'POST',
         body: formData,
       })
@@ -82,15 +83,14 @@ export function WorkspaceSettings({ organization, userRole }: WorkspaceSettingsP
   const handleRemoveIcon = async () => {
     setIsLoading(true)
     try {
-      const response = await fetch(`/api/v1/workspaces/${organization.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ icon_url: null }),
-      })
+      const supabase = createClient()
+      
+      const { error } = await supabase
+        .from('organizations')
+        .update({ icon_url: null })
+        .eq('id', organization.id)
 
-      if (!response.ok) {
-        throw new Error('Failed to remove icon')
-      }
+      if (error) throw error
 
       setIconUrl(null)
       toast.success('Icon removed')
@@ -278,7 +278,7 @@ export function WorkspaceSettings({ organization, userRole }: WorkspaceSettingsP
       {/* Workspace Slug */}
       <div className="space-y-2">
         <Label className="text-[13px] text-muted-foreground">Workspace Slug</Label>
-        <code className="block bg-stone-50 border border-stone-200/60 px-4 py-2.5 rounded-lg text-[13px] font-mono max-w-md">
+        <code className="block bg-stone-50 border border-stone-200 px-4 py-2.5 rounded-lg text-[13px] font-mono max-w-md">
           {organization.slug}
         </code>
         <p className="text-[11px] text-muted-foreground">
@@ -289,7 +289,7 @@ export function WorkspaceSettings({ organization, userRole }: WorkspaceSettingsP
       {/* Workspace ID */}
       <div className="space-y-2">
         <Label className="text-[13px] text-muted-foreground">Workspace ID</Label>
-        <code className="block bg-stone-50 border border-stone-200/60 px-4 py-2.5 rounded-lg text-[12px] font-mono max-w-md break-all">
+        <code className="block bg-stone-50 border border-stone-200 px-4 py-2.5 rounded-lg text-[12px] font-mono max-w-md break-all">
           {organization.id}
         </code>
       </div>

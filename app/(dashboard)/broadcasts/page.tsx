@@ -78,7 +78,7 @@ export default async function BroadcastsPage() {
       </div>
 
       {/* Broadcasts Section */}
-      <div className="border border-stone-200/60 rounded-xl bg-white">
+      <div className="border border-stone-200 rounded-xl bg-white">
         <div className="flex items-center justify-between p-4 sm:p-5 border-b border-stone-100">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-stone-100 rounded-lg">

@@ -43,7 +43,7 @@ export default async function DomainsPage() {
 
       {/* Stats Row */}
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
-        <div className="border border-stone-200/60 rounded-xl bg-white p-4 sm:p-5">
+        <div className="border border-stone-200 rounded-xl bg-white p-4 sm:p-5">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-[13px] text-muted-foreground">Total Domains</p>
@@ -54,7 +54,7 @@ export default async function DomainsPage() {
             </div>
           </div>
         </div>
-        <div className="border border-stone-200/60 rounded-xl bg-white p-4 sm:p-5">
+        <div className="border border-stone-200 rounded-xl bg-white p-4 sm:p-5">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-[13px] text-muted-foreground">Verified</p>
@@ -80,7 +80,7 @@ export default async function DomainsPage() {
       )}
 
       {/* Domains Section */}
-      <div className="border border-stone-200/60 rounded-xl bg-white">
+      <div className="border border-stone-200 rounded-xl bg-white">
         <div className="flex items-center justify-between p-4 sm:p-5 border-b border-stone-100">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-stone-100 rounded-lg">
@@ -101,7 +101,7 @@ export default async function DomainsPage() {
       </div>
 
       {/* DNS Setup Guide */}
-      <div className="border border-stone-200/60 rounded-xl bg-white">
+      <div className="border border-stone-200 rounded-xl bg-white">
         <div className="p-4 sm:p-5 border-b border-stone-100">
           <h2 className="font-semibold text-[15px]">DNS Setup Guide</h2>
           <p className="text-[13px] text-muted-foreground mt-0.5">How to verify your domain</p>

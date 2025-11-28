@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { TopNav } from '@/components/dashboard/top-nav'
 import { Sidebar } from '@/components/dashboard/sidebar'
+import { CommandPalette } from '@/components/command-palette'
 import type { User } from '@supabase/supabase-js'
 import type { Workspace } from './layout'
 
@@ -23,6 +24,7 @@ export function DashboardShell({ user, organization, workspaces, children }: Das
 
   return (
     <div className="min-h-screen bg-[#fafafa] flex">
+      <CommandPalette />
       <Sidebar 
         user={user}
         organization={organization}

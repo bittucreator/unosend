@@ -66,44 +66,27 @@ export function SettingsForm({ profile }: SettingsFormProps) {
 
     setIsUploading(true)
     try {
-      const supabase = createClient()
-      
-      // Upload to Supabase Storage
-      const fileExt = file.name.split('.').pop()
-      const fileName = `${profile?.id}-${Date.now()}.${fileExt}`
-      const filePath = `avatars/${fileName}`
-      
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, file, { upsert: true })
-      
-      if (uploadError) {
-        // If bucket doesn't exist, just update with a placeholder or skip
-        console.error('Upload error:', uploadError)
-        toast.error('Failed to upload avatar. Storage may not be configured.')
-        setIsUploading(false)
-        return
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('type', 'avatar')
+
+      const response = await fetch('/api/dashboard/upload', {
+        method: 'POST',
+        body: formData,
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to upload')
       }
-      
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(filePath)
-      
-      // Update profile
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ avatar_url: publicUrl })
-        .eq('id', profile?.id)
-      
-      if (updateError) throw updateError
-      
-      setAvatarUrl(publicUrl)
+
+      setAvatarUrl(result.data.url)
       toast.success('Avatar uploaded successfully')
       router.refresh()
     } catch (error) {
       console.error('Avatar upload error:', error)
-      toast.error('Failed to upload avatar')
+      toast.error(error instanceof Error ? error.message : 'Failed to upload avatar')
     } finally {
       setIsUploading(false)
     }

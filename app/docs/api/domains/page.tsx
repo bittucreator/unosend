@@ -21,21 +21,21 @@ export default function DomainsAPIPage() {
       <section className="mb-10">
         <h2 className="text-xl font-bold text-stone-900 mb-4">Domain Status</h2>
         <div className="grid md:grid-cols-3 gap-4">
-          <div className="bg-white border border-stone-200/60 rounded-xl p-4">
+          <div className="bg-white border border-stone-200 rounded-xl p-4">
             <div className="flex items-center gap-2 mb-2">
               <Clock className="w-4 h-4 text-amber-600" />
               <span className="text-[13px] font-semibold text-stone-900">Pending</span>
             </div>
             <p className="text-[12px] text-muted-foreground">DNS records not yet configured</p>
           </div>
-          <div className="bg-white border border-stone-200/60 rounded-xl p-4">
+          <div className="bg-white border border-stone-200 rounded-xl p-4">
             <div className="flex items-center gap-2 mb-2">
               <CheckCircle2 className="w-4 h-4 text-green-600" />
               <span className="text-[13px] font-semibold text-stone-900">Verified</span>
             </div>
             <p className="text-[12px] text-muted-foreground">Domain is verified and ready</p>
           </div>
-          <div className="bg-white border border-stone-200/60 rounded-xl p-4">
+          <div className="bg-white border border-stone-200 rounded-xl p-4">
             <div className="flex items-center gap-2 mb-2">
               <XCircle className="w-4 h-4 text-red-600" />
               <span className="text-[13px] font-semibold text-stone-900">Failed</span>
@@ -57,9 +57,9 @@ export default function DomainsAPIPage() {
         </p>
 
         <h3 className="text-[16px] font-semibold text-stone-900 mb-3">Request Body</h3>
-        <div className="bg-white border border-stone-200/60 rounded-xl overflow-hidden mb-6">
+        <div className="bg-white border border-stone-200 rounded-xl overflow-hidden mb-6">
           <table className="w-full text-[13px]">
-            <thead className="bg-stone-50/80 border-b border-stone-100">
+            <thead className="bg-stone-50 border-b border-stone-100">
               <tr>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Parameter</th>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Type</th>

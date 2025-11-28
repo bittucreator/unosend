@@ -17,7 +17,7 @@ export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-[#fafafa]">
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-[#fafafa]/80 backdrop-blur-sm border-b border-stone-200/60">
+      <nav className="sticky top-0 z-50 bg-[#fafafa] backdrop-blur-sm border-b border-stone-200">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-14">
             <Link href="/" className="flex items-center space-x-2">
@@ -42,14 +42,14 @@ export default function PrivacyPage() {
           <p className="text-[13px] text-muted-foreground mb-10">Last updated: November 28, 2025</p>
 
           <div className="prose prose-stone prose-sm max-w-none space-y-8">
-            <section className="bg-white border border-stone-200/60 rounded-xl p-6">
+            <section className="bg-white border border-stone-200 rounded-xl p-6">
               <h2 className="text-[16px] font-semibold text-stone-900 mb-3">1. Introduction</h2>
               <p className="text-[14px] text-stone-600 leading-relaxed">
                 Unosend (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our email API service.
               </p>
             </section>
 
-            <section className="bg-white border border-stone-200/60 rounded-xl p-6">
+            <section className="bg-white border border-stone-200 rounded-xl p-6">
               <h2 className="text-[16px] font-semibold text-stone-900 mb-3">2. Information We Collect</h2>
               <p className="text-[14px] text-stone-600 leading-relaxed mb-4">
                 We collect information you provide directly to us, including:
@@ -63,7 +63,7 @@ export default function PrivacyPage() {
               </ul>
             </section>
 
-            <section className="bg-white border border-stone-200/60 rounded-xl p-6">
+            <section className="bg-white border border-stone-200 rounded-xl p-6">
               <h2 className="text-[16px] font-semibold text-stone-900 mb-3">3. How We Use Your Information</h2>
               <p className="text-[14px] text-stone-600 leading-relaxed mb-4">
                 We use the information we collect to:
@@ -77,21 +77,21 @@ export default function PrivacyPage() {
               </ul>
             </section>
 
-            <section className="bg-white border border-stone-200/60 rounded-xl p-6">
+            <section className="bg-white border border-stone-200 rounded-xl p-6">
               <h2 className="text-[16px] font-semibold text-stone-900 mb-3">4. Data Retention</h2>
               <p className="text-[14px] text-stone-600 leading-relaxed">
                 We retain your personal information for as long as necessary to fulfill the purposes outlined in this Privacy Policy, unless a longer retention period is required or permitted by law. Email content is retained for 30 days for delivery tracking and debugging purposes.
               </p>
             </section>
 
-            <section className="bg-white border border-stone-200/60 rounded-xl p-6">
+            <section className="bg-white border border-stone-200 rounded-xl p-6">
               <h2 className="text-[16px] font-semibold text-stone-900 mb-3">5. Data Security</h2>
               <p className="text-[14px] text-stone-600 leading-relaxed">
                 We implement appropriate technical and organizational measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction. All data is encrypted in transit and at rest.
               </p>
             </section>
 
-            <section className="bg-white border border-stone-200/60 rounded-xl p-6">
+            <section className="bg-white border border-stone-200 rounded-xl p-6">
               <h2 className="text-[16px] font-semibold text-stone-900 mb-3">6. Your Rights</h2>
               <p className="text-[14px] text-stone-600 leading-relaxed mb-4">
                 You have the right to:
@@ -105,7 +105,7 @@ export default function PrivacyPage() {
               </ul>
             </section>
 
-            <section className="bg-white border border-stone-200/60 rounded-xl p-6">
+            <section className="bg-white border border-stone-200 rounded-xl p-6">
               <h2 className="text-[16px] font-semibold text-stone-900 mb-3">7. Contact Us</h2>
               <p className="text-[14px] text-stone-600 leading-relaxed">
                 If you have any questions about this Privacy Policy, please contact us at{' '}
@@ -117,7 +117,7 @@ export default function PrivacyPage() {
       </main>
 
       {/* Footer */}
-      <footer className="py-10 border-t border-stone-200/60">
+      <footer className="py-10 border-t border-stone-200">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <Link href="/" className="flex items-center space-x-2">

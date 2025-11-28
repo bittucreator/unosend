@@ -139,13 +139,118 @@ export async function POST(request: NextRequest) {
       }, { status: 201 })
     }
 
-    // User doesn't exist - for now, return a message
-    // In a real implementation, you would send an email invitation
-    // and store it in an invitations table
+    // User doesn't exist - create an invitation
+    // Generate a secure token
+    const token = crypto.randomUUID() + '-' + crypto.randomUUID()
+
+    // Check for existing pending invitation
+    const { data: existingInvite } = await supabaseAdmin
+      .from('invitations')
+      .select('id')
+      .eq('organization_id', workspaceId)
+      .eq('email', email.toLowerCase())
+      .is('accepted_at', null)
+      .single()
+
+    if (existingInvite) {
+      return NextResponse.json({ 
+        error: 'An invitation has already been sent to this email' 
+      }, { status: 400 })
+    }
+
+    // Get organization name for email
+    const { data: org } = await supabaseAdmin
+      .from('organizations')
+      .select('name')
+      .eq('id', workspaceId)
+      .single()
+
+    // Get inviter's name
+    const { data: inviterProfile } = await supabaseAdmin
+      .from('profiles')
+      .select('full_name, email')
+      .eq('id', user.id)
+      .single()
+
+    // Create invitation record
+    const { error: inviteError } = await supabaseAdmin
+      .from('invitations')
+      .insert({
+        organization_id: workspaceId,
+        email: email.toLowerCase(),
+        role: role,
+        token: token,
+        invited_by: user.id,
+        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days
+      })
+
+    if (inviteError) {
+      console.error('Failed to create invitation:', inviteError)
+      return NextResponse.json({ error: 'Failed to create invitation' }, { status: 500 })
+    }
+
+    // Send invitation email
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://unosend.com'
+    const inviteUrl = `${appUrl}/invite/${token}`
+    const inviterName = inviterProfile?.full_name || inviterProfile?.email || 'Someone'
+    const orgName = org?.name || 'a workspace'
+
+    try {
+      // Import email service dynamically to avoid circular deps
+      const { emailService } = await import('@/lib/email-service')
+      
+      await emailService.sendEmail({
+        from: process.env.SYSTEM_EMAIL_FROM || 'noreply@unosend.com',
+        to: email,
+        subject: `${inviterName} invited you to join ${orgName} on Unosend`,
+        html: `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          </head>
+          <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #1c1917; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="text-align: center; margin-bottom: 32px;">
+              <img src="${appUrl}/Logo.svg" alt="Unosend" style="height: 32px; width: auto;" />
+            </div>
+            
+            <h1 style="font-size: 24px; font-weight: 600; margin-bottom: 16px;">You're invited to join ${orgName}</h1>
+            
+            <p style="color: #57534e; margin-bottom: 24px;">
+              <strong>${inviterName}</strong> has invited you to join <strong>${orgName}</strong> on Unosend as a <strong>${role}</strong>.
+            </p>
+            
+            <div style="text-align: center; margin: 32px 0;">
+              <a href="${inviteUrl}" style="display: inline-block; background-color: #1c1917; color: white; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-weight: 500;">
+                Accept Invitation
+              </a>
+            </div>
+            
+            <p style="color: #78716c; font-size: 14px;">
+              Or copy and paste this link into your browser:<br/>
+              <a href="${inviteUrl}" style="color: #1c1917;">${inviteUrl}</a>
+            </p>
+            
+            <hr style="border: none; border-top: 1px solid #e7e5e4; margin: 32px 0;" />
+            
+            <p style="color: #a8a29e; font-size: 12px;">
+              This invitation will expire in 7 days. If you didn't expect this invitation, you can safely ignore this email.
+            </p>
+          </body>
+          </html>
+        `,
+        text: `${inviterName} has invited you to join ${orgName} on Unosend as a ${role}.\n\nAccept the invitation: ${inviteUrl}\n\nThis invitation will expire in 7 days.`,
+      })
+    } catch (emailError) {
+      console.error('Failed to send invitation email:', emailError)
+      // Don't fail the request - invitation is created, email just didn't send
+    }
+
     return NextResponse.json({ 
       data: { 
         status: 'invited',
-        message: `Invitation sent to ${email}. They will be added when they sign up.`
+        message: `Invitation sent to ${email}. They will be added when they accept.`
       }
     }, { status: 201 })
   } catch {

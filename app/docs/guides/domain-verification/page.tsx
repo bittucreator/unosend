@@ -21,28 +21,28 @@ export default function DomainVerificationPage() {
       <section className="mb-10">
         <h2 className="text-xl font-bold text-stone-900 mb-4">Why Verify Your Domain?</h2>
         <div className="grid md:grid-cols-2 gap-4">
-          <div className="bg-white border border-stone-200/60 rounded-xl p-4">
+          <div className="bg-white border border-stone-200 rounded-xl p-4">
             <div className="flex items-center gap-2 mb-2">
               <Shield className="w-4 h-4 text-green-600" />
               <span className="text-[13px] font-semibold text-stone-900">Better Deliverability</span>
             </div>
             <p className="text-[12px] text-muted-foreground">DKIM signing proves email authenticity</p>
           </div>
-          <div className="bg-white border border-stone-200/60 rounded-xl p-4">
+          <div className="bg-white border border-stone-200 rounded-xl p-4">
             <div className="flex items-center gap-2 mb-2">
               <Mail className="w-4 h-4 text-blue-600" />
               <span className="text-[13px] font-semibold text-stone-900">Custom Sender</span>
             </div>
             <p className="text-[12px] text-muted-foreground">Send from your own domain address</p>
           </div>
-          <div className="bg-white border border-stone-200/60 rounded-xl p-4">
+          <div className="bg-white border border-stone-200 rounded-xl p-4">
             <div className="flex items-center gap-2 mb-2">
               <Globe className="w-4 h-4 text-purple-600" />
               <span className="text-[13px] font-semibold text-stone-900">Brand Trust</span>
             </div>
             <p className="text-[12px] text-muted-foreground">Recipients see your domain, not ours</p>
           </div>
-          <div className="bg-white border border-stone-200/60 rounded-xl p-4">
+          <div className="bg-white border border-stone-200 rounded-xl p-4">
             <div className="flex items-center gap-2 mb-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-600" />
               <span className="text-[13px] font-semibold text-stone-900">No Spam Warnings</span>
@@ -86,9 +86,9 @@ console.log('DNS Records:', data.dns_records);`}
         </p>
 
         <h3 className="text-[16px] font-semibold text-stone-900 mt-6 mb-3">Domain Verification (TXT Record)</h3>
-        <div className="bg-white border border-stone-200/60 rounded-xl overflow-hidden mb-4">
+        <div className="bg-white border border-stone-200 rounded-xl overflow-hidden mb-4">
           <table className="w-full text-[13px]">
-            <thead className="bg-stone-50/80 border-b border-stone-100">
+            <thead className="bg-stone-50 border-b border-stone-100">
               <tr>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Field</th>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Value</th>
@@ -116,9 +116,9 @@ console.log('DNS Records:', data.dns_records);`}
         </div>
 
         <h3 className="text-[16px] font-semibold text-stone-900 mt-6 mb-3">DKIM Record (TXT Record)</h3>
-        <div className="bg-white border border-stone-200/60 rounded-xl overflow-hidden mb-4">
+        <div className="bg-white border border-stone-200 rounded-xl overflow-hidden mb-4">
           <table className="w-full text-[13px]">
-            <thead className="bg-stone-50/80 border-b border-stone-100">
+            <thead className="bg-stone-50 border-b border-stone-100">
               <tr>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Field</th>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Value</th>
@@ -146,9 +146,9 @@ console.log('DNS Records:', data.dns_records);`}
         </div>
 
         <h3 className="text-[16px] font-semibold text-stone-900 mt-6 mb-3">SPF Record (TXT Record)</h3>
-        <div className="bg-white border border-stone-200/60 rounded-xl overflow-hidden mb-4">
+        <div className="bg-white border border-stone-200 rounded-xl overflow-hidden mb-4">
           <table className="w-full text-[13px]">
-            <thead className="bg-stone-50/80 border-b border-stone-100">
+            <thead className="bg-stone-50 border-b border-stone-100">
               <tr>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Field</th>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Value</th>
@@ -212,7 +212,7 @@ if (data.status === 'verified') {
         <h2 className="text-xl font-bold text-stone-900 mb-4">Provider-Specific Instructions</h2>
         
         <div className="space-y-4">
-          <div className="bg-white border border-stone-200/60 rounded-xl p-5">
+          <div className="bg-white border border-stone-200 rounded-xl p-5">
             <h3 className="text-[15px] font-semibold text-stone-900 mb-2">Cloudflare</h3>
             <ol className="space-y-1 text-[13px] text-muted-foreground list-decimal list-inside">
               <li>Go to your domain in Cloudflare dashboard</li>
@@ -222,7 +222,7 @@ if (data.status === 'verified') {
             </ol>
           </div>
           
-          <div className="bg-white border border-stone-200/60 rounded-xl p-5">
+          <div className="bg-white border border-stone-200 rounded-xl p-5">
             <h3 className="text-[15px] font-semibold text-stone-900 mb-2">AWS Route 53</h3>
             <ol className="space-y-1 text-[13px] text-muted-foreground list-decimal list-inside">
               <li>Open Route 53 console</li>
@@ -232,7 +232,7 @@ if (data.status === 'verified') {
             </ol>
           </div>
           
-          <div className="bg-white border border-stone-200/60 rounded-xl p-5">
+          <div className="bg-white border border-stone-200 rounded-xl p-5">
             <h3 className="text-[15px] font-semibold text-stone-900 mb-2">GoDaddy</h3>
             <ol className="space-y-1 text-[13px] text-muted-foreground list-decimal list-inside">
               <li>Go to your domain&apos;s DNS Management</li>

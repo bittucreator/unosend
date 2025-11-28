@@ -13,7 +13,7 @@ export default function ContactPage() {
   return (
     <div className="min-h-screen bg-[#fafafa] flex flex-col">
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-[#fafafa]/80 backdrop-blur-sm border-b border-stone-200/60">
+      <nav className="sticky top-0 z-50 bg-[#fafafa] backdrop-blur-sm border-b border-stone-200">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-14">
             <Link href="/" className="flex items-center space-x-2">
@@ -58,7 +58,7 @@ export default function ContactPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
             {/* Sales */}
-            <div className="p-6 bg-white border border-stone-200/60 rounded-xl">
+            <div className="p-6 bg-white border border-stone-200 rounded-xl">
               <div className="w-10 h-10 bg-stone-100 rounded-lg flex items-center justify-center mb-4">
                 <Building2 className="w-5 h-5 text-stone-600" />
               </div>
@@ -67,14 +67,14 @@ export default function ContactPage() {
                 Interested in our Enterprise plan or have questions about pricing? Talk to our sales team.
               </p>
               <Link href="mailto:sales@unosend.co">
-                <Button variant="outline" size="sm" className="h-8 text-[13px] border-stone-200/60">
+                <Button variant="outline" size="sm" className="h-8 text-[13px] border-stone-200">
                   sales@unosend.co
                 </Button>
               </Link>
             </div>
 
             {/* Support */}
-            <div className="p-6 bg-white border border-stone-200/60 rounded-xl">
+            <div className="p-6 bg-white border border-stone-200 rounded-xl">
               <div className="w-10 h-10 bg-stone-100 rounded-lg flex items-center justify-center mb-4">
                 <MessageSquare className="w-5 h-5 text-stone-600" />
               </div>
@@ -83,14 +83,14 @@ export default function ContactPage() {
                 Need help with your account or have a technical question? Our support team is ready to assist.
               </p>
               <Link href="mailto:support@unosend.co">
-                <Button variant="outline" size="sm" className="h-8 text-[13px] border-stone-200/60">
+                <Button variant="outline" size="sm" className="h-8 text-[13px] border-stone-200">
                   support@unosend.co
                 </Button>
               </Link>
             </div>
 
             {/* General */}
-            <div className="p-6 bg-white border border-stone-200/60 rounded-xl">
+            <div className="p-6 bg-white border border-stone-200 rounded-xl">
               <div className="w-10 h-10 bg-stone-100 rounded-lg flex items-center justify-center mb-4">
                 <Mail className="w-5 h-5 text-stone-600" />
               </div>
@@ -99,7 +99,7 @@ export default function ContactPage() {
                 For partnerships, press inquiries, or anything else, reach out to our general inbox.
               </p>
               <Link href="mailto:hello@unosend.co">
-                <Button variant="outline" size="sm" className="h-8 text-[13px] border-stone-200/60">
+                <Button variant="outline" size="sm" className="h-8 text-[13px] border-stone-200">
                   support@unosend.co
                 </Button>
               </Link>
@@ -108,7 +108,7 @@ export default function ContactPage() {
 
           {/* Additional Info */}
           <div className="mt-12 max-w-4xl mx-auto">
-            <div className="p-6 bg-stone-50 border border-stone-200/60 rounded-xl text-center">
+            <div className="p-6 bg-stone-50 border border-stone-200 rounded-xl text-center">
               <h3 className="text-[15px] font-semibold mb-3">Response Times</h3>
               <div className="grid md:grid-cols-3 gap-4 text-[13px]">
                 <div>
@@ -130,7 +130,7 @@ export default function ContactPage() {
       </section>
 
       {/* Footer */}
-      <footer className="py-10 border-t border-stone-200/60 mt-auto">
+      <footer className="py-10 border-t border-stone-200 mt-auto">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <Link href="/" className="flex items-center space-x-2">

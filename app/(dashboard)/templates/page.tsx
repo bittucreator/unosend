@@ -2,7 +2,6 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import {
   Table,
   TableBody,
@@ -33,13 +32,13 @@ export default async function TemplatesPage() {
   // Fetch templates from database
   const { data: templates } = organizationId ? await supabase
     .from('templates')
-    .select('id, name, subject, type, updated_at')
+    .select('id, name, subject, updated_at')
     .eq('organization_id', organizationId)
     .order('updated_at', { ascending: false }) : { data: [] }
 
   const formattedTemplates = (templates || []).map(t => ({
     ...t,
-    updated_at: new Date(t.updated_at).toLocaleDateString()
+    updated_at: t.updated_at ? new Date(t.updated_at).toLocaleDateString() : 'Never'
   }))
 
   return (
@@ -61,7 +60,7 @@ export default async function TemplatesPage() {
       </div>
 
       {/* Templates Section */}
-      <div className="border border-stone-200/60 rounded-xl bg-white">
+      <div className="border border-stone-200 rounded-xl bg-white">
         <div className="flex items-center justify-between p-4 sm:p-5 border-b border-stone-100">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-stone-100 rounded-lg">
@@ -97,7 +96,6 @@ export default async function TemplatesPage() {
                   <TableRow className="border-stone-100">
                     <TableHead className="text-[13px] font-medium text-muted-foreground">Name</TableHead>
                     <TableHead className="hidden sm:table-cell text-[13px] font-medium text-muted-foreground">Subject</TableHead>
-                    <TableHead className="text-[13px] font-medium text-muted-foreground">Type</TableHead>
                     <TableHead className="hidden sm:table-cell text-[13px] font-medium text-muted-foreground">Updated</TableHead>
                     <TableHead className="text-right text-[13px] font-medium text-muted-foreground">Actions</TableHead>
                   </TableRow>
@@ -112,11 +110,6 @@ export default async function TemplatesPage() {
                         </span>
                       </TableCell>
                       <TableCell className="text-muted-foreground text-[13px] hidden sm:table-cell">{template.subject}</TableCell>
-                      <TableCell>
-                        <Badge variant="secondary" className="text-[11px] bg-stone-100 text-stone-600 border-0">
-                          {template.type.toUpperCase()}
-                        </Badge>
-                      </TableCell>
                       <TableCell className="text-muted-foreground text-[13px] hidden sm:table-cell">{template.updated_at}</TableCell>
                       <TableCell className="text-right">
                         <Button variant="ghost" size="sm" className="h-7 px-2 text-[13px]" asChild>

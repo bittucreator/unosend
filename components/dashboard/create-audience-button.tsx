@@ -16,6 +16,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Plus, Loader2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { toast } from 'sonner'
 
 interface CreateAudienceButtonProps {
   organizationId: string
@@ -34,21 +35,28 @@ export function CreateAudienceButton({ organizationId }: CreateAudienceButtonPro
 
     setLoading(true)
     try {
-      const supabase = createClient()
-      const { error } = await supabase.from('audiences').insert({
-        organization_id: organizationId,
-        name,
-        description: description || null,
+      const response = await fetch('/api/dashboard/audiences', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name,
+          description: description || null,
+        }),
       })
 
-      if (error) throw error
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to create audience')
+      }
 
+      toast.success('Audience created')
       setOpen(false)
       setName('')
       setDescription('')
       router.refresh()
     } catch (error) {
       console.error('Failed to create audience:', error)
+      toast.error(error instanceof Error ? error.message : 'Failed to create audience')
     } finally {
       setLoading(false)
     }

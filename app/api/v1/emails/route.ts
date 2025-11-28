@@ -75,7 +75,11 @@ export async function POST(request: NextRequest) {
 
     // Send email
     try {
-      const result = await emailService.sendEmail(input, fromName || undefined)
+      const result = await emailService.sendEmail(input, fromName || undefined, {
+        emailId: email.id,
+        trackOpens: true,
+        trackClicks: true,
+      })
 
       // Update email status to sent
       await supabaseAdmin

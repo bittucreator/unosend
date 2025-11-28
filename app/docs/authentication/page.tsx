@@ -25,7 +25,7 @@ export default function AuthenticationPage() {
           dashboard under <strong>Settings → API Keys</strong>.
         </p>
         
-        <div className="bg-white border border-stone-200/60 rounded-xl p-5 mb-4">
+        <div className="bg-white border border-stone-200 rounded-xl p-5 mb-4">
           <div className="flex items-start gap-3">
             <Key className="w-5 h-5 text-stone-600 shrink-0 mt-0.5" />
             <div>
@@ -115,7 +115,7 @@ client := unosend.NewClient(os.Getenv("UNOSEND_API_KEY"))`}
       <section className="mb-10">
         <h2 className="text-xl font-bold text-stone-900 mb-4">API Key Types</h2>
         <div className="space-y-4">
-          <div className="bg-white border border-stone-200/60 rounded-xl p-5">
+          <div className="bg-white border border-stone-200 rounded-xl p-5">
             <div className="flex items-start gap-3">
               <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center shrink-0">
                 <Shield className="w-4 h-4 text-green-700" />
@@ -132,7 +132,7 @@ client := unosend.NewClient(os.Getenv("UNOSEND_API_KEY"))`}
             </div>
           </div>
           
-          <div className="bg-white border border-stone-200/60 rounded-xl p-5">
+          <div className="bg-white border border-stone-200 rounded-xl p-5">
             <div className="flex items-start gap-3">
               <div className="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center shrink-0">
                 <Lock className="w-4 h-4 text-amber-700" />
@@ -158,9 +158,9 @@ client := unosend.NewClient(os.Getenv("UNOSEND_API_KEY"))`}
           You can create API keys with limited permissions for security. Available scopes:
         </p>
         
-        <div className="bg-white border border-stone-200/60 rounded-xl overflow-hidden">
+        <div className="bg-white border border-stone-200 rounded-xl overflow-hidden">
           <table className="w-full text-[13px]">
-            <thead className="bg-stone-50/80 border-b border-stone-100">
+            <thead className="bg-stone-50 border-b border-stone-100">
               <tr>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Scope</th>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Description</th>
@@ -250,8 +250,8 @@ client := unosend.NewClient(os.Getenv("UNOSEND_API_KEY"))`}
         </p>
         
         <div className="space-y-4">
-          <div className="bg-white border border-stone-200/60 rounded-xl overflow-hidden">
-            <div className="px-4 py-2.5 border-b border-stone-100 bg-stone-50/50">
+          <div className="bg-white border border-stone-200 rounded-xl overflow-hidden">
+            <div className="px-4 py-2.5 border-b border-stone-100 bg-stone-50">
               <span className="text-[12px] font-medium text-red-600">401 Unauthorized</span>
             </div>
             <div className="p-4">
@@ -266,8 +266,8 @@ client := unosend.NewClient(os.Getenv("UNOSEND_API_KEY"))`}
             </div>
           </div>
           
-          <div className="bg-white border border-stone-200/60 rounded-xl overflow-hidden">
-            <div className="px-4 py-2.5 border-b border-stone-100 bg-stone-50/50">
+          <div className="bg-white border border-stone-200 rounded-xl overflow-hidden">
+            <div className="px-4 py-2.5 border-b border-stone-100 bg-stone-50">
               <span className="text-[12px] font-medium text-red-600">403 Forbidden</span>
             </div>
             <div className="p-4">

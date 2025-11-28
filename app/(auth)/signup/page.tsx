@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
+import { Suspense } from 'react'
 import { SignupForm } from '@/components/auth/signup-form'
 
 export const metadata: Metadata = {
@@ -33,7 +34,13 @@ export default function SignupPage() {
         </div>
 
         <div className="bg-white border border-stone-200/60 rounded-2xl p-6 sm:p-8 shadow-sm">
-          <SignupForm />
+          <Suspense fallback={
+            <div className="flex items-center justify-center py-8">
+              <div className="w-6 h-6 border-2 border-stone-200 border-t-stone-600 rounded-full animate-spin" />
+            </div>
+          }>
+            <SignupForm />
+          </Suspense>
         </div>
 
         <p className="mt-6 text-center text-[13px] text-muted-foreground">

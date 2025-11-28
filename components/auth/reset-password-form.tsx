@@ -89,7 +89,7 @@ export function ResetPasswordForm() {
           placeholder="••••••••"
           required
           minLength={8}
-          className="h-[30px] text-[14px] border-stone-200/60"
+          className="h-[30px] text-[14px] border-stone-200"
         />
         <p className="text-[11px] text-muted-foreground">Must be at least 8 characters</p>
       </div>
@@ -105,7 +105,7 @@ export function ResetPasswordForm() {
           placeholder="••••••••"
           required
           minLength={8}
-          className="h-[30px] text-[14px] border-stone-200/60"
+          className="h-[30px] text-[14px] border-stone-200"
         />
       </div>
 

@@ -50,17 +50,17 @@ if (error) {
       <section className="mb-10">
         <h2 className="text-xl font-bold text-stone-900 mb-4">Email Options</h2>
         <div className="grid md:grid-cols-3 gap-4 mb-6">
-          <div className="bg-white border border-stone-200/60 rounded-xl p-4">
+          <div className="bg-white border border-stone-200 rounded-xl p-4">
             <Mail className="w-5 h-5 text-stone-600 mb-2" />
             <h3 className="text-[13px] font-semibold text-stone-900 mb-1">CC & BCC</h3>
             <p className="text-[12px] text-muted-foreground">Send copies to additional recipients</p>
           </div>
-          <div className="bg-white border border-stone-200/60 rounded-xl p-4">
+          <div className="bg-white border border-stone-200 rounded-xl p-4">
             <Paperclip className="w-5 h-5 text-stone-600 mb-2" />
             <h3 className="text-[13px] font-semibold text-stone-900 mb-1">Attachments</h3>
             <p className="text-[12px] text-muted-foreground">Include files with your emails</p>
           </div>
-          <div className="bg-white border border-stone-200/60 rounded-xl p-4">
+          <div className="bg-white border border-stone-200 rounded-xl p-4">
             <Users className="w-5 h-5 text-stone-600 mb-2" />
             <h3 className="text-[13px] font-semibold text-stone-900 mb-1">Reply-To</h3>
             <p className="text-[12px] text-muted-foreground">Set a different reply address</p>
@@ -208,7 +208,7 @@ const { data, error } = await unosend.emails.send({
             'application/json',
             'text/html'
           ].map((type) => (
-            <div key={type} className="bg-white border border-stone-200/60 rounded-lg px-3 py-2">
+            <div key={type} className="bg-white border border-stone-200 rounded-lg px-3 py-2">
               <code className="text-[11px] text-stone-700">{type}</code>
             </div>
           ))}

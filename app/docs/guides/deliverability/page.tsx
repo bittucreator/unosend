@@ -24,15 +24,15 @@ export default function DeliverabilityGuidePage() {
           Poor deliverability means your emails end up in spam folders or get rejected entirely.
         </p>
         <div className="grid md:grid-cols-3 gap-4">
-          <div className="bg-white border border-stone-200/60 rounded-xl p-5">
+          <div className="bg-white border border-stone-200 rounded-xl p-5">
             <div className="text-3xl font-bold text-green-600 mb-1">95%+</div>
             <div className="text-[13px] text-muted-foreground">Target inbox rate</div>
           </div>
-          <div className="bg-white border border-stone-200/60 rounded-xl p-5">
+          <div className="bg-white border border-stone-200 rounded-xl p-5">
             <div className="text-3xl font-bold text-amber-600 mb-1">&lt;0.1%</div>
             <div className="text-[13px] text-muted-foreground">Target spam complaint rate</div>
           </div>
-          <div className="bg-white border border-stone-200/60 rounded-xl p-5">
+          <div className="bg-white border border-stone-200 rounded-xl p-5">
             <div className="text-3xl font-bold text-red-600 mb-1">&lt;2%</div>
             <div className="text-[13px] text-muted-foreground">Target bounce rate</div>
           </div>
@@ -50,7 +50,7 @@ export default function DeliverabilityGuidePage() {
         </p>
         
         <div className="space-y-4">
-          <div className="bg-white border border-stone-200/60 rounded-xl p-5">
+          <div className="bg-white border border-stone-200 rounded-xl p-5">
             <h3 className="text-[15px] font-semibold text-stone-900 mb-2">SPF (Sender Policy Framework)</h3>
             <p className="text-[13px] text-muted-foreground mb-2">
               Specifies which mail servers can send email on behalf of your domain.
@@ -60,7 +60,7 @@ export default function DeliverabilityGuidePage() {
             </div>
           </div>
           
-          <div className="bg-white border border-stone-200/60 rounded-xl p-5">
+          <div className="bg-white border border-stone-200 rounded-xl p-5">
             <h3 className="text-[15px] font-semibold text-stone-900 mb-2">DKIM (DomainKeys Identified Mail)</h3>
             <p className="text-[13px] text-muted-foreground mb-2">
               Adds a digital signature to verify email hasn&apos;t been altered.
@@ -71,7 +71,7 @@ export default function DeliverabilityGuidePage() {
             </div>
           </div>
           
-          <div className="bg-white border border-stone-200/60 rounded-xl p-5">
+          <div className="bg-white border border-stone-200 rounded-xl p-5">
             <h3 className="text-[15px] font-semibold text-stone-900 mb-2">DMARC (Domain-based Message Authentication)</h3>
             <p className="text-[13px] text-muted-foreground mb-2">
               Tells receiving servers what to do with unauthenticated emails.
@@ -208,28 +208,28 @@ export default function DeliverabilityGuidePage() {
         </p>
         
         <div className="space-y-4">
-          <div className="bg-white border border-stone-200/60 rounded-xl p-5">
+          <div className="bg-white border border-stone-200 rounded-xl p-5">
             <h3 className="text-[14px] font-semibold text-stone-900 mb-2">Remove Hard Bounces</h3>
             <p className="text-[13px] text-muted-foreground">
               Immediately remove emails that hard bounce. Continued sending damages reputation.
             </p>
           </div>
           
-          <div className="bg-white border border-stone-200/60 rounded-xl p-5">
+          <div className="bg-white border border-stone-200 rounded-xl p-5">
             <h3 className="text-[14px] font-semibold text-stone-900 mb-2">Re-engage or Remove Inactive</h3>
             <p className="text-[13px] text-muted-foreground">
               After 6 months of no opens, send a re-engagement campaign. Remove those who don&apos;t respond.
             </p>
           </div>
           
-          <div className="bg-white border border-stone-200/60 rounded-xl p-5">
+          <div className="bg-white border border-stone-200 rounded-xl p-5">
             <h3 className="text-[14px] font-semibold text-stone-900 mb-2">Use Double Opt-in</h3>
             <p className="text-[13px] text-muted-foreground">
               Require email confirmation to ensure valid addresses and genuine interest.
             </p>
           </div>
           
-          <div className="bg-white border border-stone-200/60 rounded-xl p-5">
+          <div className="bg-white border border-stone-200 rounded-xl p-5">
             <h3 className="text-[14px] font-semibold text-stone-900 mb-2">Honor Unsubscribes</h3>
             <p className="text-[13px] text-muted-foreground">
               Process unsubscribe requests immediately. Never re-add without explicit consent.
@@ -248,9 +248,9 @@ export default function DeliverabilityGuidePage() {
           New domains need to build reputation gradually. Here&apos;s a recommended warm-up schedule:
         </p>
         
-        <div className="bg-white border border-stone-200/60 rounded-xl overflow-hidden">
+        <div className="bg-white border border-stone-200 rounded-xl overflow-hidden">
           <table className="w-full text-[13px]">
-            <thead className="bg-stone-50/80 border-b border-stone-100">
+            <thead className="bg-stone-50 border-b border-stone-100">
               <tr>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Week</th>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Daily Volume</th>
@@ -332,7 +332,7 @@ export default function DeliverabilityGuidePage() {
       {/* Checklist */}
       <section>
         <h2 className="text-xl font-bold text-stone-900 mb-4">Deliverability Checklist</h2>
-        <div className="bg-white border border-stone-200/60 rounded-xl p-6">
+        <div className="bg-white border border-stone-200 rounded-xl p-6">
           <div className="space-y-3">
             <div className="flex items-center gap-3">
               <div className="w-5 h-5 rounded border border-stone-300" />

@@ -38,9 +38,9 @@ export default function ErrorsPage() {
 }`}
         />
         
-        <div className="mt-4 bg-white border border-stone-200/60 rounded-xl overflow-hidden">
+        <div className="mt-4 bg-white border border-stone-200 rounded-xl overflow-hidden">
           <table className="w-full text-[13px]">
-            <thead className="bg-stone-50/80 border-b border-stone-100">
+            <thead className="bg-stone-50 border-b border-stone-100">
               <tr>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Field</th>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Description</th>
@@ -73,7 +73,7 @@ export default function ErrorsPage() {
         <h2 className="text-xl font-bold text-stone-900 mb-4">HTTP Status Codes</h2>
         
         <div className="space-y-3">
-          <div className="flex items-start gap-4 bg-white border border-stone-200/60 rounded-xl p-4">
+          <div className="flex items-start gap-4 bg-white border border-stone-200 rounded-xl p-4">
             <div className="px-2 py-1 bg-green-100 rounded text-green-700 font-mono text-[12px] shrink-0">
               2xx
             </div>
@@ -83,7 +83,7 @@ export default function ErrorsPage() {
             </div>
           </div>
           
-          <div className="flex items-start gap-4 bg-white border border-stone-200/60 rounded-xl p-4">
+          <div className="flex items-start gap-4 bg-white border border-stone-200 rounded-xl p-4">
             <div className="px-2 py-1 bg-amber-100 rounded text-amber-700 font-mono text-[12px] shrink-0">
               4xx
             </div>
@@ -93,7 +93,7 @@ export default function ErrorsPage() {
             </div>
           </div>
           
-          <div className="flex items-start gap-4 bg-white border border-stone-200/60 rounded-xl p-4">
+          <div className="flex items-start gap-4 bg-white border border-stone-200 rounded-xl p-4">
             <div className="px-2 py-1 bg-red-100 rounded text-red-700 font-mono text-[12px] shrink-0">
               5xx
             </div>
@@ -112,9 +112,9 @@ export default function ErrorsPage() {
           Authentication Errors
         </h2>
         
-        <div className="bg-white border border-stone-200/60 rounded-xl overflow-hidden">
+        <div className="bg-white border border-stone-200 rounded-xl overflow-hidden">
           <table className="w-full text-[13px]">
-            <thead className="bg-stone-50/80 border-b border-stone-100">
+            <thead className="bg-stone-50 border-b border-stone-100">
               <tr>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Code</th>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Status</th>
@@ -170,9 +170,9 @@ const response = await fetch('https://api.unosend.com/v1/emails', {
           Validation Errors
         </h2>
         
-        <div className="bg-white border border-stone-200/60 rounded-xl overflow-hidden">
+        <div className="bg-white border border-stone-200 rounded-xl overflow-hidden">
           <table className="w-full text-[13px]">
-            <thead className="bg-stone-50/80 border-b border-stone-100">
+            <thead className="bg-stone-50 border-b border-stone-100">
               <tr>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Code</th>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Status</th>
@@ -244,9 +244,9 @@ const response = await fetch('https://api.unosend.com/v1/emails', {
           Resource Errors
         </h2>
         
-        <div className="bg-white border border-stone-200/60 rounded-xl overflow-hidden">
+        <div className="bg-white border border-stone-200 rounded-xl overflow-hidden">
           <table className="w-full text-[13px]">
-            <thead className="bg-stone-50/80 border-b border-stone-100">
+            <thead className="bg-stone-50 border-b border-stone-100">
               <tr>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Code</th>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Status</th>
@@ -296,9 +296,9 @@ const response = await fetch('https://api.unosend.com/v1/emails', {
           Rate Limit Errors
         </h2>
         
-        <div className="bg-white border border-stone-200/60 rounded-xl overflow-hidden">
+        <div className="bg-white border border-stone-200 rounded-xl overflow-hidden">
           <table className="w-full text-[13px]">
-            <thead className="bg-stone-50/80 border-b border-stone-100">
+            <thead className="bg-stone-50 border-b border-stone-100">
               <tr>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Code</th>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Status</th>
@@ -340,9 +340,9 @@ const response = await fetch('https://api.unosend.com/v1/emails', {
           Server Errors
         </h2>
         
-        <div className="bg-white border border-stone-200/60 rounded-xl overflow-hidden">
+        <div className="bg-white border border-stone-200 rounded-xl overflow-hidden">
           <table className="w-full text-[13px]">
-            <thead className="bg-stone-50/80 border-b border-stone-100">
+            <thead className="bg-stone-50 border-b border-stone-100">
               <tr>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Code</th>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Status</th>

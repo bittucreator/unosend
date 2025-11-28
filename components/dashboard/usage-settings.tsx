@@ -315,7 +315,7 @@ export function UsageSettings({ organizationId }: UsageSettingsProps) {
       )}
 
       {/* Usage Progress */}
-      <div className="border border-stone-200/60 rounded-xl p-5 bg-white space-y-4">
+      <div className="border border-stone-200 rounded-xl p-5 bg-white space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-stone-100 rounded-lg">
@@ -358,7 +358,7 @@ export function UsageSettings({ organizationId }: UsageSettingsProps) {
 
       {/* Stats Grid */}
       <div className="grid gap-4 sm:grid-cols-3">
-        <div className="border border-stone-200/60 rounded-xl p-4 bg-white">
+        <div className="border border-stone-200 rounded-xl p-4 bg-white">
           <div className="flex items-center gap-2 mb-3">
             <TrendingUp className="w-4 h-4 text-green-600" />
             <span className="text-[12px] text-muted-foreground">Sent</span>
@@ -367,7 +367,7 @@ export function UsageSettings({ organizationId }: UsageSettingsProps) {
           <p className="text-[11px] text-muted-foreground mt-1">emails this month</p>
         </div>
 
-        <div className="border border-stone-200/60 rounded-xl p-4 bg-white">
+        <div className="border border-stone-200 rounded-xl p-4 bg-white">
           <div className="flex items-center gap-2 mb-3">
             <CheckCircle className="w-4 h-4 text-green-600" />
             <span className="text-[12px] text-muted-foreground">Delivered</span>
@@ -378,7 +378,7 @@ export function UsageSettings({ organizationId }: UsageSettingsProps) {
           </p>
         </div>
 
-        <div className="border border-stone-200/60 rounded-xl p-4 bg-white">
+        <div className="border border-stone-200 rounded-xl p-4 bg-white">
           <div className="flex items-center gap-2 mb-3">
             <XCircle className="w-4 h-4 text-red-500" />
             <span className="text-[12px] text-muted-foreground">Bounced</span>
@@ -391,7 +391,7 @@ export function UsageSettings({ organizationId }: UsageSettingsProps) {
       </div>
 
       {/* Usage Chart */}
-      <div className="border border-stone-200/60 rounded-xl p-5 bg-white">
+      <div className="border border-stone-200 rounded-xl p-5 bg-white">
         <div className="flex items-center gap-3 mb-4">
           <div className="p-2 bg-stone-100 rounded-lg">
             <BarChart3 className="h-4 w-4 text-stone-600" />
@@ -420,7 +420,7 @@ export function UsageSettings({ organizationId }: UsageSettingsProps) {
       </div>
 
       {/* Plan Details */}
-      <div className="border border-stone-200/60 rounded-xl p-5 bg-white">
+      <div className="border border-stone-200 rounded-xl p-5 bg-white">
         <h3 className="font-medium text-[14px] mb-3">Plan Limits</h3>
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="flex justify-between text-[13px]">

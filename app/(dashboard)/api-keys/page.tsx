@@ -40,7 +40,7 @@ export default async function ApiKeysPage() {
       </div>
 
       {/* API Keys Section */}
-      <div className="border border-stone-200/60 rounded-xl bg-white">
+      <div className="border border-stone-200 rounded-xl bg-white">
         <div className="flex items-center justify-between p-4 sm:p-5 border-b border-stone-100">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-stone-100 rounded-lg">
@@ -61,7 +61,7 @@ export default async function ApiKeysPage() {
       </div>
 
       {/* Usage Examples Section */}
-      <div className="border border-stone-200/60 rounded-xl bg-white">
+      <div className="border border-stone-200 rounded-xl bg-white">
         <div className="flex items-center gap-2 p-4 sm:p-5 border-b border-stone-100">
           <Code className="w-4 h-4 text-muted-foreground" />
           <div>
@@ -80,7 +80,7 @@ export default async function ApiKeysPage() {
               <TabsTrigger value="python" className="text-[13px] data-[state=active]:bg-white">Python</TabsTrigger>
             </TabsList>
             <TabsContent value="curl" className="mt-4">
-              <div className="bg-stone-50 border border-stone-200/60 rounded-lg p-4 font-mono text-[13px] overflow-x-auto">
+              <div className="bg-stone-50 border border-stone-200 rounded-lg p-4 font-mono text-[13px] overflow-x-auto">
                 <pre className="text-stone-800">
 {`curl -X POST https://api.unosend.co/v1/emails \\
   -H "Authorization: Bearer un_your_api_key" \\
@@ -95,7 +95,7 @@ export default async function ApiKeysPage() {
               </div>
             </TabsContent>
             <TabsContent value="node" className="mt-4">
-              <div className="bg-stone-50 border border-stone-200/60 rounded-lg p-4 font-mono text-[13px] overflow-x-auto">
+              <div className="bg-stone-50 border border-stone-200 rounded-lg p-4 font-mono text-[13px] overflow-x-auto">
                 <pre className="text-stone-800">
 {`const response = await fetch('https://api.unosend.co/v1/emails', {
   method: 'POST',
@@ -117,7 +117,7 @@ console.log(data);`}
               </div>
             </TabsContent>
             <TabsContent value="python" className="mt-4">
-              <div className="bg-stone-50 border border-stone-200/60 rounded-lg p-4 font-mono text-[13px] overflow-x-auto">
+              <div className="bg-stone-50 border border-stone-200 rounded-lg p-4 font-mono text-[13px] overflow-x-auto">
                 <pre className="text-stone-800">
 {`import requests
 

@@ -1,7 +1,11 @@
+'use client'
+
 import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Kbd } from '@/components/ui/kbd'
+import { CommandPalette } from '@/components/command-palette'
 import { Search, Menu } from 'lucide-react'
 
 interface DocsLayoutProps {
@@ -61,10 +65,20 @@ const sidebarNav = [
 ]
 
 export default function DocsLayout({ children }: DocsLayoutProps) {
+  const openCommandPalette = () => {
+    const event = new KeyboardEvent('keydown', {
+      key: 'k',
+      metaKey: true,
+      bubbles: true,
+    })
+    document.dispatchEvent(event)
+  }
+
   return (
     <div className="min-h-screen bg-[#fafafa]">
+      <CommandPalette />
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-[#fafafa]/80 backdrop-blur-sm border-b border-stone-200/60">
+      <nav className="sticky top-0 z-50 bg-[#fafafa]/80 backdrop-blur-sm border-b border-stone-200">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-14">
             <div className="flex items-center space-x-4">
@@ -77,15 +91,17 @@ export default function DocsLayout({ children }: DocsLayoutProps) {
             </div>
             
             <div className="hidden md:flex flex-1 max-w-md mx-8">
-              <div className="relative w-full">
+              <button 
+                onClick={openCommandPalette}
+                className="relative w-full flex items-center gap-2 h-9 pl-9 pr-4 text-[13px] text-stone-500 bg-white border border-stone-200 rounded-lg hover:border-stone-300 transition-colors text-left"
+              >
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
-                <input 
-                  type="text"
-                  placeholder="Search documentation..."
-                  className="w-full h-9 pl-9 pr-4 text-[13px] bg-white border border-stone-200/60 rounded-lg focus:outline-none focus:ring-2 focus:ring-stone-900/10 focus:border-stone-300"
-                />
-                <kbd className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-stone-400 bg-stone-100 px-1.5 py-0.5 rounded">⌘K</kbd>
-              </div>
+                <span>Search documentation...</span>
+                <div className="ml-auto flex items-center gap-1">
+                  <Kbd>⌘</Kbd>
+                  <Kbd>K</Kbd>
+                </div>
+              </button>
             </div>
 
             <div className="flex items-center space-x-2">
@@ -109,7 +125,7 @@ export default function DocsLayout({ children }: DocsLayoutProps) {
 
       <div className="max-w-[1400px] mx-auto flex">
         {/* Sidebar */}
-        <aside className="hidden md:block w-64 shrink-0 border-r border-stone-200/60 h-[calc(100vh-56px)] sticky top-14 overflow-y-auto">
+        <aside className="hidden md:block w-64 shrink-0 border-r border-stone-200 h-[calc(100vh-56px)] sticky top-14 overflow-y-auto">
           <nav className="p-4 space-y-6">
             {sidebarNav.map((section) => (
               <div key={section.title}>
@@ -121,7 +137,7 @@ export default function DocsLayout({ children }: DocsLayoutProps) {
                     <li key={item.href}>
                       <Link 
                         href={item.href}
-                        className="block px-2 py-1.5 text-[13px] text-stone-600 hover:text-stone-900 hover:bg-[#f0f0f0] rounded-md transition"
+                        className="block px-2 py-1.5 text-[13px] text-stone-600 hover:text-stone-900 hover:bg-stone-100 rounded-md transition"
                       >
                         {item.title}
                       </Link>

@@ -217,7 +217,7 @@ Email ID: em_xxxxxxxxxxxxxxxxxxxxxxxx`}
         <div className="grid md:grid-cols-2 gap-4">
           <Link 
             href="/docs/guides/domain-verification"
-            className="flex items-center gap-3 p-4 bg-white border border-stone-200/60 rounded-xl hover:border-stone-300/60 transition group"
+            className="flex items-center gap-3 p-4 bg-white border border-stone-200 rounded-xl hover:border-stone-300 transition group"
           >
             <div className="flex-1">
               <h3 className="text-[14px] font-semibold text-stone-900 mb-0.5">Verify Your Domain</h3>
@@ -227,7 +227,7 @@ Email ID: em_xxxxxxxxxxxxxxxxxxxxxxxx`}
           </Link>
           <Link 
             href="/docs/api/emails"
-            className="flex items-center gap-3 p-4 bg-white border border-stone-200/60 rounded-xl hover:border-stone-300/60 transition group"
+            className="flex items-center gap-3 p-4 bg-white border border-stone-200 rounded-xl hover:border-stone-300 transition group"
           >
             <div className="flex-1">
               <h3 className="text-[14px] font-semibold text-stone-900 mb-0.5">Emails API Reference</h3>
@@ -237,7 +237,7 @@ Email ID: em_xxxxxxxxxxxxxxxxxxxxxxxx`}
           </Link>
           <Link 
             href="/docs/guides/templates"
-            className="flex items-center gap-3 p-4 bg-white border border-stone-200/60 rounded-xl hover:border-stone-300/60 transition group"
+            className="flex items-center gap-3 p-4 bg-white border border-stone-200 rounded-xl hover:border-stone-300 transition group"
           >
             <div className="flex-1">
               <h3 className="text-[14px] font-semibold text-stone-900 mb-0.5">Email Templates</h3>
@@ -247,7 +247,7 @@ Email ID: em_xxxxxxxxxxxxxxxxxxxxxxxx`}
           </Link>
           <Link 
             href="/docs/guides/webhooks"
-            className="flex items-center gap-3 p-4 bg-white border border-stone-200/60 rounded-xl hover:border-stone-300/60 transition group"
+            className="flex items-center gap-3 p-4 bg-white border border-stone-200 rounded-xl hover:border-stone-300 transition group"
           >
             <div className="flex-1">
               <h3 className="text-[14px] font-semibold text-stone-900 mb-0.5">Set Up Webhooks</h3>

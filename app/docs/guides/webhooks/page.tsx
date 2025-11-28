@@ -21,22 +21,22 @@ export default function WebhooksGuidePage() {
       <section className="mb-10">
         <h2 className="text-xl font-bold text-stone-900 mb-4">How Webhooks Work</h2>
         <div className="grid md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white border border-stone-200/60 rounded-xl p-4">
+          <div className="bg-white border border-stone-200 rounded-xl p-4">
             <span className="text-2xl font-bold text-stone-200 block mb-2">1</span>
             <h3 className="text-[13px] font-semibold text-stone-900 mb-1">Event Occurs</h3>
             <p className="text-[12px] text-muted-foreground">Email is delivered, opened, clicked, etc.</p>
           </div>
-          <div className="bg-white border border-stone-200/60 rounded-xl p-4">
+          <div className="bg-white border border-stone-200 rounded-xl p-4">
             <span className="text-2xl font-bold text-stone-200 block mb-2">2</span>
             <h3 className="text-[13px] font-semibold text-stone-900 mb-1">We Send POST</h3>
             <p className="text-[12px] text-muted-foreground">HTTP POST to your endpoint</p>
           </div>
-          <div className="bg-white border border-stone-200/60 rounded-xl p-4">
+          <div className="bg-white border border-stone-200 rounded-xl p-4">
             <span className="text-2xl font-bold text-stone-200 block mb-2">3</span>
             <h3 className="text-[13px] font-semibold text-stone-900 mb-1">You Verify</h3>
             <p className="text-[12px] text-muted-foreground">Validate signature for security</p>
           </div>
-          <div className="bg-white border border-stone-200/60 rounded-xl p-4">
+          <div className="bg-white border border-stone-200 rounded-xl p-4">
             <span className="text-2xl font-bold text-stone-200 block mb-2">4</span>
             <h3 className="text-[13px] font-semibold text-stone-900 mb-1">Process Event</h3>
             <p className="text-[12px] text-muted-foreground">Update your database, trigger actions</p>
@@ -47,9 +47,9 @@ export default function WebhooksGuidePage() {
       {/* Event Types */}
       <section className="mb-10">
         <h2 className="text-xl font-bold text-stone-900 mb-4">Event Types</h2>
-        <div className="bg-white border border-stone-200/60 rounded-xl overflow-hidden">
+        <div className="bg-white border border-stone-200 rounded-xl overflow-hidden">
           <table className="w-full text-[13px]">
-            <thead className="bg-stone-50/80 border-b border-stone-100">
+            <thead className="bg-stone-50 border-b border-stone-100">
               <tr>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Event</th>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Description</th>

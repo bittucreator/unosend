@@ -24,9 +24,9 @@ export default function RateLimitsPage() {
           Limits are applied per API key and vary by plan.
         </p>
         
-        <div className="bg-white border border-stone-200/60 rounded-xl overflow-hidden">
+        <div className="bg-white border border-stone-200 rounded-xl overflow-hidden">
           <table className="w-full text-[13px]">
-            <thead className="bg-stone-50/80 border-b border-stone-100">
+            <thead className="bg-stone-50 border-b border-stone-100">
               <tr>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Plan</th>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Requests/Second</th>
@@ -71,9 +71,9 @@ export default function RateLimitsPage() {
           Every API response includes headers to help you track your rate limit status:
         </p>
         
-        <div className="bg-white border border-stone-200/60 rounded-xl overflow-hidden">
+        <div className="bg-white border border-stone-200 rounded-xl overflow-hidden">
           <table className="w-full text-[13px]">
-            <thead className="bg-stone-50/80 border-b border-stone-100">
+            <thead className="bg-stone-50 border-b border-stone-100">
               <tr>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Header</th>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Description</th>
@@ -297,7 +297,7 @@ for (const recipient of recipients) {
         </h2>
         
         <div className="space-y-4">
-          <div className="flex items-start gap-3 bg-white border border-stone-200/60 rounded-xl p-4">
+          <div className="flex items-start gap-3 bg-white border border-stone-200 rounded-xl p-4">
             <div className="w-6 h-6 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
               <span className="text-[12px] font-semibold text-blue-600">1</span>
             </div>
@@ -309,7 +309,7 @@ for (const recipient of recipients) {
             </div>
           </div>
           
-          <div className="flex items-start gap-3 bg-white border border-stone-200/60 rounded-xl p-4">
+          <div className="flex items-start gap-3 bg-white border border-stone-200 rounded-xl p-4">
             <div className="w-6 h-6 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
               <span className="text-[12px] font-semibold text-blue-600">2</span>
             </div>
@@ -321,7 +321,7 @@ for (const recipient of recipients) {
             </div>
           </div>
           
-          <div className="flex items-start gap-3 bg-white border border-stone-200/60 rounded-xl p-4">
+          <div className="flex items-start gap-3 bg-white border border-stone-200 rounded-xl p-4">
             <div className="w-6 h-6 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
               <span className="text-[12px] font-semibold text-blue-600">3</span>
             </div>
@@ -333,7 +333,7 @@ for (const recipient of recipients) {
             </div>
           </div>
           
-          <div className="flex items-start gap-3 bg-white border border-stone-200/60 rounded-xl p-4">
+          <div className="flex items-start gap-3 bg-white border border-stone-200 rounded-xl p-4">
             <div className="w-6 h-6 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
               <span className="text-[12px] font-semibold text-blue-600">4</span>
             </div>

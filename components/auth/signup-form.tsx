@@ -1,17 +1,30 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Loader2, CheckCircle2 } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import { Loader2, CheckCircle2, Mail } from 'lucide-react'
 
 export function SignupForm() {
+  const searchParams = useSearchParams()
+  const inviteToken = searchParams.get('invite')
+  const inviteEmail = searchParams.get('email')
+
   const [isLoading, setIsLoading] = useState(false)
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const [email, setEmail] = useState(inviteEmail || '')
+
+  useEffect(() => {
+    if (inviteEmail) {
+      setEmail(inviteEmail)
+    }
+  }, [inviteEmail])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -19,20 +32,25 @@ export function SignupForm() {
     setError(null)
 
     const formData = new FormData(e.currentTarget)
-    const email = formData.get('email') as string
+    const emailValue = formData.get('email') as string
     const password = formData.get('password') as string
     const fullName = formData.get('full_name') as string
 
     const supabase = createClient()
 
+    // Include invite token in redirect URL if present
+    const redirectUrl = inviteToken 
+      ? `${window.location.origin}/auth/callback?next=/invite/${inviteToken}`
+      : `${window.location.origin}/auth/callback`
+
     const { error } = await supabase.auth.signUp({
-      email,
+      email: emailValue,
       password,
       options: {
         data: {
           full_name: fullName,
         },
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        emailRedirectTo: redirectUrl,
       },
     })
 
@@ -49,10 +67,16 @@ export function SignupForm() {
   const handleGoogleSignup = async () => {
     setIsGoogleLoading(true)
     const supabase = createClient()
+
+    // Include invite token in redirect URL if present
+    const redirectUrl = inviteToken 
+      ? `${window.location.origin}/auth/callback?next=/invite/${inviteToken}`
+      : `${window.location.origin}/auth/callback?next=/emails`
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=/emails`,
+        redirectTo: redirectUrl,
       },
     })
 
@@ -78,6 +102,15 @@ export function SignupForm() {
 
   return (
     <div className="space-y-6">
+      {inviteToken && (
+        <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-100 rounded-lg">
+          <Mail className="w-4 h-4 text-blue-600" />
+          <p className="text-[13px] text-blue-800">
+            Create an account to accept your workspace invitation
+          </p>
+        </div>
+      )}
+
       <Button
         type="button"
         variant="outline"
@@ -147,10 +180,18 @@ export function SignupForm() {
             id="email"
             name="email"
             type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
             required
-            className="h-[30px] text-[14px] border-stone-200/60"
+            readOnly={!!inviteEmail}
+            className={`h-[30px] text-[14px] border-stone-200/60 ${inviteEmail ? 'bg-stone-50' : ''}`}
           />
+          {inviteEmail && (
+            <p className="text-[11px] text-muted-foreground">
+              This email is associated with your invitation
+            </p>
+          )}
         </div>
 
         <div className="space-y-2">

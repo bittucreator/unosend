@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
+import { supabaseAdmin } from '@/lib/supabase/admin'
 import { DashboardShell } from './dashboard-shell'
 
 export interface Workspace {
@@ -46,7 +47,8 @@ export default async function DashboardLayout({
       .replace(/[^a-z0-9]/g, '-')
       .substring(0, 30) + '-' + user.id.substring(0, 8)
     
-    const { data: org, error: orgError } = await supabase
+    // Use admin client to bypass RLS
+    const { data: org, error: orgError } = await supabaseAdmin
       .from('organizations')
       .insert({
         name: workspaceName,
@@ -57,7 +59,7 @@ export default async function DashboardLayout({
       .single()
     
     if (org && !orgError) {
-      await supabase
+      await supabaseAdmin
         .from('organization_members')
         .insert({
           organization_id: org.id,

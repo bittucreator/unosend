@@ -194,7 +194,7 @@ export function MembersSettings({ organizationId, currentUserId, userRole }: Mem
       </div>
 
       {/* Members list */}
-      <div className="border border-stone-200/60 rounded-xl overflow-hidden divide-y divide-stone-100">
+      <div className="border border-stone-200 rounded-xl overflow-hidden divide-y divide-stone-100">
         {members.map((member) => (
           <div key={member.id} className="flex items-center justify-between p-4 bg-white hover:bg-stone-50 transition-colors">
             <div className="flex items-center gap-3">

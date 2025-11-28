@@ -142,7 +142,11 @@ class EmailService {
     }
   }
 
-  async sendEmail(input: SendEmailInput, fromName?: string): Promise<{ id: string; messageId: string }> {
+  async sendEmail(
+    input: SendEmailInput, 
+    fromName?: string,
+    options?: { emailId?: string; trackOpens?: boolean; trackClicks?: boolean }
+  ): Promise<{ id: string; messageId: string }> {
     const toEmails = Array.isArray(input.to) ? input.to : [input.to]
     const ccEmails = input.cc ? (Array.isArray(input.cc) ? input.cc : [input.cc]) : undefined
     const bccEmails = input.bcc ? (Array.isArray(input.bcc) ? input.bcc : [input.bcc]) : undefined
@@ -156,6 +160,29 @@ class EmailService {
       contentType: att.content_type,
     }))
 
+    // Inject tracking if enabled
+    let html = input.html
+    if (html && options?.emailId) {
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://unosend.com'
+      
+      // Inject open tracking pixel
+      if (options.trackOpens !== false) {
+        const trackingPixel = `<img src="${baseUrl}/api/v1/track/open/${options.emailId}" width="1" height="1" alt="" style="display:none;visibility:hidden;width:1px;height:1px;opacity:0;border:0;" />`
+        
+        // Insert before closing body tag, or append to end
+        if (html.includes('</body>')) {
+          html = html.replace('</body>', `${trackingPixel}</body>`)
+        } else {
+          html = html + trackingPixel
+        }
+      }
+      
+      // Wrap links for click tracking
+      if (options.trackClicks !== false) {
+        html = this.wrapLinksForTracking(html, options.emailId, baseUrl)
+      }
+    }
+
     const result = await this.provider.send({
       from: fromAddress,
       to: toEmails,
@@ -163,15 +190,27 @@ class EmailService {
       bcc: bccEmails,
       replyTo: input.reply_to,
       subject: input.subject,
-      html: input.html,
+      html,
       text: input.text,
       attachments,
     })
 
     return {
-      id: crypto.randomUUID(),
+      id: options?.emailId || crypto.randomUUID(),
       messageId: result.messageId,
     }
+  }
+
+  // Wrap all links in HTML with click tracking redirects
+  private wrapLinksForTracking(html: string, emailId: string, baseUrl: string): string {
+    // Match href="..." or href='...' but exclude mailto: and tel: links
+    const linkRegex = /href=["'](?!mailto:|tel:)(https?:\/\/[^"']+)["']/gi
+    
+    return html.replace(linkRegex, (match, url) => {
+      const encodedUrl = encodeURIComponent(url)
+      const trackingUrl = `${baseUrl}/api/v1/track/click/${emailId}?url=${encodedUrl}`
+      return `href="${trackingUrl}"`
+    })
   }
 }
 

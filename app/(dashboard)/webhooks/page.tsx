@@ -39,7 +39,7 @@ export default async function WebhooksPage() {
       </div>
 
       {/* Webhooks Section */}
-      <div className="border border-stone-200/60 rounded-xl bg-white overflow-hidden">
+      <div className="border border-stone-200 rounded-xl bg-white overflow-hidden">
         <div className="flex items-center justify-between p-4 sm:p-5 border-b border-stone-100">
           <div>
             <h2 className="font-semibold text-[15px]">Your Webhooks</h2>
@@ -66,13 +66,13 @@ export default async function WebhooksPage() {
       </div>
 
       {/* Webhook Docs */}
-      <div className="border border-stone-200/60 rounded-xl bg-white overflow-hidden">
+      <div className="border border-stone-200 rounded-xl bg-white overflow-hidden">
         <div className="p-4 sm:p-5 border-b border-stone-100">
           <h2 className="font-semibold text-[15px]">Webhook Payload</h2>
           <p className="text-[13px] text-muted-foreground mt-0.5">Example webhook payload structure</p>
         </div>
         <div className="p-4 sm:p-5">
-          <pre className="bg-stone-50 border border-stone-200/60 p-4 rounded-lg overflow-x-auto text-[12px]">
+          <pre className="bg-stone-50 border border-stone-200 p-4 rounded-lg overflow-x-auto text-[12px]">
             <code>{`{
   "type": "email.delivered",
   "data": {

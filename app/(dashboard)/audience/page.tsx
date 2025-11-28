@@ -10,9 +10,13 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Users, UserPlus, Mail, ArrowRight, ExternalLink } from 'lucide-react'
+import { Users, UserPlus, Mail, ArrowRight, ExternalLink, AlertCircle } from 'lucide-react'
 import { CreateAudienceButton } from '@/components/dashboard/create-audience-button'
 import { AddContactButton } from '@/components/dashboard/add-contact-button'
+import { ImportContactsButton } from '@/components/dashboard/import-contacts-button'
+import { ExportButton } from '@/components/dashboard/export-button'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { supabaseAdmin } from '@/lib/supabase/admin'
 
 export default async function AudiencePage() {
   const supabase = await createClient()
@@ -23,11 +27,44 @@ export default async function AudiencePage() {
   }
 
   // Get user's organization
-  const { data: membership } = await supabase
+  let { data: membership } = await supabase
     .from('organization_members')
     .select('organization_id')
     .eq('user_id', user.id)
     .single()
+
+  // If no organization exists, create one
+  if (!membership) {
+    try {
+      const slug = user.email?.split('@')[0]?.toLowerCase().replace(/[^a-z0-9]/g, '-') + '-' + user.id.substring(0, 8)
+      
+      // Create organization using admin client
+      const { data: newOrg, error: orgError } = await supabaseAdmin
+        .from('organizations')
+        .insert({
+          name: 'My Organization',
+          slug,
+          owner_id: user.id,
+        })
+        .select('id')
+        .single()
+      
+      if (!orgError && newOrg) {
+        // Add user as owner
+        await supabaseAdmin
+          .from('organization_members')
+          .insert({
+            organization_id: newOrg.id,
+            user_id: user.id,
+            role: 'owner',
+          })
+        
+        membership = { organization_id: newOrg.id }
+      }
+    } catch (e) {
+      console.error('Failed to create organization:', e)
+    }
+  }
 
   const organizationId = membership?.organization_id
 
@@ -82,6 +119,8 @@ export default async function AudiencePage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <ExportButton type="contacts" />
+          <ImportContactsButton audiences={formattedAudiences} />
           <AddContactButton organizationId={organizationId || ''} audiences={formattedAudiences} />
           <CreateAudienceButton organizationId={organizationId || ''} />
         </div>
@@ -89,22 +128,22 @@ export default async function AudiencePage() {
 
       {/* Stats Row */}
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
-        <div className="border border-stone-200/60 rounded-xl bg-white p-4 sm:p-5">
+        <div className="border border-stone-200 rounded-xl bg-white p-4 sm:p-5">
           <p className="text-[13px] text-muted-foreground">Total Contacts</p>
           <p className="text-2xl font-semibold mt-1">{(totalContacts || 0).toLocaleString()}</p>
         </div>
-        <div className="border border-stone-200/60 rounded-xl bg-white p-4 sm:p-5">
+        <div className="border border-stone-200 rounded-xl bg-white p-4 sm:p-5">
           <p className="text-[13px] text-muted-foreground">Audiences</p>
           <p className="text-2xl font-semibold mt-1">{formattedAudiences.length}</p>
         </div>
-        <div className="border border-stone-200/60 rounded-xl bg-white p-4 sm:p-5">
+        <div className="border border-stone-200 rounded-xl bg-white p-4 sm:p-5">
           <p className="text-[13px] text-muted-foreground">Subscribed</p>
           <p className="text-2xl font-semibold mt-1">{(subscribedCount || 0).toLocaleString()}</p>
         </div>
       </div>
 
       {/* Audiences Section */}
-      <div className="border border-stone-200/60 rounded-xl bg-white">
+      <div className="border border-stone-200 rounded-xl bg-white">
         <div className="flex items-center justify-between p-4 sm:p-5 border-b border-stone-100">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-stone-100 rounded-lg">

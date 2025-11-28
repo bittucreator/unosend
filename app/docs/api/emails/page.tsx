@@ -29,9 +29,9 @@ export default function EmailsAPIPage() {
 
         {/* Request Body */}
         <h3 className="text-[16px] font-semibold text-stone-900 mb-3">Request Body</h3>
-        <div className="bg-white border border-stone-200/60 rounded-xl overflow-hidden mb-6">
+        <div className="bg-white border border-stone-200 rounded-xl overflow-hidden mb-6">
           <table className="w-full text-[13px]">
-            <thead className="bg-stone-50/80 border-b border-stone-100">
+            <thead className="bg-stone-50 border-b border-stone-100">
               <tr>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Parameter</th>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Type</th>
@@ -185,9 +185,9 @@ const { data, error } = await unosend.emails.send({
         </p>
 
         <h3 className="text-[16px] font-semibold text-stone-900 mb-3">Path Parameters</h3>
-        <div className="bg-white border border-stone-200/60 rounded-xl overflow-hidden mb-6">
+        <div className="bg-white border border-stone-200 rounded-xl overflow-hidden mb-6">
           <table className="w-full text-[13px]">
-            <thead className="bg-stone-50/80 border-b border-stone-100">
+            <thead className="bg-stone-50 border-b border-stone-100">
               <tr>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Parameter</th>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Description</th>
@@ -248,9 +248,9 @@ const { data, error } = await unosend.emails.send({
         </p>
 
         <h3 className="text-[16px] font-semibold text-stone-900 mb-3">Attachment Object</h3>
-        <div className="bg-white border border-stone-200/60 rounded-xl overflow-hidden mb-6">
+        <div className="bg-white border border-stone-200 rounded-xl overflow-hidden mb-6">
           <table className="w-full text-[13px]">
-            <thead className="bg-stone-50/80 border-b border-stone-100">
+            <thead className="bg-stone-50 border-b border-stone-100">
               <tr>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Field</th>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Type</th>
@@ -309,9 +309,9 @@ const { data, error } = await unosend.emails.send({
           Each email goes through various status changes during its lifecycle:
         </p>
         
-        <div className="bg-white border border-stone-200/60 rounded-xl overflow-hidden">
+        <div className="bg-white border border-stone-200 rounded-xl overflow-hidden">
           <table className="w-full text-[13px]">
-            <thead className="bg-stone-50/80 border-b border-stone-100">
+            <thead className="bg-stone-50 border-b border-stone-100">
               <tr>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Status</th>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Description</th>
@@ -362,9 +362,9 @@ const { data, error } = await unosend.emails.send({
           The emails endpoint has the following rate limits:
         </p>
         
-        <div className="bg-white border border-stone-200/60 rounded-xl overflow-hidden">
+        <div className="bg-white border border-stone-200 rounded-xl overflow-hidden">
           <table className="w-full text-[13px]">
-            <thead className="bg-stone-50/80 border-b border-stone-100">
+            <thead className="bg-stone-50 border-b border-stone-100">
               <tr>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Plan</th>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Rate Limit</th>

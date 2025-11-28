@@ -20,9 +20,9 @@ export default function WebhooksAPIPage() {
       {/* Webhook Events */}
       <section className="mb-12">
         <h2 className="text-xl font-bold text-stone-900 mb-4">Available Events</h2>
-        <div className="bg-white border border-stone-200/60 rounded-xl overflow-hidden">
+        <div className="bg-white border border-stone-200 rounded-xl overflow-hidden">
           <table className="w-full text-[13px]">
-            <thead className="bg-stone-50/80 border-b border-stone-100">
+            <thead className="bg-stone-50 border-b border-stone-100">
               <tr>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Event</th>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Description</th>
@@ -75,9 +75,9 @@ export default function WebhooksAPIPage() {
         <h2 className="text-xl font-bold text-stone-900 mb-3">Create a Webhook</h2>
 
         <h3 className="text-[16px] font-semibold text-stone-900 mb-3">Request Body</h3>
-        <div className="bg-white border border-stone-200/60 rounded-xl overflow-hidden mb-6">
+        <div className="bg-white border border-stone-200 rounded-xl overflow-hidden mb-6">
           <table className="w-full text-[13px]">
-            <thead className="bg-stone-50/80 border-b border-stone-100">
+            <thead className="bg-stone-50 border-b border-stone-100">
               <tr>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Parameter</th>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Type</th>

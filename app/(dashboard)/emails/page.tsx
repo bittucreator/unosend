@@ -42,7 +42,7 @@ export default async function EmailsPage() {
 
       {/* Stats Row */}
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
-        <div className="border border-stone-200/60 rounded-xl bg-white p-4 sm:p-5">
+        <div className="border border-stone-200 rounded-xl bg-white p-4 sm:p-5">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-[13px] text-muted-foreground">Total Sent</p>
@@ -53,7 +53,7 @@ export default async function EmailsPage() {
             </div>
           </div>
         </div>
-        <div className="border border-stone-200/60 rounded-xl bg-white p-4 sm:p-5">
+        <div className="border border-stone-200 rounded-xl bg-white p-4 sm:p-5">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-[13px] text-muted-foreground">Delivered</p>
@@ -64,7 +64,7 @@ export default async function EmailsPage() {
             </Badge>
           </div>
         </div>
-        <div className="border border-stone-200/60 rounded-xl bg-white p-4 sm:p-5">
+        <div className="border border-stone-200 rounded-xl bg-white p-4 sm:p-5">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-[13px] text-muted-foreground">Bounced</p>
@@ -78,7 +78,7 @@ export default async function EmailsPage() {
       </div>
 
       {/* Recent Emails Section */}
-      <div className="border border-stone-200/60 rounded-xl bg-white">
+      <div className="border border-stone-200 rounded-xl bg-white">
         <div className="flex items-center justify-between p-4 sm:p-5 border-b border-stone-100">
           <div>
             <h2 className="font-semibold text-[15px]">Recent Emails</h2>

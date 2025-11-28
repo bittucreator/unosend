@@ -21,21 +21,21 @@ export default function AudiencesGuidePage() {
       <section className="mb-10">
         <h2 className="text-xl font-bold text-stone-900 mb-4">Key Concepts</h2>
         <div className="grid md:grid-cols-3 gap-4">
-          <div className="bg-white border border-stone-200/60 rounded-xl p-5">
+          <div className="bg-white border border-stone-200 rounded-xl p-5">
             <Users className="w-5 h-5 text-blue-600 mb-3" />
             <h3 className="text-[14px] font-semibold text-stone-900 mb-1">Audiences</h3>
             <p className="text-[13px] text-muted-foreground">
               Lists of contacts grouped by purpose. E.g., Newsletter subscribers, Product updates, etc.
             </p>
           </div>
-          <div className="bg-white border border-stone-200/60 rounded-xl p-5">
+          <div className="bg-white border border-stone-200 rounded-xl p-5">
             <Mail className="w-5 h-5 text-green-600 mb-3" />
             <h3 className="text-[14px] font-semibold text-stone-900 mb-1">Contacts</h3>
             <p className="text-[13px] text-muted-foreground">
               Individual subscribers with email addresses and custom properties.
             </p>
           </div>
-          <div className="bg-white border border-stone-200/60 rounded-xl p-5">
+          <div className="bg-white border border-stone-200 rounded-xl p-5">
             <Tag className="w-5 h-5 text-purple-600 mb-3" />
             <h3 className="text-[14px] font-semibold text-stone-900 mb-1">Properties</h3>
             <p className="text-[13px] text-muted-foreground">

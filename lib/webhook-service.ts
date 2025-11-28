@@ -13,6 +13,14 @@ interface WebhookPayload {
   created_at: string
 }
 
+// Retry configuration
+const RETRY_CONFIG = {
+  maxRetries: 5,
+  initialDelayMs: 1000, // 1 second
+  maxDelayMs: 300000, // 5 minutes
+  backoffMultiplier: 2,
+}
+
 // Generate HMAC signature for webhook
 function generateSignature(payload: string, secret: string): string {
   return crypto
@@ -21,38 +29,100 @@ function generateSignature(payload: string, secret: string): string {
     .digest('hex')
 }
 
-// Deliver webhook to a single endpoint
+// Calculate delay with exponential backoff
+function getRetryDelay(attempt: number): number {
+  const delay = RETRY_CONFIG.initialDelayMs * Math.pow(RETRY_CONFIG.backoffMultiplier, attempt)
+  return Math.min(delay, RETRY_CONFIG.maxDelayMs)
+}
+
+// Sleep utility
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+
+// Deliver webhook to a single endpoint with retries
 async function deliverWebhook(
   webhookId: string,
   url: string,
   secret: string,
   payload: WebhookPayload
-): Promise<{ success: boolean; statusCode?: number; error?: string }> {
+): Promise<{ success: boolean; statusCode?: number; error?: string; attempts: number }> {
   const body = JSON.stringify(payload)
   const timestamp = Date.now()
   const signature = generateSignature(`${timestamp}.${body}`, secret)
 
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Unosend-Signature': signature,
-        'X-Unosend-Timestamp': timestamp.toString(),
-        'X-Unosend-Webhook-Id': webhookId,
-      },
-      body,
-    })
+  for (let attempt = 0; attempt <= RETRY_CONFIG.maxRetries; attempt++) {
+    try {
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 30000) // 30s timeout
 
-    return {
-      success: response.ok,
-      statusCode: response.status,
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Unosend-Signature': signature,
+          'X-Unosend-Timestamp': timestamp.toString(),
+          'X-Unosend-Webhook-Id': webhookId,
+          'X-Unosend-Retry-Attempt': attempt.toString(),
+        },
+        body,
+        signal: controller.signal,
+      })
+
+      clearTimeout(timeoutId)
+
+      // Success - 2xx status codes
+      if (response.ok) {
+        return {
+          success: true,
+          statusCode: response.status,
+          attempts: attempt + 1,
+        }
+      }
+
+      // Don't retry on 4xx errors (except 429 rate limit)
+      if (response.status >= 400 && response.status < 500 && response.status !== 429) {
+        return {
+          success: false,
+          statusCode: response.status,
+          error: `HTTP ${response.status}`,
+          attempts: attempt + 1,
+        }
+      }
+
+      // Retry on 5xx or 429
+      if (attempt < RETRY_CONFIG.maxRetries) {
+        const delay = getRetryDelay(attempt)
+        console.log(`Webhook delivery failed (attempt ${attempt + 1}), retrying in ${delay}ms`)
+        await sleep(delay)
+      } else {
+        return {
+          success: false,
+          statusCode: response.status,
+          error: `Failed after ${attempt + 1} attempts: HTTP ${response.status}`,
+          attempts: attempt + 1,
+        }
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      
+      // Retry on network errors
+      if (attempt < RETRY_CONFIG.maxRetries) {
+        const delay = getRetryDelay(attempt)
+        console.log(`Webhook delivery error (attempt ${attempt + 1}): ${errorMessage}, retrying in ${delay}ms`)
+        await sleep(delay)
+      } else {
+        return {
+          success: false,
+          error: `Failed after ${attempt + 1} attempts: ${errorMessage}`,
+          attempts: attempt + 1,
+        }
+      }
     }
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
-    }
+  }
+
+  return {
+    success: false,
+    error: 'Max retries exceeded',
+    attempts: RETRY_CONFIG.maxRetries + 1,
   }
 }
 
@@ -93,7 +163,7 @@ export async function sendWebhooks(
       payload
     )
 
-    // Log webhook delivery
+    // Log webhook delivery with retry info
     await supabaseAdmin
       .from('webhook_logs')
       .insert({
@@ -103,6 +173,7 @@ export async function sendWebhooks(
         response_status: result.statusCode,
         success: result.success,
         error: result.error,
+        metadata: { attempts: result.attempts }
       })
   }
 }

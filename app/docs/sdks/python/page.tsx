@@ -243,9 +243,9 @@ except UnosendError as e:
       {/* Available Methods */}
       <section>
         <h2 className="text-xl font-bold text-stone-900 mb-4">Available Methods</h2>
-        <div className="bg-white border border-stone-200/60 rounded-xl overflow-hidden">
+        <div className="bg-white border border-stone-200 rounded-xl overflow-hidden">
           <table className="w-full text-[13px]">
-            <thead className="bg-stone-50/80 border-b border-stone-100">
+            <thead className="bg-stone-50 border-b border-stone-100">
               <tr>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Method</th>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Description</th>
