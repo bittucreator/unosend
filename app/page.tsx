@@ -19,15 +19,30 @@ import {
 
 export const metadata: Metadata = {
   title: 'Unosend - Email API for Developers | One API. Infinite Emails.',
-  description: 'The best email API for developers. Send transactional and marketing emails with 99.9% deliverability. Simple REST API, competitive pricing, and 100,000 free emails/month. Start free today.',
+  description: 'The best email API for developers. Send transactional and marketing emails with 99.9% deliverability. Simple REST API, competitive pricing, and 5,000 free emails/month. Better than Resend & SendGrid. Start free today.',
+  keywords: [
+    'email API',
+    'email API for developers', 
+    'transactional email',
+    'Resend alternative',
+    'SendGrid alternative',
+    'best email API',
+    'free email API',
+    'email delivery service',
+  ],
   openGraph: {
-    title: 'Unosend - Email API for Developers',
-    description: 'The best email API for developers. 99.9% deliverability, simple REST API, and 100,000 free emails/month.',
+    title: 'Unosend - Email API for Developers | One API. Infinite Emails.',
+    description: 'The best email API for developers. 99.9% deliverability, simple REST API, and 5,000 free emails/month. Better than Resend & SendGrid.',
     url: 'https://unosend.com',
+    type: 'website',
   },
   twitter: {
-    title: 'Unosend - Email API for Developers',
-    description: 'The best email API for developers. 99.9% deliverability, simple REST API, and 100,000 free emails/month.',
+    title: 'Unosend - Email API for Developers | One API. Infinite Emails.',
+    description: 'The best email API for developers. 99.9% deliverability, simple REST API, and 5,000 free emails/month.',
+    card: 'summary_large_image',
+  },
+  alternates: {
+    canonical: 'https://unosend.com',
   },
 }
 

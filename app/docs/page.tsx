@@ -14,11 +14,23 @@ import {
 } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Documentation',
-  description: 'Learn how to integrate Unosend email API into your application. Comprehensive guides, API reference, and code examples.',
+  title: 'Documentation - Email API Reference & Guides',
+  description: 'Complete Unosend email API documentation. Learn how to send transactional emails, manage domains, create templates, and integrate with Node.js, Python, PHP, Ruby, and Go SDKs.',
+  keywords: [
+    'email API documentation',
+    'email API reference',
+    'how to send emails API',
+    'transactional email tutorial',
+    'email SDK documentation',
+    'REST API email guide',
+  ],
   openGraph: {
-    title: 'Unosend Documentation',
-    description: 'Learn how to integrate Unosend email API into your application.',
+    title: 'Unosend Documentation - Email API Reference & Guides',
+    description: 'Complete email API documentation with code examples for Node.js, Python, PHP, Ruby, and Go.',
+    url: 'https://unosend.com/docs',
+  },
+  alternates: {
+    canonical: 'https://unosend.com/docs',
   },
 }
 

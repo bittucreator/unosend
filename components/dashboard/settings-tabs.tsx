@@ -37,18 +37,9 @@ export function SettingsTabs({ profile, organization, userRole, userId }: Settin
   const searchParams = useSearchParams()
   const router = useRouter()
   const tabParam = searchParams.get('tab')
-  const [activeTab, setActiveTab] = useState(
-    tabParam && validTabs.includes(tabParam) ? tabParam : 'profile'
-  )
-
-  useEffect(() => {
-    if (tabParam && validTabs.includes(tabParam)) {
-      setActiveTab(tabParam)
-    }
-  }, [tabParam])
+  const activeTab = tabParam && validTabs.includes(tabParam) ? tabParam : 'profile'
 
   const handleTabChange = (value: string) => {
-    setActiveTab(value)
     router.push(`/settings?tab=${value}`, { scroll: false })
   }
 
