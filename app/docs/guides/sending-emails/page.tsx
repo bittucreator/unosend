@@ -85,7 +85,7 @@ if (error) {
   bcc: ['archive@yourdomain.com'],
   
   // Reply configuration
-  reply_to: 'support@yourdomain.com',
+  replyTo: 'support@yourdomain.com',
   
   // Custom headers
   headers: {
@@ -185,12 +185,12 @@ const { data, error } = await unosend.emails.send({
     {
       filename: 'report.pdf',
       content: base64Content,
-      content_type: 'application/pdf'
+      contentType: 'application/pdf'
     },
     {
       filename: 'data.csv',
       content: Buffer.from('Name,Email\\nJohn,john@test.com').toString('base64'),
-      content_type: 'text/csv'
+      contentType: 'text/csv'
     }
   ]
 });`}

@@ -52,7 +52,7 @@ export default function QuickstartPage() {
         </p>
         <div className="bg-blue-50 border border-blue-100 rounded-lg p-4">
           <p className="text-[13px] text-blue-800">
-            <strong>Tip:</strong> You can send up to 100 emails/day for free with the free tier.
+            <strong>Tip:</strong> You can send up to 5,000 emails/month for free with the free tier.
           </p>
         </div>
       </section>

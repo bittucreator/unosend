@@ -31,9 +31,28 @@ export default function RubySDKPage() {
         <ul className="space-y-2">
           <li className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-green-600" />
-            <span className="text-[14px] text-muted-foreground">Ruby 3.0 or higher</span>
+            <span className="text-[14px] text-muted-foreground">Ruby 2.7 or higher</span>
           </li>
         </ul>
+      </section>
+
+      {/* Environment Variables */}
+      <section className="mb-10">
+        <h2 className="text-xl font-bold text-stone-900 mb-4">Environment Variables</h2>
+        <p className="text-[14px] text-muted-foreground mb-4">
+          Never hardcode your API key. Use environment variables instead:
+        </p>
+        <CodeBlock 
+          filename=".env"
+          code={`UNOSEND_API_KEY=un_your_api_key`}
+        />
+        <CodeBlock 
+          filename="config.rb"
+          showLineNumbers
+          code={`require 'unosend'
+
+client = Unosend::Client.new(ENV['UNOSEND_API_KEY'])`}
+        />
       </section>
 
       {/* Basic Usage */}
@@ -45,20 +64,144 @@ export default function RubySDKPage() {
           code={`require 'unosend'
 
 # Initialize client
-client = Unosend::Client.new(api_key: ENV['UNOSEND_API_KEY'])
+client = Unosend::Client.new('un_your_api_key')
 
 # Send an email
 begin
-  response = client.emails.send(
+  email = client.emails.send(
     from: 'hello@yourdomain.com',
-    to: ['user@example.com'],
+    to: 'user@example.com',  # Can be string or array
     subject: 'Welcome!',
     html: '<h1>Hello World</h1><p>Welcome to Unosend!</p>'
   )
   
-  puts "Email sent! ID: #{response.id}"
+  puts "Email sent! ID: #{email['id']}"
 rescue Unosend::Error => e
   puts "Error: #{e.message}"
+end`}
+        />
+      </section>
+
+      {/* Response Format */}
+      <section className="mb-10">
+        <h2 className="text-xl font-bold text-stone-900 mb-4">Response Format</h2>
+        <p className="text-[14px] text-muted-foreground mb-4">
+          SDK methods return Ruby hashes. Errors are raised as exceptions:
+        </p>
+        <CodeBlock 
+          filename="response.rb"
+          showLineNumbers
+          code={`# Successful response (Hash)
+email = client.emails.send(...)
+email['id']        # => "em_xxxxxxxxxxxxxxxxxxxxxxxx"
+email['from']      # => "hello@yourdomain.com"
+email['to']        # => ["user@example.com"]
+email['subject']   # => "Welcome!"
+email['status']    # => "queued"
+email['createdAt'] # => "2024-01-15T10:30:00Z"
+
+# Errors are raised as exceptions
+begin
+  client.emails.send(...)
+rescue Unosend::Error => e
+  e.message     # => "Invalid API key"
+  e.status_code # => 401
+end`}
+        />
+      </section>
+
+      {/* Sending with Attachments */}
+      <section className="mb-10">
+        <h2 className="text-xl font-bold text-stone-900 mb-4">Sending with Attachments</h2>
+        <CodeBlock 
+          filename="attachments.rb"
+          showLineNumbers
+          code={`require 'unosend'
+require 'base64'
+
+client = Unosend::Client.new(ENV['UNOSEND_API_KEY'])
+
+# Read file and encode as base64
+file_content = Base64.strict_encode64(File.read('invoice.pdf'))
+
+# Send email with attachment
+email = client.emails.send(
+  from: 'hello@yourdomain.com',
+  to: ['user@example.com'],
+  subject: 'Your Invoice',
+  html: '<p>Please find your invoice attached.</p>',
+  attachments: [
+    {
+      filename: 'invoice.pdf',
+      content: file_content,
+      content_type: 'application/pdf'
+    }
+  ]
+)`}
+        />
+      </section>
+
+      {/* Working with Domains */}
+      <section className="mb-10">
+        <h2 className="text-xl font-bold text-stone-900 mb-4">Working with Domains</h2>
+        <CodeBlock 
+          filename="domains.rb"
+          showLineNumbers
+          code={`require 'unosend'
+
+client = Unosend::Client.new(ENV['UNOSEND_API_KEY'])
+
+# Add a domain
+domain = client.domains.create(name: 'yourdomain.com')
+puts "Domain added: #{domain['id']}"
+puts "DNS Records: #{domain['records']}"
+
+# List all domains
+domains = client.domains.list
+domains.each do |d|
+  puts "#{d['name']} - #{d['status']}"
+end
+
+# Verify domain DNS
+verified = client.domains.verify(domain['id'])
+puts "Status: #{verified['status']}"
+
+# Delete a domain
+client.domains.delete(domain['id'])`}
+        />
+      </section>
+
+      {/* Working with Audiences & Contacts */}
+      <section className="mb-10">
+        <h2 className="text-xl font-bold text-stone-900 mb-4">Working with Audiences & Contacts</h2>
+        <CodeBlock 
+          filename="audiences.rb"
+          showLineNumbers
+          code={`require 'unosend'
+
+client = Unosend::Client.new(ENV['UNOSEND_API_KEY'])
+
+# Create an audience
+audience = client.audiences.create(name: 'Newsletter Subscribers')
+puts "Audience created: #{audience['id']}"
+
+# Add a contact
+contact = client.contacts.create(
+  audience['id'],
+  email: 'subscriber@example.com',
+  first_name: 'John',
+  last_name: 'Doe'
+)
+puts "Contact added: #{contact['id']}"
+
+# List all contacts
+contacts = client.contacts.list(audience['id'])
+puts "Total subscribers: #{contacts.length}"
+
+# List all audiences
+audiences = client.audiences.list
+audiences.each do |a|
+  puts "#{a['name']}: #{a['contactCount']} contacts"
 end`}
         />
       </section>
@@ -71,18 +214,13 @@ end`}
           showLineNumbers
           code={`require 'unosend'
 
-# Global configuration
-Unosend.configure do |config|
-  config.api_key = ENV['UNOSEND_API_KEY']
-  config.timeout = 30
-  config.retries = 3
-end
+# Default configuration
+client = Unosend::Client.new('un_your_api_key')
 
-# Or per-client configuration
+# Custom base URL (for self-hosted instances)
 client = Unosend::Client.new(
-  api_key: ENV['UNOSEND_API_KEY'],
-  timeout: 30,
-  retries: 3
+  'un_your_api_key',
+  base_url: 'https://your-instance.com/api/v1'
 )`}
         />
       </section>
@@ -97,7 +235,7 @@ client = Unosend::Client.new(
           showLineNumbers
           code={`class EmailsController < ApplicationController
   def create
-    client = Unosend::Client.new(api_key: ENV['UNOSEND_API_KEY'])
+    client = Unosend::Client.new(ENV['UNOSEND_API_KEY'])
     
     response = client.emails.send(
       from: 'hello@yourdomain.com',
@@ -106,39 +244,9 @@ client = Unosend::Client.new(
       html: params[:html]
     )
     
-    render json: { id: response.id }
+    render json: { id: response['id'] }
   rescue Unosend::Error => e
     render json: { error: e.message }, status: :bad_request
-  end
-end`}
-        />
-
-        <h3 className="text-[16px] font-semibold text-stone-900 mt-6 mb-3">Rails Mailer Integration</h3>
-        <CodeBlock 
-          filename="config/initializers/unosend.rb"
-          showLineNumbers
-          code={`# config/initializers/unosend.rb
-Unosend.configure do |config|
-  config.api_key = ENV['UNOSEND_API_KEY']
-end`}
-        />
-
-        <CodeBlock 
-          filename="app/mailers/user_mailer.rb"
-          showLineNumbers
-          code={`class UserMailer < ApplicationMailer
-  def welcome_email(user)
-    client = Unosend::Client.new
-    
-    client.emails.send(
-      from: 'hello@yourdomain.com',
-      to: [user.email],
-      subject: "Welcome, #{user.name}!",
-      html: render_to_string(
-        template: 'user_mailer/welcome_email',
-        locals: { user: user }
-      )
-    )
   end
 end`}
         />
@@ -151,7 +259,7 @@ end`}
 require 'unosend'
 require 'json'
 
-client = Unosend::Client.new(api_key: ENV['UNOSEND_API_KEY'])
+client = Unosend::Client.new(ENV['UNOSEND_API_KEY'])
 
 post '/send-email' do
   content_type :json
@@ -165,7 +273,7 @@ post '/send-email' do
       html: data['html']
     )
     
-    { id: response.id }.to_json
+    { id: response['id'] }.to_json
   rescue Unosend::Error => e
     status 400
     { error: e.message }.to_json
@@ -182,7 +290,7 @@ end`}
           showLineNumbers
           code={`require 'unosend'
 
-client = Unosend::Client.new(api_key: 'un_your_api_key')
+client = Unosend::Client.new('un_your_api_key')
 
 begin
   response = client.emails.send(
@@ -192,15 +300,10 @@ begin
     html: '<p>Hello</p>'
   )
   
-  puts "Email sent: #{response.id}"
-rescue Unosend::RateLimitError => e
-  puts "Rate limited. Retry after: #{e.retry_after} seconds"
-rescue Unosend::AuthenticationError
-  puts "Invalid API key"
-rescue Unosend::ValidationError => e
-  puts "Validation error: #{e.message}"
+  puts "Email sent: #{response['id']}"
 rescue Unosend::Error => e
   puts "Error: #{e.message}"
+  puts "Status code: #{e.status_code}"
 end`}
         />
       </section>
@@ -218,28 +321,44 @@ end`}
             </thead>
             <tbody className="divide-y divide-stone-100">
               <tr>
-                <td className="px-4 py-3"><InlineCode>client.emails.send</InlineCode></td>
+                <td className="px-4 py-3"><InlineCode>emails.send(params)</InlineCode></td>
                 <td className="px-4 py-3 text-muted-foreground">Send an email</td>
               </tr>
               <tr>
-                <td className="px-4 py-3"><InlineCode>client.emails.get</InlineCode></td>
-                <td className="px-4 py-3 text-muted-foreground">Get email details</td>
+                <td className="px-4 py-3"><InlineCode>emails.get(id)</InlineCode></td>
+                <td className="px-4 py-3 text-muted-foreground">Get email by ID</td>
               </tr>
               <tr>
-                <td className="px-4 py-3"><InlineCode>client.domains.create</InlineCode></td>
+                <td className="px-4 py-3"><InlineCode>emails.list(limit:, offset:)</InlineCode></td>
+                <td className="px-4 py-3 text-muted-foreground">List all emails</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-3"><InlineCode>domains.create(name:)</InlineCode></td>
                 <td className="px-4 py-3 text-muted-foreground">Add a domain</td>
               </tr>
               <tr>
-                <td className="px-4 py-3"><InlineCode>client.domains.verify</InlineCode></td>
+                <td className="px-4 py-3"><InlineCode>domains.verify(id)</InlineCode></td>
                 <td className="px-4 py-3 text-muted-foreground">Verify domain DNS</td>
               </tr>
               <tr>
-                <td className="px-4 py-3"><InlineCode>client.audiences.create</InlineCode></td>
+                <td className="px-4 py-3"><InlineCode>domains.list</InlineCode></td>
+                <td className="px-4 py-3 text-muted-foreground">List all domains</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-3"><InlineCode>audiences.create(name:)</InlineCode></td>
                 <td className="px-4 py-3 text-muted-foreground">Create an audience</td>
               </tr>
               <tr>
-                <td className="px-4 py-3"><InlineCode>client.contacts.create</InlineCode></td>
+                <td className="px-4 py-3"><InlineCode>audiences.list</InlineCode></td>
+                <td className="px-4 py-3 text-muted-foreground">List all audiences</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-3"><InlineCode>contacts.create(audience_id, params)</InlineCode></td>
                 <td className="px-4 py-3 text-muted-foreground">Add a contact</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-3"><InlineCode>contacts.list(audience_id)</InlineCode></td>
+                <td className="px-4 py-3 text-muted-foreground">List contacts in audience</td>
               </tr>
             </tbody>
           </table>

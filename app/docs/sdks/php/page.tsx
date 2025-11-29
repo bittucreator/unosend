@@ -37,6 +37,31 @@ export default function PHPSDKPage() {
         </ul>
       </section>
 
+      {/* Environment Variables */}
+      <section className="mb-10">
+        <h2 className="text-xl font-bold text-stone-900 mb-4">Environment Variables</h2>
+        <p className="text-[14px] text-muted-foreground mb-4">
+          Never hardcode your API key. Use environment variables instead:
+        </p>
+        <CodeBlock 
+          filename=".env"
+          code={`UNOSEND_API_KEY=un_your_api_key`}
+        />
+        <CodeBlock 
+          filename="config.php"
+          showLineNumbers
+          code={`<?php
+
+require 'vendor/autoload.php';
+
+use Unosend\\Unosend;
+
+$unosend = new Unosend($_ENV['UNOSEND_API_KEY']);
+// Or with dotenv
+$unosend = new Unosend(getenv('UNOSEND_API_KEY'));`}
+        />
+      </section>
+
       {/* Basic Usage */}
       <section className="mb-10">
         <h2 className="text-xl font-bold text-stone-900 mb-4">Basic Usage</h2>
@@ -48,22 +73,155 @@ export default function PHPSDKPage() {
 require 'vendor/autoload.php';
 
 use Unosend\\Unosend;
+use Unosend\\UnosendException;
 
 // Initialize client
-$unosend = new Unosend(getenv('UNOSEND_API_KEY'));
+$unosend = new Unosend('un_your_api_key');
 
 // Send an email
 try {
-    $response = $unosend->emails->send([
+    $email = $unosend->emails->send([
         'from' => 'hello@yourdomain.com',
-        'to' => ['user@example.com'],
+        'to' => 'user@example.com',  // Can be string or array
         'subject' => 'Welcome!',
         'html' => '<h1>Hello World</h1><p>Welcome to Unosend!</p>'
     ]);
     
-    echo "Email sent! ID: " . $response->id;
-} catch (\\Unosend\\Exceptions\\UnosendException $e) {
+    echo "Email sent! ID: " . $email['id'];
+} catch (UnosendException $e) {
     echo "Error: " . $e->getMessage();
+}`}
+        />
+      </section>
+
+      {/* Response Format */}
+      <section className="mb-10">
+        <h2 className="text-xl font-bold text-stone-900 mb-4">Response Format</h2>
+        <p className="text-[14px] text-muted-foreground mb-4">
+          SDK methods return PHP arrays. Errors are thrown as exceptions:
+        </p>
+        <CodeBlock 
+          filename="response.php"
+          showLineNumbers
+          code={`<?php
+
+// Successful response (array)
+$email = $unosend->emails->send([...]);
+$email['id'];        // "em_xxxxxxxxxxxxxxxxxxxxxxxx"
+$email['from'];      // "hello@yourdomain.com"
+$email['to'];        // ["user@example.com"]
+$email['subject'];   // "Welcome!"
+$email['status'];    // "queued"
+$email['createdAt']; // "2024-01-15T10:30:00Z"
+
+// Errors are thrown as exceptions
+try {
+    $unosend->emails->send([...]);
+} catch (UnosendException $e) {
+    $e->getMessage();     // "Invalid API key"
+    $e->getStatusCode();  // 401
+}`}
+        />
+      </section>
+
+      {/* Sending with Attachments */}
+      <section className="mb-10">
+        <h2 className="text-xl font-bold text-stone-900 mb-4">Sending with Attachments</h2>
+        <CodeBlock 
+          filename="attachments.php"
+          showLineNumbers
+          code={`<?php
+
+require 'vendor/autoload.php';
+
+use Unosend\\Unosend;
+
+$unosend = new Unosend($_ENV['UNOSEND_API_KEY']);
+
+// Read file and encode as base64
+$fileContent = base64_encode(file_get_contents('invoice.pdf'));
+
+// Send email with attachment
+$email = $unosend->emails->send([
+    'from' => 'hello@yourdomain.com',
+    'to' => ['user@example.com'],
+    'subject' => 'Your Invoice',
+    'html' => '<p>Please find your invoice attached.</p>',
+    'attachments' => [
+        [
+            'filename' => 'invoice.pdf',
+            'content' => $fileContent,
+            'contentType' => 'application/pdf'
+        ]
+    ]
+]);`}
+        />
+      </section>
+
+      {/* Working with Domains */}
+      <section className="mb-10">
+        <h2 className="text-xl font-bold text-stone-900 mb-4">Working with Domains</h2>
+        <CodeBlock 
+          filename="domains.php"
+          showLineNumbers
+          code={`<?php
+
+use Unosend\\Unosend;
+
+$unosend = new Unosend($_ENV['UNOSEND_API_KEY']);
+
+// Add a domain
+$domain = $unosend->domains->create('yourdomain.com');
+echo "Domain added: " . $domain['id'] . "\\n";
+echo "DNS Records: " . print_r($domain['records'], true);
+
+// List all domains
+$domains = $unosend->domains->list();
+foreach ($domains as $d) {
+    echo $d['name'] . " - " . $d['status'] . "\\n";
+}
+
+// Verify domain DNS
+$verified = $unosend->domains->verify($domain['id']);
+echo "Status: " . $verified['status'];
+
+// Delete a domain
+$unosend->domains->delete($domain['id']);`}
+        />
+      </section>
+
+      {/* Working with Audiences & Contacts */}
+      <section className="mb-10">
+        <h2 className="text-xl font-bold text-stone-900 mb-4">Working with Audiences & Contacts</h2>
+        <CodeBlock 
+          filename="audiences.php"
+          showLineNumbers
+          code={`<?php
+
+use Unosend\\Unosend;
+
+$unosend = new Unosend($_ENV['UNOSEND_API_KEY']);
+
+// Create an audience
+$audience = $unosend->audiences->create('Newsletter Subscribers');
+echo "Audience created: " . $audience['id'] . "\\n";
+
+// Add a contact
+$contact = $unosend->contacts->create($audience['id'], [
+    'email' => 'subscriber@example.com',
+    'firstName' => 'John',
+    'lastName' => 'Doe'
+]);
+echo "Contact added: " . $contact['id'] . "\\n";
+
+// List all contacts
+$contacts = $unosend->contacts->list($audience['id']);
+echo "Total subscribers: " . count($contacts) . "\\n";
+
+// List all audiences
+$audiences = $unosend->audiences->list();
+foreach ($audiences as $a) {
+    echo $a['name'] . ": " . $a['contactCount'] . " contacts\\n";
 }`}
         />
       </section>
@@ -82,6 +240,7 @@ namespace App\\Http\\Controllers;
 
 use Illuminate\\Http\\Request;
 use Unosend\\Unosend;
+use Unosend\\UnosendException;
 
 class EmailController extends Controller
 {
@@ -108,9 +267,9 @@ class EmailController extends Controller
                 'html' => $request->html,
             ]);
             
-            return response()->json(['id' => $response->id]);
-        } catch (\\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 400);
+            return response()->json(['id' => $response['id']]);
+        } catch (UnosendException $e) {
+            return response()->json(['error' => $e->getMessage()], $e->getStatusCode() ?? 400);
         }
     }
 }`}
@@ -129,6 +288,7 @@ use Symfony\\Component\\HttpFoundation\\JsonResponse;
 use Symfony\\Component\\HttpFoundation\\Request;
 use Symfony\\Component\\Routing\\Annotation\\Route;
 use Unosend\\Unosend;
+use Unosend\\UnosendException;
 
 class EmailController extends AbstractController
 {
@@ -152,9 +312,9 @@ class EmailController extends AbstractController
                 'html' => $data['html'],
             ]);
             
-            return $this->json(['id' => $response->id]);
-        } catch (\\Exception $e) {
-            return $this->json(['error' => $e->getMessage()], 400);
+            return $this->json(['id' => $response['id']]);
+        } catch (UnosendException $e) {
+            return $this->json(['error' => $e->getMessage()], $e->getStatusCode() ?? 400);
         }
     }
 }`}
@@ -170,10 +330,7 @@ class EmailController extends AbstractController
           code={`<?php
 
 use Unosend\\Unosend;
-use Unosend\\Exceptions\\RateLimitException;
-use Unosend\\Exceptions\\AuthenticationException;
-use Unosend\\Exceptions\\ValidationException;
-use Unosend\\Exceptions\\UnosendException;
+use Unosend\\UnosendException;
 
 $unosend = new Unosend('un_your_api_key');
 
@@ -185,15 +342,10 @@ try {
         'html' => '<p>Hello</p>'
     ]);
     
-    echo "Email sent: " . $response->id;
-} catch (RateLimitException $e) {
-    echo "Rate limited. Retry after: " . $e->getRetryAfter() . " seconds";
-} catch (AuthenticationException $e) {
-    echo "Invalid API key";
-} catch (ValidationException $e) {
-    echo "Validation error: " . $e->getMessage();
+    echo "Email sent: " . $response['id'];
 } catch (UnosendException $e) {
     echo "Error: " . $e->getMessage();
+    echo "Status code: " . $e->getStatusCode();
 }`}
         />
       </section>
@@ -211,28 +363,44 @@ try {
             </thead>
             <tbody className="divide-y divide-stone-100">
               <tr>
-                <td className="px-4 py-3"><InlineCode>$unosend-&gt;emails-&gt;send()</InlineCode></td>
+                <td className="px-4 py-3"><InlineCode>$unosend-&gt;emails-&gt;send($params)</InlineCode></td>
                 <td className="px-4 py-3 text-muted-foreground">Send an email</td>
               </tr>
               <tr>
-                <td className="px-4 py-3"><InlineCode>$unosend-&gt;emails-&gt;get()</InlineCode></td>
-                <td className="px-4 py-3 text-muted-foreground">Get email details</td>
+                <td className="px-4 py-3"><InlineCode>$unosend-&gt;emails-&gt;get($id)</InlineCode></td>
+                <td className="px-4 py-3 text-muted-foreground">Get email by ID</td>
               </tr>
               <tr>
-                <td className="px-4 py-3"><InlineCode>$unosend-&gt;domains-&gt;create()</InlineCode></td>
+                <td className="px-4 py-3"><InlineCode>$unosend-&gt;emails-&gt;list($limit, $offset)</InlineCode></td>
+                <td className="px-4 py-3 text-muted-foreground">List all emails</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-3"><InlineCode>$unosend-&gt;domains-&gt;create($name)</InlineCode></td>
                 <td className="px-4 py-3 text-muted-foreground">Add a domain</td>
               </tr>
               <tr>
-                <td className="px-4 py-3"><InlineCode>$unosend-&gt;domains-&gt;verify()</InlineCode></td>
+                <td className="px-4 py-3"><InlineCode>$unosend-&gt;domains-&gt;verify($id)</InlineCode></td>
                 <td className="px-4 py-3 text-muted-foreground">Verify domain DNS</td>
               </tr>
               <tr>
-                <td className="px-4 py-3"><InlineCode>$unosend-&gt;audiences-&gt;create()</InlineCode></td>
+                <td className="px-4 py-3"><InlineCode>$unosend-&gt;domains-&gt;list()</InlineCode></td>
+                <td className="px-4 py-3 text-muted-foreground">List all domains</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-3"><InlineCode>$unosend-&gt;audiences-&gt;create($name)</InlineCode></td>
                 <td className="px-4 py-3 text-muted-foreground">Create an audience</td>
               </tr>
               <tr>
-                <td className="px-4 py-3"><InlineCode>$unosend-&gt;contacts-&gt;create()</InlineCode></td>
+                <td className="px-4 py-3"><InlineCode>$unosend-&gt;audiences-&gt;list()</InlineCode></td>
+                <td className="px-4 py-3 text-muted-foreground">List all audiences</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-3"><InlineCode>$unosend-&gt;contacts-&gt;create($audienceId, $params)</InlineCode></td>
                 <td className="px-4 py-3 text-muted-foreground">Add a contact</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-3"><InlineCode>$unosend-&gt;contacts-&gt;list($audienceId)</InlineCode></td>
+                <td className="px-4 py-3 text-muted-foreground">List contacts in audience</td>
               </tr>
             </tbody>
           </table>

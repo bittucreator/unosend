@@ -125,7 +125,7 @@ Hello, {{first_name | default: "there"}}!
       <section className="mb-12">
         <h2 className="text-xl font-bold text-stone-900 mb-4">Sending Emails with Templates</h2>
         <p className="text-[14px] text-muted-foreground mb-4">
-          Use <InlineCode>template_id</InlineCode> and <InlineCode>variables</InlineCode> when sending:
+          Use <InlineCode>templateId</InlineCode> and <InlineCode>variables</InlineCode> when sending:
         </p>
 
         <CodeBlock 
@@ -134,7 +134,7 @@ Hello, {{first_name | default: "there"}}!
           code={`const { data, error } = await unosend.emails.send({
   from: 'hello@yourdomain.com',
   to: ['user@example.com'],
-  template_id: 'tpl_xxxxxxxxxxxxxxxx',
+  templateId: 'tpl_xxxxxxxxxxxxxxxx',
   variables: {
     first_name: 'John',
     company_name: 'Acme Inc',

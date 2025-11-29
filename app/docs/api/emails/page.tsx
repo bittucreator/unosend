@@ -83,7 +83,7 @@ export default function EmailsAPIPage() {
                 <td className="px-4 py-3 text-muted-foreground">BCC recipients</td>
               </tr>
               <tr>
-                <td className="px-4 py-3"><InlineCode>reply_to</InlineCode></td>
+                <td className="px-4 py-3"><InlineCode>replyTo</InlineCode></td>
                 <td className="px-4 py-3 text-muted-foreground">string</td>
                 <td className="px-4 py-3 text-muted-foreground">Optional</td>
                 <td className="px-4 py-3 text-muted-foreground">Reply-to address</td>
@@ -124,7 +124,7 @@ const { data, error } = await unosend.emails.send({
   to: ['user@example.com'],
   cc: ['manager@example.com'],
   bcc: ['archive@yourdomain.com'],
-  reply_to: 'support@yourdomain.com',
+  replyTo: 'support@yourdomain.com',
   subject: 'Welcome to Our Platform',
   html: \`
     <h1>Welcome!</h1>
@@ -269,7 +269,7 @@ const { data, error } = await unosend.emails.send({
                 <td className="px-4 py-3 text-muted-foreground">Base64 encoded file content</td>
               </tr>
               <tr>
-                <td className="px-4 py-3"><InlineCode>content_type</InlineCode></td>
+                <td className="px-4 py-3"><InlineCode>contentType</InlineCode></td>
                 <td className="px-4 py-3 text-muted-foreground">string</td>
                 <td className="px-4 py-3 text-muted-foreground">MIME type (e.g., application/pdf)</td>
               </tr>
@@ -295,7 +295,7 @@ const { data, error } = await unosend.emails.send({
     {
       filename: 'invoice.pdf',
       content: base64Content,
-      content_type: 'application/pdf'
+      contentType: 'application/pdf'
     }
   ]
 });`}
@@ -368,23 +368,28 @@ const { data, error } = await unosend.emails.send({
               <tr>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Plan</th>
                 <th className="text-left px-4 py-3 font-semibold text-stone-900">Rate Limit</th>
-                <th className="text-left px-4 py-3 font-semibold text-stone-900">Daily Limit</th>
+                <th className="text-left px-4 py-3 font-semibold text-stone-900">Monthly Limit</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100">
               <tr>
-                <td className="px-4 py-3">Free</td>
+                <td className="px-4 py-3 font-medium">Free</td>
                 <td className="px-4 py-3 text-muted-foreground">10 requests/second</td>
-                <td className="px-4 py-3 text-muted-foreground">100 emails/day</td>
+                <td className="px-4 py-3 text-muted-foreground">5,000 emails/month</td>
               </tr>
               <tr>
-                <td className="px-4 py-3">Pro</td>
-                <td className="px-4 py-3 text-muted-foreground">100 requests/second</td>
-                <td className="px-4 py-3 text-muted-foreground">50,000 emails/day</td>
+                <td className="px-4 py-3 font-medium">Pro</td>
+                <td className="px-4 py-3 text-muted-foreground">50 requests/second</td>
+                <td className="px-4 py-3 text-muted-foreground">50,000 emails/month</td>
               </tr>
               <tr>
-                <td className="px-4 py-3">Enterprise</td>
-                <td className="px-4 py-3 text-muted-foreground">1,000 requests/second</td>
+                <td className="px-4 py-3 font-medium">Scale</td>
+                <td className="px-4 py-3 text-muted-foreground">200 requests/second</td>
+                <td className="px-4 py-3 text-muted-foreground">200,000 emails/month</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-3 font-medium">Enterprise</td>
+                <td className="px-4 py-3 text-muted-foreground">Custom</td>
                 <td className="px-4 py-3 text-muted-foreground">Unlimited</td>
               </tr>
             </tbody>

@@ -210,7 +210,7 @@ const { data, error } = await unosend.broadcasts.create({
   audience_id: 'aud_xxxxxxxxxxxxxxxx',
   from: 'hello@yourdomain.com',
   subject: 'Weekly Newsletter - March Edition',
-  template_id: 'tpl_xxxxxxxxxxxxxxxx',
+  templateId: 'tpl_xxxxxxxxxxxxxxxx',
   // Optional: filter to subset of audience
   filters: {
     properties: {
@@ -280,7 +280,7 @@ const { data } = await unosend.broadcasts.create({
   audience_id: 'aud_xxxxxxxxxxxxxxxx',
   from: 'hello@yourdomain.com',
   subject: 'Exclusive Premium Feature Update',
-  template_id: 'tpl_xxxxxxxxxxxxxxxx',
+  templateId: 'tpl_xxxxxxxxxxxxxxxx',
   filters: {
     properties: {
       is_premium: true
@@ -293,7 +293,7 @@ const { data: recentSignups } = await unosend.broadcasts.create({
   audience_id: 'aud_xxxxxxxxxxxxxxxx',
   from: 'hello@yourdomain.com',
   subject: 'Getting Started Guide',
-  template_id: 'tpl_onboarding',
+  templateId: 'tpl_onboarding',
   filters: {
     signup_date: {
       after: '2024-03-01'
@@ -306,7 +306,7 @@ const { data: targeted } = await unosend.broadcasts.create({
   audience_id: 'aud_xxxxxxxxxxxxxxxx',
   from: 'hello@yourdomain.com',
   subject: 'Special Offer',
-  template_id: 'tpl_xxxxxxxxxxxxxxxx',
+  templateId: 'tpl_xxxxxxxxxxxxxxxx',
   filters: {
     properties: {
       plan: ['pro', 'enterprise'],

@@ -43,6 +43,25 @@ export default function NodeJSSDKPage() {
         </ul>
       </section>
 
+      {/* Environment Variables */}
+      <section className="mb-10">
+        <h2 className="text-xl font-bold text-stone-900 mb-4">Environment Variables</h2>
+        <p className="text-[14px] text-muted-foreground mb-4">
+          Never hardcode your API key. Use environment variables instead:
+        </p>
+        <CodeBlock 
+          filename=".env"
+          code={`UNOSEND_API_KEY=un_your_api_key`}
+        />
+        <CodeBlock 
+          filename="index.ts"
+          showLineNumbers
+          code={`import { Unosend } from '@unosend/node';
+
+const unosend = new Unosend(process.env.UNOSEND_API_KEY!);`}
+        />
+      </section>
+
       {/* Basic Usage */}
       <section className="mb-10">
         <h2 className="text-xl font-bold text-stone-900 mb-4">Basic Usage</h2>
@@ -52,13 +71,13 @@ export default function NodeJSSDKPage() {
           code={`import { Unosend } from '@unosend/node';
 
 // Initialize with your API key
-const unosend = new Unosend(process.env.UNOSEND_API_KEY);
+const unosend = new Unosend('un_your_api_key');
 
 // Send an email
 async function sendWelcomeEmail(email: string, name: string) {
   const { data, error } = await unosend.emails.send({
     from: 'hello@yourdomain.com',
-    to: [email],
+    to: email,  // Can be string or string[]
     subject: \`Welcome, \${name}!\`,
     html: \`<h1>Hello \${name}</h1><p>Welcome to our platform!</p>\`
   });
@@ -68,8 +87,131 @@ async function sendWelcomeEmail(email: string, name: string) {
     return null;
   }
 
+  console.log('Email sent:', data.id);
   return data;
 }`}
+        />
+      </section>
+
+      {/* Response Format */}
+      <section className="mb-10">
+        <h2 className="text-xl font-bold text-stone-900 mb-4">Response Format</h2>
+        <p className="text-[14px] text-muted-foreground mb-4">
+          All SDK methods return a response object with <InlineCode>data</InlineCode> and <InlineCode>error</InlineCode> properties:
+        </p>
+        <CodeBlock 
+          filename="response.json"
+          showLineNumbers
+          code={`// Successful response
+{
+  "data": {
+    "id": "em_xxxxxxxxxxxxxxxxxxxxxxxx",
+    "from": "hello@yourdomain.com",
+    "to": ["user@example.com"],
+    "subject": "Welcome!",
+    "status": "queued",
+    "createdAt": "2024-01-15T10:30:00Z"
+  },
+  "error": null
+}
+
+// Error response
+{
+  "data": null,
+  "error": {
+    "message": "Invalid API key",
+    "code": 401,
+    "statusCode": 401
+  }
+}`}
+        />
+      </section>
+
+      {/* Sending with Attachments */}
+      <section className="mb-10">
+        <h2 className="text-xl font-bold text-stone-900 mb-4">Sending with Attachments</h2>
+        <CodeBlock 
+          filename="attachments.ts"
+          showLineNumbers
+          code={`import { Unosend } from '@unosend/node';
+import { readFileSync } from 'fs';
+
+const unosend = new Unosend(process.env.UNOSEND_API_KEY!);
+
+// Send email with file attachment
+const { data, error } = await unosend.emails.send({
+  from: 'hello@yourdomain.com',
+  to: ['user@example.com'],
+  subject: 'Your Invoice',
+  html: '<p>Please find your invoice attached.</p>',
+  attachments: [
+    {
+      filename: 'invoice.pdf',
+      content: readFileSync('./invoice.pdf').toString('base64'),
+      contentType: 'application/pdf'
+    }
+  ]
+});`}
+        />
+      </section>
+
+      {/* Working with Domains */}
+      <section className="mb-10">
+        <h2 className="text-xl font-bold text-stone-900 mb-4">Working with Domains</h2>
+        <CodeBlock 
+          filename="domains.ts"
+          showLineNumbers
+          code={`import { Unosend } from '@unosend/node';
+
+const unosend = new Unosend(process.env.UNOSEND_API_KEY!);
+
+// Add a domain
+const { data: domain } = await unosend.domains.create('yourdomain.com');
+console.log('Domain added:', domain.id);
+console.log('DNS Records to add:', domain.records);
+
+// List all domains
+const { data: domains } = await unosend.domains.list();
+console.log('Your domains:', domains);
+
+// Verify domain DNS
+const { data: verified } = await unosend.domains.verify(domain.id);
+console.log('Domain status:', verified.status);
+
+// Delete a domain
+await unosend.domains.delete(domain.id);`}
+        />
+      </section>
+
+      {/* Working with Audiences & Contacts */}
+      <section className="mb-10">
+        <h2 className="text-xl font-bold text-stone-900 mb-4">Working with Audiences & Contacts</h2>
+        <CodeBlock 
+          filename="audiences.ts"
+          showLineNumbers
+          code={`import { Unosend } from '@unosend/node';
+
+const unosend = new Unosend(process.env.UNOSEND_API_KEY!);
+
+// Create an audience
+const { data: audience } = await unosend.audiences.create('Newsletter Subscribers');
+console.log('Audience created:', audience.id);
+
+// Add a contact to the audience
+const { data: contact } = await unosend.contacts.create(audience.id, {
+  email: 'subscriber@example.com',
+  firstName: 'John',
+  lastName: 'Doe'
+});
+console.log('Contact added:', contact.id);
+
+// List all contacts in an audience
+const { data: contacts } = await unosend.contacts.list(audience.id);
+console.log('Subscribers:', contacts.length);
+
+// List all audiences
+const { data: audiences } = await unosend.audiences.list();
+console.log('Your audiences:', audiences);`}
         />
       </section>
 
@@ -81,18 +223,12 @@ async function sendWelcomeEmail(email: string, name: string) {
           showLineNumbers
           code={`import { Unosend } from '@unosend/node';
 
-const unosend = new Unosend('un_your_api_key', {
-  // Custom base URL (for testing/proxying)
-  baseUrl: 'https://api.unosend.com',
-  
-  // Request timeout in milliseconds
-  timeout: 30000,
-  
-  // Retry configuration
-  retry: {
-    attempts: 3,
-    delay: 1000
-  }
+// Default configuration
+const unosend = new Unosend('un_your_api_key');
+
+// Custom base URL (for self-hosted instances)
+const customClient = new Unosend('un_your_api_key', {
+  baseUrl: 'https://your-instance.com/api/v1'
 });`}
         />
       </section>
@@ -165,7 +301,7 @@ export default router;`}
         <CodeBlock 
           filename="error-handling.ts"
           showLineNumbers
-          code={`import { Unosend, UnosendError } from '@unosend/node';
+          code={`import { Unosend } from '@unosend/node';
 
 const unosend = new Unosend(process.env.UNOSEND_API_KEY!);
 
@@ -178,16 +314,16 @@ async function sendEmail() {
   });
 
   if (error) {
-    // Handle specific error codes
-    switch (error.code) {
-      case 'rate_limit_exceeded':
-        console.log('Rate limited, retry after:', error.retryAfter);
+    // Handle based on status code
+    switch (error.statusCode) {
+      case 429:
+        console.log('Rate limited, please retry later');
         break;
-      case 'invalid_api_key':
+      case 401:
         console.log('Check your API key');
         break;
-      case 'domain_not_verified':
-        console.log('Verify your sending domain');
+      case 400:
+        console.log('Validation error:', error.message);
         break;
       default:
         console.log('Error:', error.message);
@@ -245,32 +381,40 @@ const sendOptions: SendEmailOptions = {
                 <td className="px-4 py-3 text-muted-foreground">Send an email</td>
               </tr>
               <tr>
-                <td className="px-4 py-3"><InlineCode>emails.get()</InlineCode></td>
-                <td className="px-4 py-3 text-muted-foreground">Get email details</td>
+                <td className="px-4 py-3"><InlineCode>emails.get(id)</InlineCode></td>
+                <td className="px-4 py-3 text-muted-foreground">Get email details by ID</td>
               </tr>
               <tr>
-                <td className="px-4 py-3"><InlineCode>domains.create()</InlineCode></td>
+                <td className="px-4 py-3"><InlineCode>emails.list()</InlineCode></td>
+                <td className="px-4 py-3 text-muted-foreground">List all emails</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-3"><InlineCode>domains.create(name)</InlineCode></td>
                 <td className="px-4 py-3 text-muted-foreground">Add a domain</td>
               </tr>
               <tr>
-                <td className="px-4 py-3"><InlineCode>domains.verify()</InlineCode></td>
+                <td className="px-4 py-3"><InlineCode>domains.verify(id)</InlineCode></td>
                 <td className="px-4 py-3 text-muted-foreground">Verify domain DNS</td>
               </tr>
               <tr>
-                <td className="px-4 py-3"><InlineCode>audiences.create()</InlineCode></td>
+                <td className="px-4 py-3"><InlineCode>domains.list()</InlineCode></td>
+                <td className="px-4 py-3 text-muted-foreground">List all domains</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-3"><InlineCode>audiences.create(name)</InlineCode></td>
                 <td className="px-4 py-3 text-muted-foreground">Create an audience</td>
               </tr>
               <tr>
-                <td className="px-4 py-3"><InlineCode>contacts.create()</InlineCode></td>
-                <td className="px-4 py-3 text-muted-foreground">Add a contact</td>
+                <td className="px-4 py-3"><InlineCode>audiences.list()</InlineCode></td>
+                <td className="px-4 py-3 text-muted-foreground">List all audiences</td>
               </tr>
               <tr>
-                <td className="px-4 py-3"><InlineCode>webhooks.create()</InlineCode></td>
-                <td className="px-4 py-3 text-muted-foreground">Create a webhook</td>
+                <td className="px-4 py-3"><InlineCode>contacts.create(audienceId, data)</InlineCode></td>
+                <td className="px-4 py-3 text-muted-foreground">Add a contact to audience</td>
               </tr>
               <tr>
-                <td className="px-4 py-3"><InlineCode>templates.create()</InlineCode></td>
-                <td className="px-4 py-3 text-muted-foreground">Create a template</td>
+                <td className="px-4 py-3"><InlineCode>contacts.list(audienceId)</InlineCode></td>
+                <td className="px-4 py-3 text-muted-foreground">List contacts in audience</td>
               </tr>
             </tbody>
           </table>

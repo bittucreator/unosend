@@ -91,22 +91,25 @@ const unosend = new Unosend(process.env.UNOSEND_API_KEY);`}
             showLineNumbers
             code={`from unosend import Unosend
 
-unosend = Unosend(api_key="un_live_your_api_key")
+unosend = Unosend("un_live_your_api_key")
 
 # Or use environment variables (recommended)
 import os
-unosend = Unosend(api_key=os.environ.get("UNOSEND_API_KEY"))`}
+unosend = Unosend(os.environ.get("UNOSEND_API_KEY"))`}
           />
           
           <CodeBlock 
             filename="Go"
             showLineNumbers
-            code={`import "github.com/unosend/unosend-go"
+            code={`import (
+    "os"
+    unosend "github.com/unosend/unosend-go"
+)
 
-client := unosend.NewClient("un_live_your_api_key")
+client := unosend.New("un_live_your_api_key")
 
 // Or use environment variables (recommended)
-client := unosend.NewClient(os.Getenv("UNOSEND_API_KEY"))`}
+client := unosend.New(os.Getenv("UNOSEND_API_KEY"))`}
           />
         </div>
       </section>

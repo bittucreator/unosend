@@ -170,7 +170,7 @@ Your plan: {{plan | default: "Free"}}`}
       <section className="mb-10">
         <h2 className="text-xl font-bold text-stone-900 mb-4">Sending Emails with Templates</h2>
         <p className="text-[14px] text-muted-foreground mb-4">
-          Use <InlineCode>template_id</InlineCode> instead of <InlineCode>html</InlineCode> when sending:
+          Use <InlineCode>templateId</InlineCode> instead of <InlineCode>html</InlineCode> when sending:
         </p>
         
         <CodeBlock 
@@ -179,7 +179,7 @@ Your plan: {{plan | default: "Free"}}`}
           code={`const { data, error } = await unosend.emails.send({
   from: 'hello@yourdomain.com',
   to: ['john@example.com'],
-  template_id: 'tpl_xxxxxxxxxxxxxxxx',
+  templateId: 'tpl_xxxxxxxxxxxxxxxx',
   variables: {
     first_name: 'John',
     company_name: 'Acme Inc',
@@ -212,7 +212,7 @@ const results = await Promise.all(
     unosend.emails.send({
       from: 'hello@yourdomain.com',
       to: [recipient.email],
-      template_id: 'tpl_xxxxxxxxxxxxxxxx',
+      templateId: 'tpl_xxxxxxxxxxxxxxxx',
       variables: {
         first_name: recipient.first_name,
         plan: recipient.plan,

@@ -28,9 +28,36 @@ export default function GoSDKPage() {
         <ul className="space-y-2">
           <li className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-green-600" />
-            <span className="text-[14px] text-muted-foreground">Go 1.18 or higher</span>
+            <span className="text-[14px] text-muted-foreground">Go 1.21 or higher</span>
           </li>
         </ul>
+      </section>
+
+      {/* Environment Variables */}
+      <section className="mb-10">
+        <h2 className="text-xl font-bold text-stone-900 mb-4">Environment Variables</h2>
+        <p className="text-[14px] text-muted-foreground mb-4">
+          Never hardcode your API key. Use environment variables instead:
+        </p>
+        <CodeBlock 
+          filename=".env"
+          code={`UNOSEND_API_KEY=un_your_api_key`}
+        />
+        <CodeBlock 
+          filename="main.go"
+          showLineNumbers
+          code={`package main
+
+import (
+    "os"
+    unosend "github.com/unosend/unosend-go"
+)
+
+func main() {
+    client := unosend.New(os.Getenv("UNOSEND_API_KEY"))
+    // ...
+}`}
+        />
       </section>
 
       {/* Basic Usage */}
@@ -43,17 +70,17 @@ export default function GoSDKPage() {
 
 import (
     "fmt"
-    "os"
+    "log"
     
-    "github.com/unosend/unosend-go"
+    unosend "github.com/unosend/unosend-go"
 )
 
 func main() {
     // Initialize client
-    client := unosend.NewClient(os.Getenv("UNOSEND_API_KEY"))
+    client := unosend.New("un_your_api_key")
     
     // Send an email
-    email, err := client.Emails.Send(&unosend.SendEmailParams{
+    email, err := client.Emails.Send(&unosend.SendEmailRequest{
         From:    "hello@yourdomain.com",
         To:      []string{"user@example.com"},
         Subject: "Welcome!",
@@ -61,11 +88,160 @@ func main() {
     })
     
     if err != nil {
-        fmt.Printf("Error: %v\\n", err)
-        return
+        log.Fatal(err)
     }
     
     fmt.Printf("Email sent! ID: %s\\n", email.ID)
+}`}
+        />
+      </section>
+
+      {/* Response Format */}
+      <section className="mb-10">
+        <h2 className="text-xl font-bold text-stone-900 mb-4">Response Format</h2>
+        <p className="text-[14px] text-muted-foreground mb-4">
+          SDK methods return typed structs and errors:
+        </p>
+        <CodeBlock 
+          filename="response.go"
+          showLineNumbers
+          code={`// Email struct returned from Send/Get
+type Email struct {
+    ID        string   // "em_xxxxxxxxxxxxxxxxxxxxxxxx"
+    From      string   // "hello@yourdomain.com"
+    To        []string // ["user@example.com"]
+    Subject   string   // "Welcome!"
+    Status    string   // "queued", "sent", "delivered", etc.
+    CreatedAt string   // "2024-01-15T10:30:00Z"
+}
+
+// Error struct for API errors
+type Error struct {
+    Message    string // "Invalid API key"
+    Code       int    // 401
+    StatusCode int    // 401
+}`}
+        />
+      </section>
+
+      {/* Sending with Attachments */}
+      <section className="mb-10">
+        <h2 className="text-xl font-bold text-stone-900 mb-4">Sending with Attachments</h2>
+        <CodeBlock 
+          filename="attachments.go"
+          showLineNumbers
+          code={`package main
+
+import (
+    "encoding/base64"
+    "os"
+    
+    unosend "github.com/unosend/unosend-go"
+)
+
+func main() {
+    client := unosend.New(os.Getenv("UNOSEND_API_KEY"))
+    
+    // Read file and encode as base64
+    fileContent, _ := os.ReadFile("invoice.pdf")
+    encoded := base64.StdEncoding.EncodeToString(fileContent)
+    
+    // Send email with attachment
+    email, err := client.Emails.Send(&unosend.SendEmailRequest{
+        From:    "hello@yourdomain.com",
+        To:      []string{"user@example.com"},
+        Subject: "Your Invoice",
+        HTML:    "<p>Please find your invoice attached.</p>",
+        Attachments: []unosend.Attachment{
+            {
+                Filename:    "invoice.pdf",
+                Content:     encoded,
+                ContentType: "application/pdf",
+            },
+        },
+    })
+}`}
+        />
+      </section>
+
+      {/* Working with Domains */}
+      <section className="mb-10">
+        <h2 className="text-xl font-bold text-stone-900 mb-4">Working with Domains</h2>
+        <CodeBlock 
+          filename="domains.go"
+          showLineNumbers
+          code={`package main
+
+import (
+    "fmt"
+    "os"
+    
+    unosend "github.com/unosend/unosend-go"
+)
+
+func main() {
+    client := unosend.New(os.Getenv("UNOSEND_API_KEY"))
+    
+    // Add a domain
+    domain, _ := client.Domains.Create("yourdomain.com")
+    fmt.Printf("Domain added: %s\\n", domain.ID)
+    fmt.Printf("DNS Records: %+v\\n", domain.Records)
+    
+    // List all domains
+    domains, _ := client.Domains.List()
+    for _, d := range domains {
+        fmt.Printf("%s - %s\\n", d.Name, d.Status)
+    }
+    
+    // Verify domain DNS
+    verified, _ := client.Domains.Verify(domain.ID)
+    fmt.Printf("Status: %s\\n", verified.Status)
+    
+    // Delete a domain
+    client.Domains.Delete(domain.ID)
+}`}
+        />
+      </section>
+
+      {/* Working with Audiences & Contacts */}
+      <section className="mb-10">
+        <h2 className="text-xl font-bold text-stone-900 mb-4">Working with Audiences & Contacts</h2>
+        <CodeBlock 
+          filename="audiences.go"
+          showLineNumbers
+          code={`package main
+
+import (
+    "fmt"
+    "os"
+    
+    unosend "github.com/unosend/unosend-go"
+)
+
+func main() {
+    client := unosend.New(os.Getenv("UNOSEND_API_KEY"))
+    
+    // Create an audience
+    audience, _ := client.Audiences.Create("Newsletter Subscribers")
+    fmt.Printf("Audience created: %s\\n", audience.ID)
+    
+    // Add a contact
+    contact, _ := client.Contacts.Create(audience.ID, &unosend.CreateContactRequest{
+        Email:     "subscriber@example.com",
+        FirstName: "John",
+        LastName:  "Doe",
+    })
+    fmt.Printf("Contact added: %s\\n", contact.ID)
+    
+    // List all contacts
+    contacts, _ := client.Contacts.List(audience.ID)
+    fmt.Printf("Total subscribers: %d\\n", len(contacts))
+    
+    // List all audiences
+    audiences, _ := client.Audiences.List()
+    for _, a := range audiences {
+        fmt.Printf("%s: %d contacts\\n", a.Name, a.ContactCount)
+    }
 }`}
         />
       </section>
@@ -79,16 +255,19 @@ func main() {
           code={`package main
 
 import (
+    "net/http"
     "time"
     
-    "github.com/unosend/unosend-go"
+    unosend "github.com/unosend/unosend-go"
 )
 
 func main() {
-    client := unosend.NewClient("un_your_api_key",
-        unosend.WithTimeout(30 * time.Second),
-        unosend.WithRetries(3),
-        unosend.WithBaseURL("https://api.unosend.com"),
+    // Custom configuration
+    client := unosend.New("un_your_api_key",
+        unosend.WithBaseURL("https://your-instance.com/api/v1"),
+        unosend.WithHTTPClient(&http.Client{
+            Timeout: 60 * time.Second,
+        }),
     )
     
     // Use client...
@@ -111,13 +290,13 @@ import (
     "os"
     
     "github.com/gin-gonic/gin"
-    "github.com/unosend/unosend-go"
+    unosend "github.com/unosend/unosend-go"
 )
 
 var client *unosend.Client
 
 func init() {
-    client = unosend.NewClient(os.Getenv("UNOSEND_API_KEY"))
+    client = unosend.New(os.Getenv("UNOSEND_API_KEY"))
 }
 
 type EmailRequest struct {
@@ -136,7 +315,7 @@ func main() {
             return
         }
         
-        email, err := client.Emails.Send(&unosend.SendEmailParams{
+        email, err := client.Emails.Send(&unosend.SendEmailRequest{
             From:    "hello@yourdomain.com",
             To:      []string{req.To},
             Subject: req.Subject,
@@ -166,13 +345,13 @@ import (
     "net/http"
     "os"
     
-    "github.com/unosend/unosend-go"
+    unosend "github.com/unosend/unosend-go"
 )
 
 var client *unosend.Client
 
 func init() {
-    client = unosend.NewClient(os.Getenv("UNOSEND_API_KEY"))
+    client = unosend.New(os.Getenv("UNOSEND_API_KEY"))
 }
 
 func sendEmailHandler(w http.ResponseWriter, r *http.Request) {
@@ -192,7 +371,7 @@ func sendEmailHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
     
-    email, err := client.Emails.Send(&unosend.SendEmailParams{
+    email, err := client.Emails.Send(&unosend.SendEmailRequest{
         From:    "hello@yourdomain.com",
         To:      []string{req.To},
         Subject: req.Subject,
@@ -211,7 +390,7 @@ func sendEmailHandler(w http.ResponseWriter, r *http.Request) {
 func main() {
     http.HandleFunc("/send-email", sendEmailHandler)
     http.ListenAndServe(":8080", nil)
-}`}
+}\`}
         />
       </section>
 
@@ -221,19 +400,18 @@ func main() {
         <CodeBlock 
           filename="errors.go"
           showLineNumbers
-          code={`package main
+          code={\`package main
 
 import (
-    "errors"
     "fmt"
     
-    "github.com/unosend/unosend-go"
+    unosend "github.com/unosend/unosend-go"
 )
 
 func main() {
-    client := unosend.NewClient("un_your_api_key")
+    client := unosend.New("un_your_api_key")
     
-    email, err := client.Emails.Send(&unosend.SendEmailParams{
+    email, err := client.Emails.Send(&unosend.SendEmailRequest{
         From:    "hello@yourdomain.com",
         To:      []string{"user@example.com"},
         Subject: "Hello",
@@ -241,18 +419,10 @@ func main() {
     })
     
     if err != nil {
-        var rateLimitErr *unosend.RateLimitError
-        var authErr *unosend.AuthenticationError
-        var validationErr *unosend.ValidationError
-        
-        switch {
-        case errors.As(err, &rateLimitErr):
-            fmt.Printf("Rate limited. Retry after: %v\\n", rateLimitErr.RetryAfter)
-        case errors.As(err, &authErr):
-            fmt.Println("Invalid API key")
-        case errors.As(err, &validationErr):
-            fmt.Printf("Validation error: %s\\n", validationErr.Message)
-        default:
+        // Check if it's a Unosend API error
+        if apiErr, ok := err.(*unosend.Error); ok {
+            fmt.Printf("API error: %s (code: %d)\\n", apiErr.Message, apiErr.StatusCode)
+        } else {
             fmt.Printf("Error: %v\\n", err)
         }
         return
@@ -276,28 +446,44 @@ func main() {
             </thead>
             <tbody className="divide-y divide-stone-100">
               <tr>
-                <td className="px-4 py-3"><InlineCode>Emails.Send()</InlineCode></td>
+                <td className="px-4 py-3"><InlineCode>Emails.Send(req)</InlineCode></td>
                 <td className="px-4 py-3 text-muted-foreground">Send an email</td>
               </tr>
               <tr>
-                <td className="px-4 py-3"><InlineCode>Emails.Get()</InlineCode></td>
-                <td className="px-4 py-3 text-muted-foreground">Get email details</td>
+                <td className="px-4 py-3"><InlineCode>Emails.Get(id)</InlineCode></td>
+                <td className="px-4 py-3 text-muted-foreground">Get email by ID</td>
               </tr>
               <tr>
-                <td className="px-4 py-3"><InlineCode>Domains.Create()</InlineCode></td>
+                <td className="px-4 py-3"><InlineCode>Emails.List(limit, offset)</InlineCode></td>
+                <td className="px-4 py-3 text-muted-foreground">List all emails</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-3"><InlineCode>Domains.Create(name)</InlineCode></td>
                 <td className="px-4 py-3 text-muted-foreground">Add a domain</td>
               </tr>
               <tr>
-                <td className="px-4 py-3"><InlineCode>Domains.Verify()</InlineCode></td>
+                <td className="px-4 py-3"><InlineCode>Domains.Verify(id)</InlineCode></td>
                 <td className="px-4 py-3 text-muted-foreground">Verify domain DNS</td>
               </tr>
               <tr>
-                <td className="px-4 py-3"><InlineCode>Audiences.Create()</InlineCode></td>
+                <td className="px-4 py-3"><InlineCode>Domains.List()</InlineCode></td>
+                <td className="px-4 py-3 text-muted-foreground">List all domains</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-3"><InlineCode>Audiences.Create(name)</InlineCode></td>
                 <td className="px-4 py-3 text-muted-foreground">Create an audience</td>
               </tr>
               <tr>
-                <td className="px-4 py-3"><InlineCode>Contacts.Create()</InlineCode></td>
+                <td className="px-4 py-3"><InlineCode>Audiences.List()</InlineCode></td>
+                <td className="px-4 py-3 text-muted-foreground">List all audiences</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-3"><InlineCode>Contacts.Create(audienceId, req)</InlineCode></td>
                 <td className="px-4 py-3 text-muted-foreground">Add a contact</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-3"><InlineCode>Contacts.List(audienceId)</InlineCode></td>
+                <td className="px-4 py-3 text-muted-foreground">List contacts in audience</td>
               </tr>
             </tbody>
           </table>

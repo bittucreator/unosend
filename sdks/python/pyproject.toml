@@ -1,0 +1,38 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "unosend"
+version = "1.0.0"
+description = "Official Python SDK for Unosend - Email API Service"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.8"
+authors = [
+    { name = "Unosend", email = "support@unosend.com" }
+]
+keywords = ["unosend", "email", "api", "sdk", "transactional"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Communications :: Email",
+]
+dependencies = [
+    "httpx>=0.24.0",
+]
+
+[project.urls]
+Homepage = "https://unosend.com"
+Documentation = "https://unosend.com/docs"
+Repository = "https://github.com/unosend/unosend-python"
+
+[tool.hatch.build.targets.wheel]
+packages = ["unosend"]

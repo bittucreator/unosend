@@ -41,72 +41,212 @@ export default function PythonSDKPage() {
         </ul>
       </section>
 
-      {/* Basic Usage */}
+      {/* Environment Variables */}
       <section className="mb-10">
-        <h2 className="text-xl font-bold text-stone-900 mb-4">Basic Usage</h2>
+        <h2 className="text-xl font-bold text-stone-900 mb-4">Environment Variables</h2>
+        <p className="text-[14px] text-muted-foreground mb-4">
+          Never hardcode your API key. Use environment variables instead:
+        </p>
+        <CodeBlock 
+          filename=".env"
+          code={`UNOSEND_API_KEY=un_your_api_key`}
+        />
         <CodeBlock 
           filename="main.py"
           showLineNumbers
           code={`import os
 from unosend import Unosend
 
+unosend = Unosend(os.environ.get("UNOSEND_API_KEY"))`}
+        />
+      </section>
+
+      {/* Basic Usage */}
+      <section className="mb-10">
+        <h2 className="text-xl font-bold text-stone-900 mb-4">Basic Usage</h2>
+        <CodeBlock 
+          filename="main.py"
+          showLineNumbers
+          code={`from unosend import Unosend
+
 # Initialize with your API key
-unosend = Unosend(api_key=os.environ.get("UNOSEND_API_KEY"))
+unosend = Unosend("un_your_api_key")
 
 # Send an email
-result = unosend.emails.send(
-    from_email="hello@yourdomain.com",
-    to=["user@example.com"],
+response = unosend.emails.send(
+    from_address="hello@yourdomain.com",
+    to="user@example.com",  # Can be string or list
     subject="Welcome!",
     html="<h1>Hello World</h1><p>Welcome to Unosend!</p>"
 )
 
-if result.error:
-    print(f"Error: {result.error.message}")
+if response.error:
+    print(f"Error: {response.error.message}")
 else:
-    print(f"Email sent! ID: {result.data.id}")`}
+    print(f"Email sent! ID: {response.data.id}")`}
         />
       </section>
 
-      {/* Async Usage */}
+      {/* Response Format */}
       <section className="mb-10">
-        <h2 className="text-xl font-bold text-stone-900 mb-4">Async Support</h2>
+        <h2 className="text-xl font-bold text-stone-900 mb-4">Response Format</h2>
         <p className="text-[14px] text-muted-foreground mb-4">
-          Use <InlineCode>AsyncUnosend</InlineCode> for async/await support:
+          All SDK methods return an <InlineCode>ApiResponse</InlineCode> object with <InlineCode>data</InlineCode> and <InlineCode>error</InlineCode> attributes:
         </p>
         <CodeBlock 
-          filename="async_example.py"
+          filename="response_example.py"
           showLineNumbers
-          code={`import asyncio
-from unosend import AsyncUnosend
+          code={`# Successful response
+response = unosend.emails.send(...)
+print(response.data.id)        # "em_xxxxxxxxxxxxxxxxxxxxxxxx"
+print(response.data.from)      # "hello@yourdomain.com"
+print(response.data.to)        # ["user@example.com"]
+print(response.data.subject)   # "Welcome!"
+print(response.data.status)    # "queued"
+print(response.error)          # None
 
-async def send_emails():
-    unosend = AsyncUnosend(api_key="un_your_api_key")
-    
-    # Send multiple emails concurrently
-    emails = [
-        {"to": "user1@example.com", "subject": "Hello User 1"},
-        {"to": "user2@example.com", "subject": "Hello User 2"},
-        {"to": "user3@example.com", "subject": "Hello User 3"},
-    ]
-    
-    tasks = [
-        unosend.emails.send(
-            from_email="hello@yourdomain.com",
-            to=[email["to"]],
-            subject=email["subject"],
-            html="<p>Hello!</p>"
-        )
-        for email in emails
-    ]
-    
-    results = await asyncio.gather(*tasks)
-    
-    for result in results:
-        if result.data:
-            print(f"Sent: {result.data.id}")
+# Error response
+response = unosend.emails.send(...)
+print(response.data)           # None
+print(response.error.message)  # "Invalid API key"
+print(response.error.status_code)  # 401
 
-asyncio.run(send_emails())`}
+# Tuple unpacking also works
+data, error = unosend.emails.send(...)`}
+        />
+      </section>
+
+      {/* Sending with Attachments */}
+      <section className="mb-10">
+        <h2 className="text-xl font-bold text-stone-900 mb-4">Sending with Attachments</h2>
+        <CodeBlock 
+          filename="attachments.py"
+          showLineNumbers
+          code={`import base64
+from unosend import Unosend
+
+unosend = Unosend(os.environ.get("UNOSEND_API_KEY"))
+
+# Read file and encode as base64
+with open("invoice.pdf", "rb") as f:
+    file_content = base64.b64encode(f.read()).decode()
+
+# Send email with attachment
+response = unosend.emails.send(
+    from_address="hello@yourdomain.com",
+    to=["user@example.com"],
+    subject="Your Invoice",
+    html="<p>Please find your invoice attached.</p>",
+    attachments=[
+        {
+            "filename": "invoice.pdf",
+            "content": file_content,
+            "content_type": "application/pdf"
+        }
+    ]
+)`}
+        />
+      </section>
+
+      {/* Working with Domains */}
+      <section className="mb-10">
+        <h2 className="text-xl font-bold text-stone-900 mb-4">Working with Domains</h2>
+        <CodeBlock 
+          filename="domains.py"
+          showLineNumbers
+          code={`from unosend import Unosend
+
+unosend = Unosend(os.environ.get("UNOSEND_API_KEY"))
+
+# Add a domain
+result = unosend.domains.create("yourdomain.com")
+print(f"Domain added: {result.data.id}")
+print(f"DNS Records to add: {result.data.records}")
+
+# List all domains
+result = unosend.domains.list()
+for domain in result.data:
+    print(f"{domain.name} - {domain.status}")
+
+# Verify domain DNS
+result = unosend.domains.verify(domain_id)
+print(f"Domain status: {result.data.status}")
+
+# Delete a domain
+unosend.domains.delete(domain_id)`}
+        />
+      </section>
+
+      {/* Working with Audiences & Contacts */}
+      <section className="mb-10">
+        <h2 className="text-xl font-bold text-stone-900 mb-4">Working with Audiences & Contacts</h2>
+        <CodeBlock 
+          filename="audiences.py"
+          showLineNumbers
+          code={`from unosend import Unosend
+
+unosend = Unosend(os.environ.get("UNOSEND_API_KEY"))
+
+# Create an audience
+result = unosend.audiences.create("Newsletter Subscribers")
+audience_id = result.data.id
+print(f"Audience created: {audience_id}")
+
+# Add a contact to the audience
+result = unosend.contacts.create(
+    audience_id,
+    email="subscriber@example.com",
+    first_name="John",
+    last_name="Doe"
+)
+print(f"Contact added: {result.data.id}")
+
+# List all contacts in an audience
+result = unosend.contacts.list(audience_id)
+print(f"Total subscribers: {len(result.data)}")
+
+# List all audiences
+result = unosend.audiences.list()
+for audience in result.data:
+    print(f"{audience.name}: {audience.contact_count} contacts")`}
+        />
+      </section>
+
+      {/* Additional Examples */}
+      <section className="mb-10">
+        <h2 className="text-xl font-bold text-stone-900 mb-4">Additional Examples</h2>
+        <p className="text-[14px] text-muted-foreground mb-4">
+          Send emails with additional options:
+        </p>
+        <CodeBlock 
+          filename="advanced_example.py"
+          showLineNumbers
+          code={`from unosend import Unosend
+
+unosend = Unosend("un_your_api_key")
+
+# Send with CC, BCC, and custom headers
+result = unosend.emails.send(
+    from_address="hello@yourdomain.com",
+    to=["user@example.com"],
+    subject="Welcome to our platform",
+    html="<h1>Welcome!</h1><p>Thanks for signing up.</p>",
+    text="Welcome! Thanks for signing up.",
+    reply_to="support@yourdomain.com",
+    cc=["manager@yourdomain.com"],
+    bcc=["archive@yourdomain.com"],
+    headers={
+        "X-Custom-Header": "custom-value"
+    },
+    tags=[
+        {"name": "category", "value": "welcome"}
+    ]
+)
+
+if result.data:
+    print(f"Email sent: {result.data.id}")
+else:
+    print(f"Error: {result.error.message}")`}
         />
       </section>
 
@@ -120,11 +260,11 @@ asyncio.run(send_emails())`}
           showLineNumbers
           code={`from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from unosend import AsyncUnosend
+from unosend import Unosend
 import os
 
 app = FastAPI()
-unosend = AsyncUnosend(api_key=os.environ.get("UNOSEND_API_KEY"))
+unosend = Unosend(os.environ.get("UNOSEND_API_KEY"))
 
 class EmailRequest(BaseModel):
     to: str
@@ -132,9 +272,9 @@ class EmailRequest(BaseModel):
     html: str
 
 @app.post("/send-email")
-async def send_email(request: EmailRequest):
-    result = await unosend.emails.send(
-        from_email="hello@yourdomain.com",
+def send_email(request: EmailRequest):
+    result = unosend.emails.send(
+        from_address="hello@yourdomain.com",
         to=[request.to],
         subject=request.subject,
         html=request.html
@@ -157,7 +297,7 @@ from unosend import Unosend
 import json
 import os
 
-unosend = Unosend(api_key=os.environ.get("UNOSEND_API_KEY"))
+unosend = Unosend(os.environ.get("UNOSEND_API_KEY"))
 
 @csrf_exempt
 @require_POST
@@ -165,7 +305,7 @@ def send_email(request):
     data = json.loads(request.body)
     
     result = unosend.emails.send(
-        from_email="hello@yourdomain.com",
+        from_address="hello@yourdomain.com",
         to=[data["to"]],
         subject=data["subject"],
         html=data["html"]
@@ -186,14 +326,14 @@ from unosend import Unosend
 import os
 
 app = Flask(__name__)
-unosend = Unosend(api_key=os.environ.get("UNOSEND_API_KEY"))
+unosend = Unosend(os.environ.get("UNOSEND_API_KEY"))
 
 @app.route("/send-email", methods=["POST"])
 def send_email():
     data = request.json
     
     result = unosend.emails.send(
-        from_email="hello@yourdomain.com",
+        from_address="hello@yourdomain.com",
         to=[data["to"]],
         subject=data["subject"],
         html=data["html"]
@@ -213,30 +353,35 @@ def send_email():
           filename="errors.py"
           showLineNumbers
           code={`from unosend import Unosend
-from unosend.exceptions import (
-    UnosendError,
-    RateLimitError,
-    AuthenticationError,
-    ValidationError
+
+unosend = Unosend("un_your_api_key")
+
+# Using data/error pattern
+result = unosend.emails.send(
+    from_address="hello@yourdomain.com",
+    to=["user@example.com"],
+    subject="Hello",
+    html="<p>Hello</p>"
 )
 
-unosend = Unosend(api_key="un_your_api_key")
+if result.error:
+    print(f"Error: {result.error.message}")
+    print(f"Status code: {result.error.status_code}")
+else:
+    print(f"Email sent! ID: {result.data.id}")
 
-try:
-    result = unosend.emails.send(
-        from_email="hello@yourdomain.com",
-        to=["user@example.com"],
-        subject="Hello",
-        html="<p>Hello</p>"
-    )
-except RateLimitError as e:
-    print(f"Rate limited. Retry after: {e.retry_after} seconds")
-except AuthenticationError:
-    print("Invalid API key")
-except ValidationError as e:
-    print(f"Validation error: {e.message}")
-except UnosendError as e:
-    print(f"Error: {e.message}")`}
+# Unpacking syntax
+data, error = unosend.emails.send(
+    from_address="hello@yourdomain.com",
+    to=["user@example.com"],
+    subject="Hello",
+    html="<p>Hello</p>"
+)
+
+if error:
+    print(f"Failed: {error.message}")
+else:
+    print(f"Success: {data.id}")`}
         />
       </section>
 
@@ -257,24 +402,40 @@ except UnosendError as e:
                 <td className="px-4 py-3 text-muted-foreground">Send an email</td>
               </tr>
               <tr>
-                <td className="px-4 py-3"><InlineCode>emails.get()</InlineCode></td>
-                <td className="px-4 py-3 text-muted-foreground">Get email details</td>
+                <td className="px-4 py-3"><InlineCode>emails.get(id)</InlineCode></td>
+                <td className="px-4 py-3 text-muted-foreground">Get email details by ID</td>
               </tr>
               <tr>
-                <td className="px-4 py-3"><InlineCode>domains.create()</InlineCode></td>
+                <td className="px-4 py-3"><InlineCode>emails.list()</InlineCode></td>
+                <td className="px-4 py-3 text-muted-foreground">List all emails</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-3"><InlineCode>domains.create(name)</InlineCode></td>
                 <td className="px-4 py-3 text-muted-foreground">Add a domain</td>
               </tr>
               <tr>
-                <td className="px-4 py-3"><InlineCode>domains.verify()</InlineCode></td>
+                <td className="px-4 py-3"><InlineCode>domains.verify(id)</InlineCode></td>
                 <td className="px-4 py-3 text-muted-foreground">Verify domain DNS</td>
               </tr>
               <tr>
-                <td className="px-4 py-3"><InlineCode>audiences.create()</InlineCode></td>
+                <td className="px-4 py-3"><InlineCode>domains.list()</InlineCode></td>
+                <td className="px-4 py-3 text-muted-foreground">List all domains</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-3"><InlineCode>audiences.create(name)</InlineCode></td>
                 <td className="px-4 py-3 text-muted-foreground">Create an audience</td>
               </tr>
               <tr>
-                <td className="px-4 py-3"><InlineCode>contacts.create()</InlineCode></td>
-                <td className="px-4 py-3 text-muted-foreground">Add a contact</td>
+                <td className="px-4 py-3"><InlineCode>audiences.list()</InlineCode></td>
+                <td className="px-4 py-3 text-muted-foreground">List all audiences</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-3"><InlineCode>contacts.create(audience_id, data)</InlineCode></td>
+                <td className="px-4 py-3 text-muted-foreground">Add a contact to audience</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-3"><InlineCode>contacts.list(audience_id)</InlineCode></td>
+                <td className="px-4 py-3 text-muted-foreground">List contacts in audience</td>
               </tr>
             </tbody>
           </table>

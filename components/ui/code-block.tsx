@@ -1,8 +1,51 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Check, Copy } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { codeToHtml } from 'shiki'
+
+// Auto-detect language from filename
+function detectLanguage(filename?: string, explicitLang?: string): string {
+  if (explicitLang) return explicitLang
+  if (!filename) return 'typescript'
+  
+  const ext = filename.split('.').pop()?.toLowerCase()
+  const langMap: Record<string, string> = {
+    'ts': 'typescript',
+    'tsx': 'tsx',
+    'js': 'javascript',
+    'jsx': 'jsx',
+    'py': 'python',
+    'rb': 'ruby',
+    'go': 'go',
+    'rs': 'rust',
+    'php': 'php',
+    'java': 'java',
+    'json': 'json',
+    'yaml': 'yaml',
+    'yml': 'yaml',
+    'md': 'markdown',
+    'sh': 'bash',
+    'bash': 'bash',
+    'zsh': 'bash',
+    'css': 'css',
+    'html': 'html',
+    'xml': 'xml',
+    'sql': 'sql',
+    'env': 'bash',
+  }
+  
+  // Check filename patterns
+  if (filename.toLowerCase().includes('node')) return 'bash'
+  if (filename.toLowerCase().includes('python')) return 'bash'
+  if (filename.toLowerCase().includes('go')) return 'bash'
+  if (filename.toLowerCase().includes('terminal')) return 'bash'
+  if (filename.toLowerCase().includes('bash')) return 'bash'
+  if (filename.toLowerCase() === '.env' || filename.toLowerCase().includes('.env')) return 'bash'
+  
+  return langMap[ext || ''] || 'typescript'
+}
 
 interface CodeBlockProps {
   code: string
@@ -14,19 +57,40 @@ interface CodeBlockProps {
 
 export function CodeBlock({ 
   code, 
+  language,
   filename,
   showLineNumbers = false,
   className 
 }: CodeBlockProps) {
   const [copied, setCopied] = useState(false)
+  const [highlightedCode, setHighlightedCode] = useState<string>('')
+  const [isLoading, setIsLoading] = useState(true)
+  
+  const detectedLanguage = detectLanguage(filename, language)
+
+  useEffect(() => {
+    async function highlight() {
+      try {
+        const html = await codeToHtml(code, {
+          lang: detectedLanguage,
+          theme: 'github-light',
+        })
+        setHighlightedCode(html)
+      } catch {
+        // Fallback to plain text if language not supported
+        setHighlightedCode(`<pre><code>${escapeHtml(code)}</code></pre>`)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    highlight()
+  }, [code, detectedLanguage])
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(code)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
-
-  const lines = code.split('\n')
 
   return (
     <div className={cn("bg-white border border-stone-200 rounded-xl overflow-hidden", className)}>
@@ -56,7 +120,7 @@ export function CodeBlock({
         {!filename && (
           <button 
             onClick={handleCopy}
-            className="absolute top-3 right-3 text-muted-foreground hover:text-foreground transition p-1.5 rounded hover:bg-stone-100"
+            className="absolute top-3 right-3 z-10 text-muted-foreground hover:text-foreground transition p-1.5 rounded hover:bg-stone-100"
           >
             {copied ? (
               <Check className="w-3.5 h-3.5 text-green-600" />
@@ -65,23 +129,31 @@ export function CodeBlock({
             )}
           </button>
         )}
-        <pre className="p-4 overflow-x-auto text-[13px] leading-relaxed">
-          <code className="text-stone-700">
-            {showLineNumbers ? (
-              lines.map((line, i) => (
-                <div key={i} className="flex">
-                  <span className="text-stone-400 select-none w-8 text-right mr-4 shrink-0">{i + 1}</span>
-                  <span>{line}</span>
-                </div>
-              ))
-            ) : (
-              code
+        {isLoading ? (
+          <pre className="p-4 overflow-x-auto text-[13px] leading-relaxed">
+            <code className="text-stone-500">{code}</code>
+          </pre>
+        ) : (
+          <div 
+            className={cn(
+              "shiki-wrapper overflow-x-auto text-[13px] leading-relaxed [&_pre]:!bg-transparent [&_pre]:p-4 [&_pre]:m-0 [&_code]:font-mono",
+              showLineNumbers && "[&_.line]:before:content-[counter(line)] [&_.line]:before:counter-increment-[line] [&_.line]:before:text-stone-400 [&_.line]:before:mr-4 [&_.line]:before:inline-block [&_.line]:before:w-4 [&_.line]:before:text-right [&_pre]:counter-reset-[line]"
             )}
-          </code>
-        </pre>
+            dangerouslySetInnerHTML={{ __html: highlightedCode }}
+          />
+        )}
       </div>
     </div>
   )
+}
+
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
 }
 
 interface InlineCodeProps {
