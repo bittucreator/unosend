@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { IndiaPricingBanner } from '@/components/india-pricing-banner'
 import { FAQSection } from '@/components/faq-section'
+import { HeroAnimation } from '@/components/hero-animation'
 import { 
   Zap, 
   Shield, 
@@ -58,7 +59,7 @@ export default function HomePage() {
             </Link>
             <div className="hidden md:flex items-center space-x-6">
               <Link href="#features" className="text-[13px] text-muted-foreground hover:text-foreground transition">Features</Link>
-              <Link href="#pricing" className="text-[13px] text-muted-foreground hover:text-foreground transition">Pricing</Link>
+              <Link href="/pricing" className="text-[13px] text-muted-foreground hover:text-foreground transition">Pricing</Link>
               <Link href="/docs" className="text-[13px] text-muted-foreground hover:text-foreground transition">Docs</Link>
               <Link href="/contact" className="text-[13px] text-muted-foreground hover:text-foreground transition">Contact</Link>
             </div>
@@ -81,9 +82,8 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="py-16 lg:py-24">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <Badge variant="secondary" className="mb-6 text-[12px] bg-stone-100 text-stone-600 border-0 px-3 py-1">
-            <Sparkles className="w-3 h-3 mr-1.5" />
-            100K free emails every month
+          <Badge variant="secondary" className="mb-4 text-[12px] bg-stone-100 text-stone-600 border-0 px-3 py-1">
+            Start sending in 5 minutes
           </Badge>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-5 text-stone-900">
             One API. Infinite Emails.
@@ -106,35 +106,9 @@ export default function HomePage() {
             </Link>
           </div>
 
-          {/* Code Example */}
-          <div className="mt-14 max-w-xl mx-auto">
-            <div className="bg-white border border-stone-200/60 rounded-xl overflow-hidden text-left shadow-sm">
-              <div className="flex items-center px-4 py-2.5 border-b border-stone-100 bg-stone-50/50">
-                <div className="flex space-x-1.5">
-                  <div className="w-2.5 h-2.5 rounded-full bg-stone-300"></div>
-                  <div className="w-2.5 h-2.5 rounded-full bg-stone-300"></div>
-                  <div className="w-2.5 h-2.5 rounded-full bg-stone-300"></div>
-                </div>
-                <span className="ml-3 text-[12px] text-muted-foreground font-medium">send-email.ts</span>
-              </div>
-              <pre className="p-4 overflow-x-auto text-[12px] leading-relaxed">
-                <code className="text-stone-700">
-{`await fetch('https://api.unosend.com/v1/emails', {
-  method: 'POST',
-  headers: {
-    'Authorization': 'Bearer un_xxx...',
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
-    from: 'hello@yourdomain.com',
-    to: 'user@example.com',
-    subject: 'Hello World',
-    html: '<p>Welcome to Unosend!</p>'
-  })
-});`}
-                </code>
-              </pre>
-            </div>
+          {/* Email Journey Animation */}
+          <div className="mt-14 max-w-3xl mx-auto">
+            <HeroAnimation />
           </div>
 
           {/* Stats */}
@@ -162,12 +136,12 @@ export default function HomePage() {
             Trusted by developers at
           </p>
           <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-6">
-            <Image src="/Vercel.svg" alt="Vercel" width={80} height={20} className="h-5 w-auto opacity-60 hover:opacity-100 transition" />
-            <Image src="/stripe.svg" alt="Stripe" width={60} height={20} className="h-5 w-auto opacity-60 hover:opacity-100 transition" />
-            <Image src="/notion.svg" alt="Notion" width={80} height={20} className="h-5 w-auto opacity-60 hover:opacity-100 transition" />
-            <Image src="/linear.svg" alt="Linear" width={70} height={20} className="h-5 w-auto opacity-60 hover:opacity-100 transition" />
-            <Image src="/shopify.svg" alt="Shopify" width={80} height={20} className="h-5 w-auto opacity-60 hover:opacity-100 transition" />
-            <Image src="/supabase.svg" alt="Supabase" width={100} height={20} className="h-5 w-auto opacity-60 hover:opacity-100 transition" />
+            <Image src="/Vercel.svg" alt="Vercel" width={100} height={24} className="h-6 w-auto opacity-60 hover:opacity-100 transition" />
+            <Image src="/stripe.svg" alt="Stripe" width={100} height={24} className="h-6 w-auto opacity-60 hover:opacity-100 transition" />
+            <Image src="/notion.svg" alt="Notion" width={100} height={24} className="h-6 w-auto opacity-60 hover:opacity-100 transition" />
+            <Image src="/linear.svg" alt="Linear" width={100} height={24} className="h-6 w-auto opacity-60 hover:opacity-100 transition" />
+            <Image src="/shopify.svg" alt="Shopify" width={100} height={24} className="h-6 w-auto opacity-60 hover:opacity-100 transition" />
+            <Image src="/supabase.svg" alt="Supabase" width={100} height={24} className="h-6 w-auto opacity-60 hover:opacity-100 transition" />
           </div>
         </div>
       </section>
@@ -336,7 +310,7 @@ export default function HomePage() {
 
           {/* Enterprise */}
           <div className="mt-4 max-w-3xl mx-auto">
-            <div className="p-6 rounded-xl bg-gradient-to-r from-stone-50 to-stone-100/50 border border-stone-200/60">
+            <div className="p-6 rounded-xl bg-linear-to-r from-stone-50 to-stone-100/50 border border-stone-200/60">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
                   <h3 className="text-[16px] font-semibold">Enterprise</h3>

@@ -7,7 +7,16 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion'
 
-const faqs = [
+interface FAQ {
+  question: string
+  answer: string
+}
+
+interface FAQSectionProps {
+  faqs?: FAQ[]
+}
+
+const defaultFaqs: FAQ[] = [
   {
     question: "How does the free plan work?",
     answer: "You get 5,000 emails and 1,500 contacts per month for free, forever. No credit card required. Perfect for side projects and startups getting started with email."
@@ -34,7 +43,7 @@ const faqs = [
   },
 ]
 
-export function FAQSection() {
+export function FAQSection({ faqs = defaultFaqs }: FAQSectionProps) {
   return (
     <div className="max-w-2xl mx-auto">
       <Accordion type="single" collapsible className="w-full space-y-3">
