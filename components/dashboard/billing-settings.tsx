@@ -210,18 +210,32 @@ export function BillingSettings({ organizationId }: BillingSettingsProps) {
         return
       }
 
-      // Redirect to Dodo Payments checkout with organization_id in metadata
-      const params = new URLSearchParams({
-        productId,
-        quantity: '1',
-        'metadata[organization_id]': organizationId,
-        'metadata[plan]': planId,
-        'metadata[region]': isIndia ? 'india' : 'global',
+      // Use Checkout Sessions API (POST) for subscription products
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          productId,
+          organizationId,
+          plan: planId,
+          region: isIndia ? 'india' : 'global',
+        }),
       })
-      window.location.href = `/api/checkout?${params.toString()}`
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create checkout session')
+      }
+
+      if (data.checkout_url) {
+        window.location.href = data.checkout_url
+      } else {
+        throw new Error('No checkout URL returned')
+      }
     } catch (error) {
       console.error('Upgrade error:', error)
-      toast.error('Failed to start upgrade process')
+      toast.error(error instanceof Error ? error.message : 'Failed to start upgrade process')
       setUpgrading(null)
     }
   }

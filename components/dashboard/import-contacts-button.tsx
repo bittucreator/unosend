@@ -79,7 +79,8 @@ export function ImportContactsButton({ audiences, defaultAudienceId }: ImportCon
         .eq('user_id', user.id)
         .single()
 
-      const org = membership?.organization as { id: string; plan: string } | null
+      const orgData = membership?.organization
+      const org = Array.isArray(orgData) ? orgData[0] : orgData
       const plan = org?.plan || 'free'
       setCurrentPlan(plan)
 
