@@ -92,19 +92,17 @@ function highlightCode(code: string): React.ReactNode[] {
 
 export function AnimatedCodeBlock({ code, filename = 'send-email.ts' }: AnimatedCodeBlockProps) {
   const [displayedLines, setDisplayedLines] = useState(0)
-  const [isTyping, setIsTyping] = useState(true)
   const lines = code.split('\n')
-  
+  const isTyping = displayedLines < lines.length
+
   useEffect(() => {
-    if (displayedLines < lines.length) {
+    if (isTyping) {
       const timer = setTimeout(() => {
         setDisplayedLines(prev => prev + 1)
       }, 80) // Speed of typing animation
       return () => clearTimeout(timer)
-    } else {
-      setIsTyping(false)
     }
-  }, [displayedLines, lines.length])
+  }, [displayedLines, lines.length, isTyping])
   
   const visibleCode = lines.slice(0, displayedLines).join('\n')
   const highlightedCode = highlightCode(visibleCode)

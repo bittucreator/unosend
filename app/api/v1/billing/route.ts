@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Organization not found' }, { status: 404 })
     }
 
-    // Get subscription info
+    // Get subscription info from subscriptions table
     const { data: subscriptionData } = await supabase
       .from('subscriptions')
       .select('*')
@@ -77,14 +77,14 @@ export async function GET(request: NextRequest) {
       enterprise: -1,
     }
 
-    // Build subscription object
+    // Build subscription object from subscriptions table
     const plan = subscriptionData?.plan || 'free'
     const subscription = {
       id: subscriptionData?.id || organizationId,
       plan,
       status: subscriptionData?.status || 'active',
-      dodo_customer_id: subscriptionData?.stripe_customer_id || null,
-      dodo_subscription_id: subscriptionData?.stripe_subscription_id || null,
+      dodo_customer_id: subscriptionData?.stripe_customer_id || null, // stripe_customer_id stores dodo customer
+      dodo_subscription_id: subscriptionData?.stripe_subscription_id || null, // stripe_subscription_id stores dodo sub
       dodo_product_id: null,
       current_period_start: subscriptionData?.current_period_start || startOfMonth.toISOString(),
       current_period_end: subscriptionData?.current_period_end || new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString(),
@@ -95,7 +95,9 @@ export async function GET(request: NextRequest) {
       subscription,
       usage: { 
         emails_sent: emailsSent, 
-        emails_limit: planLimits[plan] || 5000,
+        emails_limit: usage?.emails_limit || planLimits[plan] || 5000,
+        contacts_count: 0, // TODO: get contacts count
+        contacts_limit: plan === 'pro' ? 10000 : plan === 'scale' ? 25000 : 1500,
       },
       invoices: invoices || [],
     })

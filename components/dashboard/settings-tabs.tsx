@@ -67,6 +67,9 @@ export function SettingsTabs({ profile, organization, userRole, userId }: Settin
           Usage
         </TabsTrigger>
       </TabsList>
+          Integrations
+        </TabsTrigger>
+      </TabsList>
 
       {/* Profile Tab */}
       <TabsContent value="profile" className="space-y-6">

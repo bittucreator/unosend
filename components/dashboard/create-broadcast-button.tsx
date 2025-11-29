@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -21,8 +22,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Plus, Loader2 } from 'lucide-react'
+import { Plus, Loader2, Crown } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+
+// Broadcasts are Pro+ feature
+const ALLOWED_PLANS = ['pro', 'scale', 'enterprise']
 
 interface CreateBroadcastButtonProps {
   organizationId: string
@@ -42,6 +46,40 @@ export function CreateBroadcastButton({ organizationId, audiences, templates, do
   const [templateId, setTemplateId] = useState('')
   const [htmlContent, setHtmlContent] = useState('')
   const router = useRouter()
+  const [currentPlan, setCurrentPlan] = useState<string>('free')
+  const [isCheckingPlan, setIsCheckingPlan] = useState(false)
+  const [isFreePlan, setIsFreePlan] = useState(true)
+
+  useEffect(() => {
+    if (open) {
+      checkPlan()
+    }
+  }, [open])
+
+  const checkPlan = async () => {
+    setIsCheckingPlan(true)
+    try {
+      const supabase = createClient()
+      
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data: membership } = await supabase
+        .from('organization_members')
+        .select('organization:organizations(id, plan)')
+        .eq('user_id', user.id)
+        .single()
+
+      const org = membership?.organization as { id: string; plan: string } | null
+      const plan = org?.plan || 'free'
+      setCurrentPlan(plan)
+      setIsFreePlan(!ALLOWED_PLANS.includes(plan))
+    } catch (error) {
+      console.error('Error checking plan:', error)
+    } finally {
+      setIsCheckingPlan(false)
+    }
+  }
 
   const handleTemplateChange = (id: string) => {
     setTemplateId(id)
@@ -98,6 +136,39 @@ export function CreateBroadcastButton({ organizationId, audiences, templates, do
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+        {isCheckingPlan ? (
+          <div className="py-8 flex items-center justify-center">
+            <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+          </div>
+        ) : isFreePlan ? (
+          <>
+            <DialogHeader>
+              <DialogTitle>Create Broadcast</DialogTitle>
+              <DialogDescription>
+                Send an email to your audience.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="py-6">
+              <div className="text-center">
+                <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Crown className="w-6 h-6 text-amber-600" />
+                </div>
+                <h3 className="font-semibold text-[15px] mb-2">Broadcasts are a Pro feature</h3>
+                <p className="text-muted-foreground text-[13px] mb-4">
+                  Marketing broadcasts and email campaigns are available on Pro and Scale plans.
+                  <br />
+                  Upgrade to start sending broadcasts.
+                </p>
+                <Link href="/settings?tab=billing">
+                  <Button className="text-[13px]">
+                    <Crown className="w-3.5 h-3.5 mr-1.5" />
+                    Upgrade to Pro
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </>
+        ) : (
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>Create Broadcast</DialogTitle>
@@ -214,6 +285,7 @@ export function CreateBroadcastButton({ organizationId, audiences, templates, do
             </Button>
           </DialogFooter>
         </form>
+        )}
       </DialogContent>
     </Dialog>
   )

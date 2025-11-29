@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -21,8 +22,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Plus, Copy, Check, Loader2 } from 'lucide-react'
+import { Plus, Copy, Check, Loader2, Crown } from 'lucide-react'
 import { toast } from 'sonner'
+import { createClient } from '@/lib/supabase/client'
+
+const API_KEY_LIMITS: Record<string, number> = {
+  free: 2,
+  pro: 10,
+  scale: -1,
+  enterprise: -1,
+}
 
 interface CreateApiKeyButtonProps {
   organizationId?: string
@@ -36,6 +45,53 @@ export function CreateApiKeyButton({ organizationId }: CreateApiKeyButtonProps) 
   const [isLoading, setIsLoading] = useState(false)
   const [newKey, setNewKey] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
+  const [currentPlan, setCurrentPlan] = useState<string>('free')
+  const [keyCount, setKeyCount] = useState(0)
+  const [isCheckingLimits, setIsCheckingLimits] = useState(false)
+  const [limitReached, setLimitReached] = useState(false)
+
+  useEffect(() => {
+    if (open && !newKey) {
+      checkLimits()
+    }
+  }, [open])
+
+  const checkLimits = async () => {
+    setIsCheckingLimits(true)
+    try {
+      const supabase = createClient()
+      
+      // Get user's organization and plan
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data: membership } = await supabase
+        .from('organization_members')
+        .select('organization:organizations(id, plan)')
+        .eq('user_id', user.id)
+        .single()
+
+      const org = membership?.organization as { id: string; plan: string } | null
+      const plan = org?.plan || 'free'
+      setCurrentPlan(plan)
+
+      // Count existing API keys
+      const { count } = await supabase
+        .from('api_keys')
+        .select('*', { count: 'exact', head: true })
+        .eq('organization_id', org?.id)
+
+      const currentCount = count || 0
+      setKeyCount(currentCount)
+
+      const limit = API_KEY_LIMITS[plan] ?? 2
+      setLimitReached(limit !== -1 && currentCount >= limit)
+    } catch (error) {
+      console.error('Error checking limits:', error)
+    } finally {
+      setIsCheckingLimits(false)
+    }
+  }
 
   const handleCreate = async () => {
     if (!name.trim()) return
@@ -133,6 +189,38 @@ export function CreateApiKeyButton({ organizationId }: CreateApiKeyButtonProps) 
               </Button>
             </DialogFooter>
           </>
+        ) : isCheckingLimits ? (
+          <div className="py-8 flex items-center justify-center">
+            <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+          </div>
+        ) : limitReached ? (
+          <>
+            <DialogHeader>
+              <DialogTitle>Create API Key</DialogTitle>
+              <DialogDescription>
+                Give your API key a name and optionally set an expiration.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="py-6">
+              <div className="text-center">
+                <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Crown className="w-6 h-6 text-amber-600" />
+                </div>
+                <h3 className="font-semibold text-[15px] mb-2">API key limit reached</h3>
+                <p className="text-muted-foreground text-[13px] mb-4">
+                  Your {currentPlan.charAt(0).toUpperCase() + currentPlan.slice(1)} plan allows {API_KEY_LIMITS[currentPlan]} API key{API_KEY_LIMITS[currentPlan] === 1 ? '' : 's'}.
+                  <br />
+                  Upgrade to add more API keys.
+                </p>
+                <Link href="/settings?tab=billing">
+                  <Button className="text-[13px]">
+                    <Crown className="w-3.5 h-3.5 mr-1.5" />
+                    Upgrade Plan
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </>
         ) : (
           <>
             <DialogHeader>
@@ -172,6 +260,9 @@ export function CreateApiKeyButton({ organizationId }: CreateApiKeyButtonProps) 
                   Expiring keys are more secure for temporary access.
                 </p>
               </div>
+              <p className="text-muted-foreground text-[11px]">
+                {keyCount} of {API_KEY_LIMITS[currentPlan] === -1 ? 'unlimited' : API_KEY_LIMITS[currentPlan]} API keys used
+              </p>
             </div>
             <DialogFooter>
               <Button variant="ghost" onClick={handleClose}>

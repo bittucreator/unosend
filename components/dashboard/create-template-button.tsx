@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -21,8 +22,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Plus, Loader2 } from 'lucide-react'
+import { Plus, Loader2, Crown } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+
+const TEMPLATE_LIMITS: Record<string, number> = {
+  free: 3,
+  pro: -1,
+  scale: -1,
+  enterprise: -1,
+}
 
 interface CreateTemplateButtonProps {
   organizationId: string
@@ -37,6 +45,51 @@ export function CreateTemplateButton({ organizationId }: CreateTemplateButtonPro
   const [htmlContent, setHtmlContent] = useState('')
   const [textContent, setTextContent] = useState('')
   const router = useRouter()
+  const [currentPlan, setCurrentPlan] = useState<string>('free')
+  const [templateCount, setTemplateCount] = useState(0)
+  const [isCheckingLimits, setIsCheckingLimits] = useState(false)
+  const [limitReached, setLimitReached] = useState(false)
+
+  useEffect(() => {
+    if (open) {
+      checkLimits()
+    }
+  }, [open])
+
+  const checkLimits = async () => {
+    setIsCheckingLimits(true)
+    try {
+      const supabase = createClient()
+      
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data: membership } = await supabase
+        .from('organization_members')
+        .select('organization:organizations(id, plan)')
+        .eq('user_id', user.id)
+        .single()
+
+      const org = membership?.organization as { id: string; plan: string } | null
+      const plan = org?.plan || 'free'
+      setCurrentPlan(plan)
+
+      const { count } = await supabase
+        .from('templates')
+        .select('*', { count: 'exact', head: true })
+        .eq('organization_id', org?.id)
+
+      const currentCount = count || 0
+      setTemplateCount(currentCount)
+
+      const limit = TEMPLATE_LIMITS[plan] ?? 3
+      setLimitReached(limit !== -1 && currentCount >= limit)
+    } catch (error) {
+      console.error('Error checking limits:', error)
+    } finally {
+      setIsCheckingLimits(false)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -79,6 +132,39 @@ export function CreateTemplateButton({ organizationId }: CreateTemplateButtonPro
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">
+        {isCheckingLimits ? (
+          <div className="py-8 flex items-center justify-center">
+            <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+          </div>
+        ) : limitReached ? (
+          <>
+            <DialogHeader>
+              <DialogTitle>Create Template</DialogTitle>
+              <DialogDescription>
+                Create a reusable email template for your campaigns.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="py-6">
+              <div className="text-center">
+                <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Crown className="w-6 h-6 text-amber-600" />
+                </div>
+                <h3 className="font-semibold text-[15px] mb-2">Template limit reached</h3>
+                <p className="text-muted-foreground text-[13px] mb-4">
+                  Your {currentPlan.charAt(0).toUpperCase() + currentPlan.slice(1)} plan allows {TEMPLATE_LIMITS[currentPlan]} template{TEMPLATE_LIMITS[currentPlan] === 1 ? '' : 's'}.
+                  <br />
+                  Upgrade to add more templates.
+                </p>
+                <Link href="/settings?tab=billing">
+                  <Button className="text-[13px]">
+                    <Crown className="w-3.5 h-3.5 mr-1.5" />
+                    Upgrade Plan
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </>
+        ) : (
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>Create Template</DialogTitle>
@@ -142,6 +228,9 @@ export function CreateTemplateButton({ organizationId }: CreateTemplateButtonPro
                 />
               </div>
             )}
+            <p className="text-muted-foreground text-[11px]">
+              {templateCount} of {TEMPLATE_LIMITS[currentPlan] === -1 ? 'unlimited' : TEMPLATE_LIMITS[currentPlan]} templates used
+            </p>
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
@@ -153,6 +242,7 @@ export function CreateTemplateButton({ organizationId }: CreateTemplateButtonPro
             </Button>
           </DialogFooter>
         </form>
+        )}
       </DialogContent>
     </Dialog>
   )

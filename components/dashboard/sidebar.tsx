@@ -27,8 +27,25 @@ import {
   Upload,
   PanelLeftClose,
   PanelLeft,
+  Crown,
+  Loader2,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+
+// Plan limits for workspaces and team members
+const WORKSPACE_LIMITS: Record<string, number> = {
+  free: 1,
+  pro: 2,
+  scale: 5,
+  enterprise: -1,
+}
+
+const TEAM_MEMBER_LIMITS: Record<string, number> = {
+  free: 1,
+  pro: 10,
+  scale: 100,
+  enterprise: -1,
+}
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -120,6 +137,14 @@ export function Sidebar({ user, organization, workspaces, isOpen = true, onClose
   const [isLoadingMembers, setIsLoadingMembers] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  
+  // Limits state
+  const [currentPlan, setCurrentPlan] = useState<string>('free')
+  const [isCheckingWorkspaceLimit, setIsCheckingWorkspaceLimit] = useState(false)
+  const [workspaceLimitReached, setWorkspaceLimitReached] = useState(false)
+  const [isCheckingMemberLimit, setIsCheckingMemberLimit] = useState(false)
+  const [memberLimitReached, setMemberLimitReached] = useState(false)
+  const [memberCount, setMemberCount] = useState(0)
 
   // Load collapsed state from localStorage
   useEffect(() => {
@@ -135,6 +160,79 @@ export function Sidebar({ user, organization, workspaces, isOpen = true, onClose
     setIsCollapsed(newState)
     localStorage.setItem('sidebarCollapsed', String(newState))
   }
+
+  // Check workspace limit when create dialog opens
+  const checkWorkspaceLimit = async () => {
+    setIsCheckingWorkspaceLimit(true)
+    try {
+      const supabase = createClient()
+      
+      // Get user's plan from current organization
+      const { data: org } = await supabase
+        .from('organizations')
+        .select('plan')
+        .eq('id', organization.id)
+        .single()
+
+      const plan = org?.plan || 'free'
+      setCurrentPlan(plan)
+
+      const limit = WORKSPACE_LIMITS[plan] ?? 1
+      const currentCount = workspaces.length
+      setWorkspaceLimitReached(limit !== -1 && currentCount >= limit)
+    } catch (error) {
+      console.error('Error checking workspace limit:', error)
+    } finally {
+      setIsCheckingWorkspaceLimit(false)
+    }
+  }
+
+  // Check member limit when invite dialog opens
+  const checkMemberLimit = async () => {
+    setIsCheckingMemberLimit(true)
+    try {
+      const supabase = createClient()
+      
+      // Get organization plan
+      const { data: org } = await supabase
+        .from('organizations')
+        .select('plan')
+        .eq('id', organization.id)
+        .single()
+
+      const plan = org?.plan || 'free'
+      setCurrentPlan(plan)
+
+      // Count current members
+      const { count } = await supabase
+        .from('organization_members')
+        .select('*', { count: 'exact', head: true })
+        .eq('organization_id', organization.id)
+
+      const currentCount = count || 0
+      setMemberCount(currentCount)
+
+      const limit = TEAM_MEMBER_LIMITS[plan] ?? 1
+      setMemberLimitReached(limit !== -1 && currentCount >= limit)
+    } catch (error) {
+      console.error('Error checking member limit:', error)
+    } finally {
+      setIsCheckingMemberLimit(false)
+    }
+  }
+
+  // Check limits when dialogs open
+  useEffect(() => {
+    if (createWorkspaceOpen) {
+      checkWorkspaceLimit()
+    }
+  }, [createWorkspaceOpen])
+
+  useEffect(() => {
+    if (inviteDialogOpen) {
+      checkMemberLimit()
+    }
+  }, [inviteDialogOpen])
 
   // Fetch members when dialog opens
   const fetchMembers = async () => {
@@ -492,6 +590,40 @@ export function Sidebar({ user, organization, workspaces, isOpen = true, onClose
         {/* Invite Members Dialog */}
         <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
           <DialogContent className="sm:max-w-md">
+            {isCheckingMemberLimit ? (
+              <div className="py-8 flex items-center justify-center">
+                <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+              </div>
+            ) : memberLimitReached ? (
+              <>
+                <DialogHeader>
+                  <DialogTitle>Invite team members</DialogTitle>
+                  <DialogDescription>
+                    Invite people to join your workspace.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="py-6">
+                  <div className="text-center">
+                    <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Crown className="w-6 h-6 text-amber-600" />
+                    </div>
+                    <h3 className="font-semibold text-[15px] mb-2">Team member limit reached</h3>
+                    <p className="text-muted-foreground text-[13px] mb-4">
+                      Your {currentPlan.charAt(0).toUpperCase() + currentPlan.slice(1)} plan allows {TEAM_MEMBER_LIMITS[currentPlan]} team member{TEAM_MEMBER_LIMITS[currentPlan] === 1 ? '' : 's'}.
+                      <br />
+                      Upgrade to invite more members.
+                    </p>
+                    <Link href="/settings?tab=billing">
+                      <Button className="text-[13px]">
+                        <Crown className="w-3.5 h-3.5 mr-1.5" />
+                        Upgrade Plan
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
             <DialogHeader>
               <DialogTitle>Invite team members</DialogTitle>
               <DialogDescription>
@@ -509,6 +641,9 @@ export function Sidebar({ user, organization, workspaces, isOpen = true, onClose
                   onChange={(e) => setInviteEmail(e.target.value)}
                 />
               </div>
+              <p className="text-muted-foreground text-[11px]">
+                {memberCount} of {TEAM_MEMBER_LIMITS[currentPlan] === -1 ? 'unlimited' : TEAM_MEMBER_LIMITS[currentPlan]} team members
+              </p>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setInviteDialogOpen(false)}>
@@ -518,6 +653,8 @@ export function Sidebar({ user, organization, workspaces, isOpen = true, onClose
                 Send invitation
               </Button>
             </DialogFooter>
+              </>
+            )}
           </DialogContent>
         </Dialog>
 
@@ -623,6 +760,40 @@ export function Sidebar({ user, organization, workspaces, isOpen = true, onClose
         {/* Create Workspace Dialog */}
         <Dialog open={createWorkspaceOpen} onOpenChange={setCreateWorkspaceOpen}>
           <DialogContent className="sm:max-w-md">
+            {isCheckingWorkspaceLimit ? (
+              <div className="py-8 flex items-center justify-center">
+                <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+              </div>
+            ) : workspaceLimitReached ? (
+              <>
+                <DialogHeader>
+                  <DialogTitle>Create new workspace</DialogTitle>
+                  <DialogDescription>
+                    Create a new workspace to organize your emails and team.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="py-6">
+                  <div className="text-center">
+                    <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Crown className="w-6 h-6 text-amber-600" />
+                    </div>
+                    <h3 className="font-semibold text-[15px] mb-2">Workspace limit reached</h3>
+                    <p className="text-muted-foreground text-[13px] mb-4">
+                      Your {currentPlan.charAt(0).toUpperCase() + currentPlan.slice(1)} plan allows {WORKSPACE_LIMITS[currentPlan]} workspace{WORKSPACE_LIMITS[currentPlan] === 1 ? '' : 's'}.
+                      <br />
+                      Upgrade to create more workspaces.
+                    </p>
+                    <Link href="/settings?tab=billing">
+                      <Button className="text-[13px]">
+                        <Crown className="w-3.5 h-3.5 mr-1.5" />
+                        Upgrade Plan
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
             <DialogHeader>
               <DialogTitle>Create new workspace</DialogTitle>
               <DialogDescription>
@@ -696,6 +867,9 @@ export function Sidebar({ user, organization, workspaces, isOpen = true, onClose
                   This is the name that will be displayed to your team.
                 </p>
               </div>
+              <p className="text-muted-foreground text-[11px]">
+                {workspaces.length} of {WORKSPACE_LIMITS[currentPlan] === -1 ? 'unlimited' : WORKSPACE_LIMITS[currentPlan]} workspaces used
+              </p>
             </div>
             <DialogFooter>
               <Button 
@@ -716,6 +890,8 @@ export function Sidebar({ user, organization, workspaces, isOpen = true, onClose
                 {isCreating ? 'Creating...' : 'Create workspace'}
               </Button>
             </DialogFooter>
+              </>
+            )}
           </DialogContent>
         </Dialog>
       </>

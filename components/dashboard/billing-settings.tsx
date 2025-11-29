@@ -188,7 +188,7 @@ export function BillingSettings({ organizationId }: BillingSettingsProps) {
 
   const handleUpgrade = async (planId: string) => {
     if (planId === 'enterprise') {
-      window.location.href = 'mailto:sales@unosend.com?subject=Enterprise%20Plan%20Inquiry'
+      window.location.href = 'mailto:sales@unosend.co?subject=Enterprise%20Plan%20Inquiry'
       return
     }
 
@@ -196,26 +196,32 @@ export function BillingSettings({ organizationId }: BillingSettingsProps) {
     try {
       // Get product ID for the selected plan (India vs Global)
       const productIds: Record<string, string> = isIndia ? {
-        pro: process.env.NEXT_PUBLIC_DODO_PRO_INDIA_PRODUCT_ID || 'pro_india_product',
-        scale: process.env.NEXT_PUBLIC_DODO_SCALE_INDIA_PRODUCT_ID || 'scale_india_product',
+        pro: process.env.NEXT_PUBLIC_DODO_PRO_INDIA_PRODUCT_ID || '',
+        scale: process.env.NEXT_PUBLIC_DODO_SCALE_INDIA_PRODUCT_ID || '',
       } : {
-        pro: process.env.NEXT_PUBLIC_DODO_PRO_PRODUCT_ID || 'pro_product',
-        scale: process.env.NEXT_PUBLIC_DODO_SCALE_PRODUCT_ID || 'scale_product',
+        pro: process.env.NEXT_PUBLIC_DODO_PRO_PRODUCT_ID || '',
+        scale: process.env.NEXT_PUBLIC_DODO_SCALE_PRODUCT_ID || '',
       }
 
       const productId = productIds[planId]
       if (!productId) {
-        toast.error('Invalid plan selected')
+        toast.error('Billing not configured. Please contact support.')
+        setUpgrading(null)
         return
       }
 
-      // Redirect to Dodo Payments checkout
-      const checkoutUrl = `/api/checkout?productId=${productId}&quantity=1&metadata[workspace_id]=${organizationId}&metadata[plan]=${planId}&metadata[region]=${isIndia ? 'india' : 'global'}`
-      window.location.href = checkoutUrl
+      // Redirect to Dodo Payments checkout with organization_id in metadata
+      const params = new URLSearchParams({
+        productId,
+        quantity: '1',
+        'metadata[organization_id]': organizationId,
+        'metadata[plan]': planId,
+        'metadata[region]': isIndia ? 'india' : 'global',
+      })
+      window.location.href = `/api/checkout?${params.toString()}`
     } catch (error) {
       console.error('Upgrade error:', error)
       toast.error('Failed to start upgrade process')
-    } finally {
       setUpgrading(null)
     }
   }
@@ -228,8 +234,7 @@ export function BillingSettings({ organizationId }: BillingSettingsProps) {
 
     try {
       // Redirect to Dodo Payments customer portal
-      const portalUrl = `/api/customer-portal?customer_id=${billingData.subscription.dodo_customer_id}`
-      window.location.href = portalUrl
+      window.location.href = `/api/customer-portal?customer_id=${billingData.subscription.dodo_customer_id}`
     } catch (error) {
       console.error('Portal error:', error)
       toast.error('Failed to open billing portal')
