@@ -104,7 +104,9 @@ export default async function TemplatesPage() {
                   {formattedTemplates.map((template) => (
                     <TableRow key={template.id} className="border-stone-100">
                       <TableCell className="font-medium text-[13px]">
-                        {template.name}
+                        <Link href={`/templates/${template.id}`} className="hover:underline">
+                          {template.name}
+                        </Link>
                         <span className="block sm:hidden text-xs text-muted-foreground mt-0.5 truncate">
                           {template.subject}
                         </span>

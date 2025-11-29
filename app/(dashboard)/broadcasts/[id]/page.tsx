@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Calendar } from '@/components/ui/calendar'
+import { TimePicker } from '@/components/ui/time-picker'
 import {
   Popover,
   PopoverContent,
@@ -805,11 +806,10 @@ export default function EditBroadcastPage() {
               
               <div className="space-y-2">
                 <Label className="text-[13px]">Time</Label>
-                <Input
-                  type="time"
+                <TimePicker
                   value={scheduledTime}
-                  onChange={(e) => setScheduledTime(e.target.value)}
-                  className="h-9 w-[150px] text-[13px]"
+                  onChange={setScheduledTime}
+                  className="w-[150px]"
                 />
               </div>
             </div>

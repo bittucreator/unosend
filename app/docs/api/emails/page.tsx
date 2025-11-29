@@ -106,6 +106,24 @@ export default function EmailsAPIPage() {
                 <td className="px-4 py-3 text-muted-foreground">Optional</td>
                 <td className="px-4 py-3 text-muted-foreground">Custom tags for analytics</td>
               </tr>
+              <tr>
+                <td className="px-4 py-3"><InlineCode>templateId</InlineCode></td>
+                <td className="px-4 py-3 text-muted-foreground">string</td>
+                <td className="px-4 py-3 text-muted-foreground">Optional</td>
+                <td className="px-4 py-3 text-muted-foreground">Template ID to use instead of html/text</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-3"><InlineCode>templateData</InlineCode></td>
+                <td className="px-4 py-3 text-muted-foreground">object</td>
+                <td className="px-4 py-3 text-muted-foreground">Optional</td>
+                <td className="px-4 py-3 text-muted-foreground">Variables to replace in template</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-3"><InlineCode>scheduledFor</InlineCode></td>
+                <td className="px-4 py-3 text-muted-foreground">string</td>
+                <td className="px-4 py-3 text-muted-foreground">Optional</td>
+                <td className="px-4 py-3 text-muted-foreground">ISO 8601 datetime for scheduled sending</td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -302,6 +320,105 @@ const { data, error } = await unosend.emails.send({
         />
       </section>
 
+      {/* Scheduled Emails */}
+      <section className="mb-12">
+        <h2 className="text-xl font-bold text-stone-900 mb-4">Scheduled Emails</h2>
+        <p className="text-[14px] text-muted-foreground mb-4">
+          Schedule emails to be sent at a specific time in the future using the <InlineCode>scheduledFor</InlineCode> parameter.
+        </p>
+
+        <CodeBlock 
+          filename="Node.js"
+          showLineNumbers
+          code={`// Schedule email for tomorrow at 9 AM
+const tomorrow = new Date();
+tomorrow.setDate(tomorrow.getDate() + 1);
+tomorrow.setHours(9, 0, 0, 0);
+
+const { data, error } = await unosend.emails.send({
+  from: 'newsletter@yourdomain.com',
+  to: ['subscriber@example.com'],
+  subject: 'Your Weekly Digest',
+  html: '<h1>This Week&apos;s Top Stories</h1>...',
+  scheduledFor: tomorrow.toISOString()
+});
+
+// Response includes scheduled status
+// { id: "em_xxx", status: "scheduled", scheduled_for: "2024-01-16T09:00:00.000Z" }`}
+        />
+
+        <div className="mt-4">
+          <CodeBlock 
+            filename="cURL"
+            showLineNumbers
+            code={`curl -X POST https://api.unosend.com/v1/emails \\
+  -H "Authorization: Bearer un_your_api_key" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "from": "newsletter@yourdomain.com",
+    "to": ["subscriber@example.com"],
+    "subject": "Your Weekly Digest",
+    "html": "<h1>Weekly Digest</h1>...",
+    "scheduled_for": "2024-01-16T09:00:00.000Z"
+  }'`}
+          />
+        </div>
+      </section>
+
+      {/* Template Emails */}
+      <section className="mb-12">
+        <h2 className="text-xl font-bold text-stone-900 mb-4">Using Templates</h2>
+        <p className="text-[14px] text-muted-foreground mb-4">
+          Send emails using pre-defined templates. Templates support dynamic variables using <InlineCode>{"{{variable}}"}</InlineCode> syntax.
+        </p>
+
+        <CodeBlock 
+          filename="Node.js"
+          showLineNumbers
+          code={`// Send email using a template
+const { data, error } = await unosend.emails.send({
+  from: 'welcome@yourdomain.com',
+  to: ['newuser@example.com'],
+  subject: 'Welcome to Our Platform!',
+  templateId: 'tpl_xxxxxxxxxxxxxxxx',
+  templateData: {
+    first_name: 'John',
+    company_name: 'Acme Inc',
+    activation_link: 'https://app.example.com/activate/abc123'
+  }
+});`}
+        />
+
+        <div className="mt-4">
+          <CodeBlock 
+            filename="cURL"
+            showLineNumbers
+            code={`curl -X POST https://api.unosend.com/v1/emails \\
+  -H "Authorization: Bearer un_your_api_key" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "from": "welcome@yourdomain.com",
+    "to": ["newuser@example.com"],
+    "subject": "Welcome to Our Platform!",
+    "template_id": "tpl_xxxxxxxxxxxxxxxx",
+    "template_data": {
+      "first_name": "John",
+      "company_name": "Acme Inc",
+      "activation_link": "https://app.example.com/activate/abc123"
+    }
+  }'`}
+          />
+        </div>
+
+        <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
+          <p className="text-[13px] text-blue-800">
+            <strong>Note:</strong> When using a template, you can still override the subject. 
+            If no subject is provided, the template&apos;s default subject will be used and 
+            template variables will be applied to it.
+          </p>
+        </div>
+      </section>
+
       {/* Email Status */}
       <section className="mb-12">
         <h2 className="text-xl font-bold text-stone-900 mb-4">Email Status Values</h2>
@@ -318,6 +435,10 @@ const { data, error } = await unosend.emails.send({
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100">
+              <tr>
+                <td className="px-4 py-3"><Badge className="bg-purple-50 text-purple-700 border-0">scheduled</Badge></td>
+                <td className="px-4 py-3 text-muted-foreground">Email is scheduled for future delivery</td>
+              </tr>
               <tr>
                 <td className="px-4 py-3"><Badge className="bg-slate-100 text-slate-700 border-0">queued</Badge></td>
                 <td className="px-4 py-3 text-muted-foreground">Email is queued for sending</td>

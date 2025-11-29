@@ -32,15 +32,14 @@ export async function GET(request: NextRequest) {
       .from('emails')
       .select(`
         id,
-        to_email,
+        to_emails,
         from_email,
         subject,
         status,
         created_at,
         sent_at,
         delivered_at,
-        opened_at,
-        clicked_at
+        opened_at
       `)
       .eq('organization_id', membership.organization_id)
       .order('created_at', { ascending: false })
@@ -70,10 +69,10 @@ export async function GET(request: NextRequest) {
     }
 
     // Generate CSV
-    const headers = ['id', 'to', 'from', 'subject', 'status', 'created_at', 'sent_at', 'delivered_at', 'opened_at', 'clicked_at']
+    const headers = ['id', 'to', 'from', 'subject', 'status', 'created_at', 'sent_at', 'delivered_at', 'opened_at']
     const rows = emails?.map(e => [
       e.id,
-      e.to_email,
+      Array.isArray(e.to_emails) ? e.to_emails.join('; ') : e.to_emails,
       e.from_email,
       e.subject,
       e.status,
@@ -81,7 +80,6 @@ export async function GET(request: NextRequest) {
       e.sent_at || '',
       e.delivered_at || '',
       e.opened_at || '',
-      e.clicked_at || '',
     ]) || []
 
     const csv = [

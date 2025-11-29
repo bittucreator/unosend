@@ -18,27 +18,50 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Organization ID required' }, { status: 400 })
     }
 
-    // Get organization with billing info
-    const { data: organization } = await supabase
-      .from('organizations')
-      .select('*')
-      .eq('id', organizationId)
+    // Check user has access to this organization
+    const { data: membership } = await supabase
+      .from('organization_members')
+      .select('role')
+      .eq('organization_id', organizationId)
+      .eq('user_id', user.id)
       .single()
 
-    if (!organization) {
+    if (!membership) {
       return NextResponse.json({ error: 'Organization not found' }, { status: 404 })
     }
 
+    // Get subscription info
+    const { data: subscriptionData } = await supabase
+      .from('subscriptions')
+      .select('*')
+      .eq('organization_id', organizationId)
+      .single()
+
     // Get usage for current period
+    const now = new Date()
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+    
     const { data: usage } = await supabase
       .from('usage')
       .select('*')
       .eq('organization_id', organizationId)
+      .gte('period_start', startOfMonth.toISOString())
       .order('created_at', { ascending: false })
       .limit(1)
       .single()
 
-    // Get payment history/invoices (if table exists)
+    // If no usage record, calculate from emails
+    let emailsSent = usage?.emails_sent || 0
+    if (!usage) {
+      const { count } = await supabase
+        .from('emails')
+        .select('*', { count: 'exact', head: true })
+        .eq('organization_id', organizationId)
+        .gte('created_at', startOfMonth.toISOString())
+      emailsSent = count || 0
+    }
+
+    // Get payment history/invoices
     const { data: invoices } = await supabase
       .from('invoices')
       .select('*')
@@ -46,22 +69,34 @@ export async function GET(request: NextRequest) {
       .order('created_at', { ascending: false })
       .limit(10)
 
-    // Build subscription object from organization data
+    // Plan limits
+    const planLimits: Record<string, number> = {
+      free: 5000,
+      pro: 50000,
+      scale: 200000,
+      enterprise: -1,
+    }
+
+    // Build subscription object
+    const plan = subscriptionData?.plan || 'free'
     const subscription = {
-      id: organization.id,
-      plan: organization.plan || 'free',
-      status: organization.billing_status || 'active',
-      dodo_customer_id: organization.dodo_customer_id,
-      dodo_subscription_id: organization.dodo_subscription_id,
-      dodo_product_id: organization.dodo_product_id,
-      current_period_start: organization.billing_cycle_start || new Date().toISOString(),
-      current_period_end: organization.billing_cycle_end || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-      cancel_at_period_end: organization.cancel_at_period_end || false,
+      id: subscriptionData?.id || organizationId,
+      plan,
+      status: subscriptionData?.status || 'active',
+      dodo_customer_id: subscriptionData?.stripe_customer_id || null,
+      dodo_subscription_id: subscriptionData?.stripe_subscription_id || null,
+      dodo_product_id: null,
+      current_period_start: subscriptionData?.current_period_start || startOfMonth.toISOString(),
+      current_period_end: subscriptionData?.current_period_end || new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString(),
+      cancel_at_period_end: subscriptionData?.cancel_at_period_end || false,
     }
 
     return NextResponse.json({
       subscription,
-      usage: usage || { emails_sent: 0, emails_limit: organization.email_limit || 5000 },
+      usage: { 
+        emails_sent: emailsSent, 
+        emails_limit: planLimits[plan] || 5000,
+      },
       invoices: invoices || [],
     })
   } catch (error) {
@@ -102,12 +137,12 @@ export async function POST(request: NextRequest) {
     if (action === 'cancel') {
       // Mark subscription for cancellation at period end
       const { error } = await supabase
-        .from('organizations')
+        .from('subscriptions')
         .update({ 
           cancel_at_period_end: true,
           updated_at: new Date().toISOString(),
         })
-        .eq('id', organizationId)
+        .eq('organization_id', organizationId)
 
       if (error) {
         console.error('Error marking subscription for cancellation:', error)

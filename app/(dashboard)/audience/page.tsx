@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -185,7 +186,11 @@ export default async function AudiencePage() {
                 <TableBody>
                   {formattedAudiences.map((audience) => (
                     <TableRow key={audience.id} className="border-stone-100">
-                      <TableCell className="font-medium text-[13px]">{audience.name}</TableCell>
+                      <TableCell className="font-medium text-[13px]">
+                        <Link href={`/audience/${audience.id}`} className="hover:underline">
+                          {audience.name}
+                        </Link>
+                      </TableCell>
                       <TableCell>
                         <Badge variant="secondary" className="text-[11px] bg-stone-100 text-stone-600 border-0">
                           <UserPlus className="w-3 h-3 mr-1" />
@@ -194,9 +199,11 @@ export default async function AudiencePage() {
                       </TableCell>
                       <TableCell className="text-muted-foreground text-[13px] hidden sm:table-cell">{audience.created_at}</TableCell>
                       <TableCell className="text-right">
-                        <Button variant="ghost" size="sm" className="h-7 px-2 text-[13px]">
-                          <Mail className="w-3.5 h-3.5 sm:mr-1" />
-                          <span className="hidden sm:inline">Send Broadcast</span>
+                        <Button variant="ghost" size="sm" className="h-7 px-2 text-[13px]" asChild>
+                          <Link href={`/broadcasts/new?audience=${audience.id}`}>
+                            <Mail className="w-3.5 h-3.5 sm:mr-1" />
+                            <span className="hidden sm:inline">Send Broadcast</span>
+                          </Link>
                         </Button>
                       </TableCell>
                     </TableRow>

@@ -72,17 +72,29 @@ export function UsageSettings({ organizationId }: UsageSettingsProps) {
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
       const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
       
-      // Fetch plan info from workspace/organization
-      const { data: orgData } = await supabase
-        .from('workspaces')
-        .select('plan, email_limit, billing_status, billing_cycle_start, billing_cycle_end')
-        .eq('id', organizationId)
+      // Fetch plan info from subscriptions table
+      const { data: subscriptionData } = await supabase
+        .from('subscriptions')
+        .select('plan, status, current_period_start, current_period_end')
+        .eq('organization_id', organizationId)
         .single()
 
-      if (orgData) {
-        setPlanInfo(orgData as PlanInfo)
+      if (subscriptionData) {
+        const planLimits: Record<string, number> = {
+          free: 5000,
+          pro: 50000,
+          scale: 200000,
+          enterprise: -1,
+        }
+        setPlanInfo({
+          plan: subscriptionData.plan,
+          email_limit: planLimits[subscriptionData.plan] || 5000,
+          billing_status: subscriptionData.status,
+          billing_cycle_start: subscriptionData.current_period_start,
+          billing_cycle_end: subscriptionData.current_period_end,
+        })
       } else {
-        // Default to free plan if not found
+        // Default to free plan if no subscription found
         setPlanInfo({
           plan: 'free',
           email_limit: 5000,

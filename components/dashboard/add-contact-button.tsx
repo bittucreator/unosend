@@ -27,15 +27,16 @@ import { createClient } from '@/lib/supabase/client'
 interface AddContactButtonProps {
   organizationId: string
   audiences: Array<{ id: string; name: string }>
+  defaultAudienceId?: string
 }
 
-export function AddContactButton({ organizationId, audiences }: AddContactButtonProps) {
+export function AddContactButton({ organizationId, audiences, defaultAudienceId }: AddContactButtonProps) {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [email, setEmail] = useState('')
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
-  const [audienceId, setAudienceId] = useState('')
+  const [audienceId, setAudienceId] = useState(defaultAudienceId || '')
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {

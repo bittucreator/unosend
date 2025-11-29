@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/table'
 import { Mail, CheckCircle, Clock, XCircle, Send } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
+import { useRouter } from 'next/navigation'
 
 interface Email {
   id: string
@@ -28,6 +29,8 @@ interface EmailsListProps {
 }
 
 export function EmailsList({ emails }: EmailsListProps) {
+  const router = useRouter()
+
   if (emails.length === 0) {
     return (
       <div className="text-center py-12">
@@ -64,7 +67,11 @@ export function EmailsList({ emails }: EmailsListProps) {
             const StatusIcon = status.icon
 
             return (
-              <TableRow key={email.id}>
+              <TableRow 
+                key={email.id} 
+                className="cursor-pointer hover:bg-stone-50"
+                onClick={() => router.push(`/emails/${email.id}`)}
+              >
                 <TableCell className="font-medium max-w-[200px] sm:max-w-xs truncate">
                   {email.subject}
                   {/* Show To on mobile */}

@@ -25,6 +25,7 @@ import { toast } from 'sonner'
 
 interface ImportContactsButtonProps {
   audiences: Array<{ id: string; name: string }>
+  defaultAudienceId?: string
 }
 
 interface ImportResult {
@@ -35,11 +36,11 @@ interface ImportResult {
   errorDetails?: Array<{ row: number; error: string }>
 }
 
-export function ImportContactsButton({ audiences }: ImportContactsButtonProps) {
+export function ImportContactsButton({ audiences, defaultAudienceId }: ImportContactsButtonProps) {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
-  const [audienceId, setAudienceId] = useState('')
+  const [audienceId, setAudienceId] = useState(defaultAudienceId || '')
   const [result, setResult] = useState<ImportResult | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()

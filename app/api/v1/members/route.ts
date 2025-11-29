@@ -37,7 +37,8 @@ export async function GET(request: NextRequest) {
       id,
       role,
       created_at,
-      profiles (
+      user_id,
+      profiles:user_id (
         id,
         email,
         full_name,
@@ -52,12 +53,26 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to fetch members' }, { status: 500 })
   }
 
-  const formattedMembers = members?.map(m => ({
-    id: m.id,
-    role: m.role,
-    joined_at: m.created_at,
-    user: m.profiles,
-  })) || []
+  const formattedMembers = members?.map(m => {
+    // Handle both array and object responses from Supabase join
+    const profile = Array.isArray(m.profiles) ? m.profiles[0] : m.profiles
+    return {
+      id: m.id,
+      role: m.role,
+      joined_at: m.created_at,
+      user: profile ? {
+        id: profile.id,
+        email: profile.email,
+        full_name: profile.full_name,
+        avatar_url: profile.avatar_url,
+      } : {
+        id: m.user_id,
+        email: 'Unknown',
+        full_name: null,
+        avatar_url: null,
+      },
+    }
+  }) || []
 
   return NextResponse.json({ data: formattedMembers })
 }
@@ -320,4 +335,77 @@ export async function DELETE(request: NextRequest) {
   }
 
   return NextResponse.json({ success: true })
+}
+
+// PATCH - Update member role
+export async function PATCH(request: NextRequest) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  try {
+    const body = await request.json()
+    const { memberId, workspaceId, role } = body
+
+    if (!memberId || !workspaceId || !role) {
+      return NextResponse.json({ error: 'Member ID, workspace ID, and role required' }, { status: 400 })
+    }
+
+    // Validate role
+    if (!['admin', 'member'].includes(role)) {
+      return NextResponse.json({ error: 'Invalid role. Must be admin or member' }, { status: 400 })
+    }
+
+    // Check user is owner (only owner can change roles)
+    const { data: membership } = await supabase
+      .from('organization_members')
+      .select('role')
+      .eq('organization_id', workspaceId)
+      .eq('user_id', user.id)
+      .single()
+
+    if (!membership || membership.role !== 'owner') {
+      return NextResponse.json({ error: 'Only workspace owner can change roles' }, { status: 403 })
+    }
+
+    // Get the target member
+    const { data: targetMember } = await supabaseAdmin
+      .from('organization_members')
+      .select('user_id, role')
+      .eq('id', memberId)
+      .eq('organization_id', workspaceId)
+      .single()
+
+    if (!targetMember) {
+      return NextResponse.json({ error: 'Member not found' }, { status: 404 })
+    }
+
+    // Can't change owner's role
+    if (targetMember.role === 'owner') {
+      return NextResponse.json({ error: 'Cannot change the owner\'s role' }, { status: 400 })
+    }
+
+    // Can't change own role
+    if (targetMember.user_id === user.id) {
+      return NextResponse.json({ error: 'Cannot change your own role' }, { status: 400 })
+    }
+
+    // Update the role
+    const { error } = await supabaseAdmin
+      .from('organization_members')
+      .update({ role })
+      .eq('id', memberId)
+
+    if (error) {
+      console.error('Failed to update member role:', error)
+      return NextResponse.json({ error: 'Failed to update role' }, { status: 500 })
+    }
+
+    return NextResponse.json({ success: true, data: { role } })
+  } catch {
+    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
+  }
 }

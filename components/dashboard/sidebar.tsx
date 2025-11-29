@@ -280,7 +280,7 @@ export function Sidebar({ user, organization, workspaces, isOpen = true, onClose
         <aside className={cn(
           "fixed md:relative z-50 md:z-auto",
           "border-r",
-          "h-full md:min-h-screen",
+          "h-screen",
           "transition-all duration-200 ease-in-out",
           "md:translate-x-0 flex flex-col",
           "bg-[#fafafa]",

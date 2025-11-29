@@ -121,9 +121,14 @@ export default async function BroadcastsPage() {
                 </TableHeader>
                 <TableBody>
                   {formattedBroadcasts.map((broadcast) => (
-                    <TableRow key={broadcast.id} className="border-stone-100">
+                    <TableRow 
+                      key={broadcast.id} 
+                      className="border-stone-100 hover:bg-stone-50"
+                    >
                       <TableCell className="font-medium text-[13px]">
-                        {broadcast.name}
+                        <Link href={`/broadcasts/${broadcast.id}`} className="hover:underline">
+                          {broadcast.name}
+                        </Link>
                         <span className="block sm:hidden text-xs text-muted-foreground mt-0.5 truncate">
                           {broadcast.subject}
                         </span>

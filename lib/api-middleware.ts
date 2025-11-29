@@ -103,6 +103,71 @@ export function apiSuccess<T>(data: T, status: number = 200) {
   return NextResponse.json(data, { status })
 }
 
+// Log API request to database
+export async function logApiRequest({
+  organizationId,
+  apiKeyId,
+  method,
+  endpoint,
+  path,
+  statusCode,
+  userAgent,
+  ipAddress,
+  requestBody,
+  responseBody,
+  durationMs,
+}: {
+  organizationId: string
+  apiKeyId?: string
+  method: string
+  endpoint: string
+  path: string
+  statusCode: number
+  userAgent?: string | null
+  ipAddress?: string | null
+  requestBody?: unknown
+  responseBody?: unknown
+  durationMs?: number
+}) {
+  try {
+    // Sanitize sensitive data from request/response bodies
+    const sanitizedRequest = requestBody ? sanitizeBody(requestBody) : null
+    const sanitizedResponse = responseBody ? sanitizeBody(responseBody) : null
+    
+    await supabaseAdmin.from('api_logs').insert({
+      organization_id: organizationId,
+      api_key_id: apiKeyId || null,
+      method,
+      endpoint,
+      path,
+      status_code: statusCode,
+      user_agent: userAgent || null,
+      ip_address: ipAddress || null,
+      request_body: sanitizedRequest,
+      response_body: sanitizedResponse,
+      duration_ms: durationMs || null,
+    })
+  } catch (error) {
+    console.error('[API Log] Failed to log request:', error)
+  }
+}
+
+// Sanitize sensitive fields from bodies
+function sanitizeBody(body: unknown): unknown {
+  if (!body || typeof body !== 'object') return body
+  
+  const sensitiveKeys = ['api_key', 'apiKey', 'password', 'secret', 'token', 'authorization']
+  const sanitized = { ...body as Record<string, unknown> }
+  
+  for (const key of Object.keys(sanitized)) {
+    if (sensitiveKeys.some(sk => key.toLowerCase().includes(sk.toLowerCase()))) {
+      sanitized[key] = '[REDACTED]'
+    }
+  }
+  
+  return sanitized
+}
+
 export function withRateLimitHeaders(
   response: NextResponse,
   remaining: number,
@@ -131,19 +196,18 @@ export interface UsageLimitResult {
 }
 
 export async function checkUsageLimit(organizationId: string): Promise<UsageLimitResult> {
-  // Get workspace plan info
-  const { data: workspace } = await supabaseAdmin
-    .from('workspaces')
-    .select('plan, email_limit, billing_status')
-    .eq('id', organizationId)
+  // Get subscription/plan info
+  const { data: subscription } = await supabaseAdmin
+    .from('subscriptions')
+    .select('plan, status')
+    .eq('organization_id', organizationId)
     .single()
 
-  const plan = workspace?.plan || 'free'
-  const customLimit = workspace?.email_limit
-  const limit = customLimit || PLAN_EMAIL_LIMITS[plan] || PLAN_EMAIL_LIMITS.free
+  const plan = subscription?.plan || 'free'
+  const limit = PLAN_EMAIL_LIMITS[plan] || PLAN_EMAIL_LIMITS.free
   
   // Check if billing is not active (except for free plan)
-  if (plan !== 'free' && workspace?.billing_status !== 'active') {
+  if (plan !== 'free' && subscription?.status !== 'active') {
     return {
       allowed: false,
       current: 0,

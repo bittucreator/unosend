@@ -243,6 +243,10 @@ async function sendBroadcastEmails(
 function personalizeContent(content: string | null, contact: Contact): string | null {
   if (!content) return null
 
+  // Generate unsubscribe URL
+  const unsubscribeToken = Buffer.from(`${contact.id}:${Date.now()}`).toString('base64url')
+  const unsubscribeUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://unosend.com'}/unsubscribe/${unsubscribeToken}`
+
   return content
     .replace(/\{\{email\}\}/gi, contact.email)
     .replace(/\{\{first_name\}\}/gi, contact.first_name || '')
@@ -250,6 +254,8 @@ function personalizeContent(content: string | null, contact: Contact): string | 
     .replace(/\{\{name\}\}/gi, 
       [contact.first_name, contact.last_name].filter(Boolean).join(' ') || contact.email
     )
+    .replace(/\{\{unsubscribe_url\}\}/gi, unsubscribeUrl)
+    .replace(/\{\{unsubscribe_link\}\}/gi, `<a href="${unsubscribeUrl}">Unsubscribe</a>`)
 }
 
 // Add tracking pixel to HTML content

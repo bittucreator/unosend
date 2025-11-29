@@ -67,51 +67,26 @@ export function DomainsList({ domains, organizationId }: DomainsListProps) {
     setVerifyingId(id)
     
     try {
-      // Get API key for this org to call verify endpoint
-      const supabase = createClient()
-      const { data: apiKey } = await supabase
-        .from('api_keys')
-        .select('id')
-        .eq('organization_id', organizationId)
-        .is('revoked_at', null)
-        .limit(1)
-        .single()
-      
-      if (!apiKey) {
-        // No API key, do direct verification via Supabase
-        const { data: domain } = await supabase
-          .from('domains')
-          .select('domain')
-          .eq('id', id)
-          .single()
-        
-        if (domain) {
-          // Mark as verified for now (actual DNS check would be server-side)
-          await supabase
-            .from('domains')
-            .update({ 
-              status: 'verified', 
-              verified_at: new Date().toISOString() 
-            })
-            .eq('id', id)
-          
-          toast.success('Domain verified successfully')
-        }
-      } else {
-        // For now, just do direct verification
-        await supabase
-          .from('domains')
-          .update({ 
-            status: 'verified', 
-            verified_at: new Date().toISOString() 
-          })
-          .eq('id', id)
-        
+      const response = await fetch('/api/dashboard/domains/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ domain_id: id }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Verification failed')
+      }
+
+      if (data.verified) {
         toast.success('Domain verified successfully')
+      } else {
+        toast.info(data.message || 'DNS records not yet detected. Please wait for propagation.')
       }
     } catch (error) {
       console.error('Verification error:', error)
-      toast.error('Failed to verify domain')
+      toast.error(error instanceof Error ? error.message : 'Failed to verify domain')
     }
     
     setVerifyingId(null)

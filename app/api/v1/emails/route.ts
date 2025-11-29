@@ -4,8 +4,18 @@ import { emailService } from '@/lib/email-service'
 import { validateApiKey, rateLimit, apiError, apiSuccess, withRateLimitHeaders, checkUsageLimit } from '@/lib/api-middleware'
 import { sendEmailSchema } from '@/lib/validations'
 import { triggerEmailWebhook } from '@/lib/webhook-service'
+import { logApiCall } from '@/lib/api-logging'
+
+// Simple template variable replacement
+function renderTemplate(html: string, data: Record<string, unknown>): string {
+  return html.replace(/\{\{\s*(\w+)\s*\}\}/g, (match, key) => {
+    return data[key] !== undefined ? String(data[key]) : match
+  })
+}
 
 export async function POST(request: NextRequest) {
+  const startTime = Date.now()
+  
   // Validate API key
   const context = await validateApiKey(request)
   if (!context) {
@@ -38,6 +48,38 @@ export async function POST(request: NextRequest) {
     }
 
     const input = validationResult.data
+    
+    // Handle template_id - fetch template and render
+    let htmlContent = input.html
+    let textContent = input.text
+    let subject = input.subject
+    
+    if (input.template_id) {
+      const { data: template, error: templateError } = await supabaseAdmin
+        .from('templates')
+        .select('html_content, text_content, subject')
+        .eq('id', input.template_id)
+        .eq('organization_id', context.organizationId)
+        .single()
+      
+      if (templateError || !template) {
+        return apiError('Template not found', 404)
+      }
+      
+      // Use template content, render with variables if provided
+      const templateData = input.template_data || {}
+      htmlContent = template.html_content ? renderTemplate(template.html_content, templateData) : undefined
+      textContent = template.text_content ? renderTemplate(template.text_content, templateData) : undefined
+      // Use template subject if not overridden
+      if (!input.subject && template.subject) {
+        subject = renderTemplate(template.subject, templateData)
+      }
+    }
+    
+    // Check if this is a scheduled email
+    const scheduledFor = input.scheduled_for ? new Date(input.scheduled_for) : null
+    const isScheduled = scheduledFor && scheduledFor > new Date()
+    
     const toEmails = Array.isArray(input.to) ? input.to : [input.to]
     const ccEmails = input.cc ? (Array.isArray(input.cc) ? input.cc : [input.cc]) : null
     const bccEmails = input.bcc ? (Array.isArray(input.bcc) ? input.bcc : [input.bcc]) : null
@@ -59,11 +101,15 @@ export async function POST(request: NextRequest) {
         cc_emails: ccEmails,
         bcc_emails: bccEmails,
         reply_to: input.reply_to,
-        subject: input.subject,
-        html_content: input.html,
-        text_content: input.text,
-        status: 'queued',
-        metadata: input.tags ? { tags: input.tags } : null,
+        subject: subject,
+        html_content: htmlContent,
+        text_content: textContent,
+        status: isScheduled ? 'scheduled' : 'queued',
+        scheduled_for: scheduledFor?.toISOString() || null,
+        metadata: { 
+          ...(input.tags ? { tags: input.tags } : {}),
+          ...(input.template_id ? { template_id: input.template_id } : {}),
+        },
       })
       .select()
       .single()
@@ -73,9 +119,29 @@ export async function POST(request: NextRequest) {
       return apiError('Failed to queue email', 500)
     }
 
-    // Send email
+    // If scheduled, return early without sending
+    if (isScheduled) {
+      const response = apiSuccess({
+        id: email.id,
+        from: input.from,
+        to: toEmails,
+        scheduled_for: scheduledFor?.toISOString(),
+        status: 'scheduled',
+        created_at: email.created_at,
+      }, 200)
+      return withRateLimitHeaders(response, rateLimitResult.remaining, rateLimitResult.resetAt)
+    }
+
+    // Send email immediately
     try {
-      const result = await emailService.sendEmail(input, fromName || undefined, {
+      const emailInput = {
+        ...input,
+        subject,
+        html: htmlContent,
+        text: textContent,
+      }
+      
+      const result = await emailService.sendEmail(emailInput, fromName || undefined, {
         emailId: email.id,
         trackOpens: true,
         trackClicks: true,
@@ -131,12 +197,25 @@ export async function POST(request: NextRequest) {
           })
       }
 
-      const response = apiSuccess({
+      const responseData = {
         id: email.id,
         from: input.from,
         to: toEmails,
         created_at: email.created_at,
-      }, 200)
+      }
+      
+      // Log API call
+      logApiCall({
+        request,
+        context,
+        endpoint: '/emails',
+        statusCode: 200,
+        requestBody: body,
+        responseBody: responseData,
+        startTime,
+      })
+      
+      const response = apiSuccess(responseData, 200)
 
       return withRateLimitHeaders(response, rateLimitResult.remaining, rateLimitResult.resetAt)
     } catch (sendError) {
@@ -154,6 +233,19 @@ export async function POST(request: NextRequest) {
       console.error('Failed to send email:', sendError)
       // Return more detailed error for debugging
       const errorMessage = sendError instanceof Error ? sendError.message : 'Unknown error'
+      const errorResponse = { error: { message: `Failed to send email: ${errorMessage}`, code: 500 } }
+      
+      // Log API call
+      logApiCall({
+        request,
+        context,
+        endpoint: '/emails',
+        statusCode: 500,
+        requestBody: body,
+        responseBody: errorResponse,
+        startTime,
+      })
+      
       return apiError(`Failed to send email: ${errorMessage}`, 500)
     }
   } catch (error) {
@@ -163,6 +255,8 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+  const startTime = Date.now()
+  
   // Validate API key
   const context = await validateApiKey(request)
   if (!context) {
@@ -184,7 +278,7 @@ export async function GET(request: NextRequest) {
     return apiError('Failed to fetch emails', 500)
   }
 
-  return apiSuccess({
+  const responseData = {
     data: emails.map(email => ({
       id: email.id,
       from: email.from_name ? `${email.from_name} <${email.from_email}>` : email.from_email,
@@ -194,5 +288,18 @@ export async function GET(request: NextRequest) {
       created_at: email.created_at,
       sent_at: email.sent_at,
     })),
+  }
+  
+  // Log API call
+  logApiCall({
+    request,
+    context,
+    endpoint: '/emails',
+    statusCode: 200,
+    requestBody: null,
+    responseBody: { count: emails.length },
+    startTime,
   })
+
+  return apiSuccess(responseData)
 }

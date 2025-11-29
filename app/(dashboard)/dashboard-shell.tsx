@@ -23,7 +23,7 @@ export function DashboardShell({ user, organization, workspaces, children }: Das
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
-    <div className="min-h-screen bg-[#fafafa] flex">
+    <div className="h-screen bg-[#fafafa] flex overflow-hidden">
       <CommandPalette />
       <Sidebar 
         user={user}
@@ -32,11 +32,12 @@ export function DashboardShell({ user, organization, workspaces, children }: Das
         isOpen={sidebarOpen} 
         onClose={() => setSidebarOpen(false)} 
       />
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col h-screen overflow-hidden">
         <TopNav 
           onMenuClick={() => setSidebarOpen(!sidebarOpen)}
+          organizationId={organization.id}
         />
-        <main className="flex-1 p-4 sm:p-8 overflow-auto">
+        <main className="flex-1 p-4 sm:p-8 overflow-y-auto">
           <div className="w-full max-w-4xl mx-auto">
             {children}
           </div>

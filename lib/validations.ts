@@ -19,6 +19,9 @@ export const sendEmailSchema = z.object({
   subject: z.string().min(1, 'Subject is required'),
   html: z.string().optional(),
   text: z.string().optional(),
+  template_id: z.string().uuid('Invalid template_id').optional(),
+  template_data: z.record(z.string(), z.unknown()).optional(),
+  scheduled_for: z.string().datetime({ message: 'Invalid ISO 8601 datetime' }).optional(),
   headers: z.record(z.string(), z.string()).optional(),
   attachments: z.array(z.object({
     filename: z.string(),
@@ -29,8 +32,8 @@ export const sendEmailSchema = z.object({
     name: z.string(),
     value: z.string()
   })).optional()
-}).refine(data => data.html || data.text, {
-  message: 'Either html or text content is required'
+}).refine(data => data.html || data.text || data.template_id, {
+  message: 'Either html, text, or template_id is required'
 })
 
 // API Key creation schema
