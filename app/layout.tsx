@@ -49,9 +49,9 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: '/Fav icon.svg',
-    shortcut: '/Fav icon.svg',
-    apple: '/Fav icon.svg',
+    icon: '/favicon.svg',
+    shortcut: '/favicon.svg',
+    apple: '/favicon.svg',
   },
   openGraph: {
     type: 'website',
@@ -62,7 +62,7 @@ export const metadata: Metadata = {
     description: 'The best email API for developers. Send transactional and marketing emails with 99.9% deliverability. 100,000 free emails/month.',
     images: [
       {
-        url: '/og-image.png',
+        url: '/OG.png',
         width: 1200,
         height: 630,
         alt: 'Unosend - Email API for Developers',
@@ -73,7 +73,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Unosend - Email API for Developers',
     description: 'The best email API for developers. Send transactional and marketing emails with 99.9% deliverability.',
-    images: ['/og-image.png'],
+    images: ['/OG.png'],
     creator: '@unosend',
   },
   verification: {
